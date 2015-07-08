@@ -31,13 +31,14 @@ namespace DevExpress.DataAccess.BigQuery {
         public BigQueryCommand() : this(string.Empty) {}
 
         string EscapingParameters(string commandText) {
-            for(int i = 0; i < commandText.Length - 1; i++) {
-                switch(commandText[i]) {
-                    case ''':
-                        commandText.Remove(i);
-                        commandText.Insert();
-                }
-            }
+            return string.Empty;
+            //for(int i = 0; i < commandText.Length - 1; i++) {
+            //    switch(commandText[i]) {
+            //        case ''':
+            //            commandText.Remove(i);
+            //            commandText.Insert();
+            //    }
+            //}
         }
 
         public override void Prepare() {

@@ -65,8 +65,9 @@ namespace DevExpress.DataAccess.BigQuery {
 
         static object PrepareParameterValue(object value) {
             Type valueType = value.GetType();
-            if(valueType == typeof(string))
-                return "'" + value.ToString().Replace("'", "''") + "'";
+            if(valueType == typeof(string)) {
+                value = value.ToString().Replace("'", "''").Replace("\"", @"""").Replace(@"\", @"\\");
+            }
             return value;
         }
 

@@ -4,40 +4,43 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Threading.Tasks;
 using Google.Apis.Bigquery.v2;
 using Google.Apis.Bigquery.v2.Data;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryDataReader : DbDataReader {
         readonly BigQueryCommand bigQueryCommand;
-        readonly BigqueryService bigQueryService;   
-        readonly IEnumerator<TableRow> enumerator;
-        readonly int fieldsCount;
-        readonly TableSchema schema;
+        readonly BigqueryService bigQueryService;
+        IEnumerator<TableRow> enumerator;
+        int fieldsCount;
+        TableSchema schema;
         readonly CommandBehavior behavior;
-        readonly IEnumerator<TableList.TablesData> tables;
-        readonly IList<TableRow> rows;
+        IEnumerator<TableList.TablesData> tables;
+        IList<TableRow> rows;
         bool disposed;
 
-        public BigQueryDataReader(CommandBehavior behavior, BigQueryCommand command, BigqueryService service) {
+        internal BigQueryDataReader(CommandBehavior behavior, BigQueryCommand command, BigqueryService service) {
             this.behavior = behavior;
 
-            bigQueryService = service;
-            bigQueryCommand = command;
+            this.bigQueryService = service;
+            this.bigQueryCommand = command;
+        }
 
+        internal async Task InitializeAsync() {
             try {
                 if(behavior == CommandBehavior.SchemaOnly) {
-                    TableList tableList = service.Tables.List(command.Connection.ProjectId, command.Connection.DataSetId).Execute();
+                    TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync();
                     tables = tableList.Tables.GetEnumerator();
                 }
                 else {
-                    BigQueryParameterCollection collection = (BigQueryParameterCollection) command.Parameters;
+                    BigQueryParameterCollection collection = (BigQueryParameterCollection) bigQueryCommand.Parameters;
                     foreach(BigQueryParameter parameter in collection) {
-                        command.CommandText = command.CommandText.Replace("@" + parameter.ParameterName, PrepareParameterValue(parameter.Value).ToString());
+                        bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace("@" + parameter.ParameterName, PrepareParameterValue(parameter.Value).ToString());
                     }
-                    QueryRequest queryRequest = new QueryRequest() { Query = PrepareCommandText(command), TimeoutMs = command.CommandTimeout != 0 ? command.CommandTimeout : int.MaxValue };
-                    JobsResource.QueryRequest request = service.Jobs.Query(queryRequest, command.Connection.ProjectId);
-                    QueryResponse queryResponse = request.Execute();
+                    QueryRequest queryRequest = new QueryRequest() {Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? bigQueryCommand.CommandTimeout : int.MaxValue};
+                    JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
+                    QueryResponse queryResponse = await request.ExecuteAsync();
                     rows = queryResponse.Rows;
                     schema = queryResponse.Schema;
                     if(rows != null) {
@@ -47,7 +50,39 @@ namespace DevExpress.DataAccess.BigQuery {
                         enumerator = rows.GetEnumerator();
                     }
                     else {
-                        rows = new TableRow[]{};
+                        rows = new TableRow[] {};
+                        fieldsCount = 0;
+                        enumerator = rows.GetEnumerator();
+                    }
+                }
+            }
+            catch(Google.GoogleApiException e) {
+                throw e.Wrap();
+            }
+        }
+
+        internal void Initialize() {
+            try {
+                if(behavior == CommandBehavior.SchemaOnly) {
+                    TableList tableList = bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).Execute();
+                    tables = tableList.Tables.GetEnumerator();
+                } else {
+                    BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
+                    foreach(BigQueryParameter parameter in collection) {
+                        bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace("@" + parameter.ParameterName, PrepareParameterValue(parameter.Value).ToString());
+                    }
+                    QueryRequest queryRequest = new QueryRequest() { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? bigQueryCommand.CommandTimeout : int.MaxValue };
+                    JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
+                    QueryResponse queryResponse = request.Execute();
+                    rows = queryResponse.Rows;
+                    schema = queryResponse.Schema;
+                    if(rows != null) {
+                        TableRow firstOrDefault = rows.FirstOrDefault();
+                        if(firstOrDefault != null)
+                            fieldsCount = firstOrDefault.F.Count;
+                        enumerator = rows.GetEnumerator();
+                    } else {
+                        rows = new TableRow[] { };
                         fieldsCount = 0;
                         enumerator = rows.GetEnumerator();
                     }

@@ -38,19 +38,19 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
 
-        public BigQueryCommand GetDeleteCommand() {
+        public new BigQueryCommand GetDeleteCommand() {
             return (BigQueryCommand) base.GetDeleteCommand();
         }
 
-        public BigQueryCommand GetDeleteCommand(bool useColumnsForParameterNames) {
+        public new BigQueryCommand GetDeleteCommand(bool useColumnsForParameterNames) {
             return (BigQueryCommand) base.GetDeleteCommand(useColumnsForParameterNames);
         }
 
-        public BigQueryCommand GetInsertCommand() {
+        public new BigQueryCommand GetInsertCommand() {
             return (BigQueryCommand) base.GetInsertCommand();
         }
 
-        public BigQueryCommand GetInsertCommand(bool useColumnsForParameterNames) {
+        public new BigQueryCommand GetInsertCommand(bool useColumnsForParameterNames) {
             return (BigQueryCommand) base.GetInsertCommand(useColumnsForParameterNames);
         }
 

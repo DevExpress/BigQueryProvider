@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Data;
 using NUnit.Framework;
-using NUnit.Framework.SyntaxHelpers;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     [TestFixture]

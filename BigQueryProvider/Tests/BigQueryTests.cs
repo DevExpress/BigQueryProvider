@@ -8,11 +8,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
     public class BigQueryTests {
         [Test]
         public void OpenConnectionTest() {
-            var connStringBuilder = new DbConnectionStringBuilder();
-            connStringBuilder["PrivateKeyFileName"] = Program.PrivateKeyFileName;
-            connStringBuilder["ProjectID"] = "zymosimeter";
-            connStringBuilder["ServiceAccountEmail"] = "227277881286-l0fodnq2h35m58b80up9vi4g83p1ogus@developer.gserviceaccount.com";
-            var connection = new BigQueryConnection(connStringBuilder.ConnectionString);
+            var connection = new BigQueryConnection(ConnStringHelper.ConnectionString);
             connection.Open();
             Assert.AreEqual(ConnectionState.Open, connection.State);
 
@@ -23,12 +19,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Test]
         public void DataReaderTest() {
             int rowsCount = 10;
-            var connStringBuilder = new DbConnectionStringBuilder();
-            connStringBuilder["PrivateKeyFileName"] = Program.PrivateKeyFileName;
-            connStringBuilder["ProjectID"] = "zymosimeter";
-            connStringBuilder["ServiceAccountEmail"] = "227277881286-l0fodnq2h35m58b80up9vi4g83p1ogus@developer.gserviceaccount.com";
-            connStringBuilder["DataSetId"] = "testdata";
-            var connection = new BigQueryConnection(connStringBuilder.ConnectionString);
+
+            var connection = new BigQueryConnection(ConnStringHelper.ConnectionString);
             connection.Open();
 
             var command = connection.CreateCommand();

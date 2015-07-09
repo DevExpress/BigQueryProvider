@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using NUnit.Framework;
+using NUnit.Framework.SyntaxHelpers;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     [TestFixture]
@@ -85,6 +86,40 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
 
+        [Test, ExpectedException(typeof(BigQueryException))]
+        public void EscapingParametersOneQoutesTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                var param = dbCommand.CreateParameter();
+                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@married";
+                param.Value = "0;' 'union select * from [tesdata.natality]";
+                param.ParameterName = "married";
+                dbCommand.Parameters.Add(param);
+                dbCommand.ExecuteReader(CommandBehavior.Default);
+            }
+        }
 
+        [Test, ExpectedException(typeof(BigQueryException))]
+        public void EscapingParametersDoubleQoutesTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                var param = dbCommand.CreateParameter();
+                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@married";
+                param.Value = "0;\" \"union select * from [tesdata.natality]";
+                param.ParameterName = "married";
+                dbCommand.Parameters.Add(param);
+                dbCommand.ExecuteReader(CommandBehavior.Default);
+            }
+        }
+
+        [Test, ExpectedException(typeof(BigQueryException))]
+        public void EscapingParametersBackslashTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                var param = dbCommand.CreateParameter();
+                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@married";
+                param.Value = "0;\\ \\union select * from [tesdata.natality]";
+                param.ParameterName = "married";
+                dbCommand.Parameters.Add(param);
+                dbCommand.ExecuteReader(CommandBehavior.Default);
+            }
+        }
     }
 }

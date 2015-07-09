@@ -32,10 +32,6 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public BigQueryCommand() : this(string.Empty) {}
 
-        string EscapingParameters(string commandText) {
-            return string.Empty;
-        }
-
         public override void Prepare() {
             throw new NotSupportedException();
         }

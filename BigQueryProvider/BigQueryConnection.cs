@@ -3,6 +3,8 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
+using System.Threading.Tasks;
 using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Bigquery.v2;
@@ -73,6 +75,20 @@ namespace DevExpress.DataAccess.BigQuery {
             }
         }
 
+        public async override Task OpenAsync(CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            CheckDisposed();
+            if(IsOpened)
+                throw new InvalidOperationException("Connection allready open");
+            try {
+                await InitializeServiceAsync();
+            }
+            catch(GoogleApiException e) {
+                state = ConnectionState.Broken;
+                throw e.Wrap();
+            }
+        }
+
         public override void Open() {
             CheckDisposed();
             if(IsOpened)
@@ -100,6 +116,23 @@ namespace DevExpress.DataAccess.BigQuery {
             });
             JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
             listRequest.Execute();
+            state = ConnectionState.Open;
+        }
+
+        async Task InitializeServiceAsync() {
+            CheckDisposed();
+            state = ConnectionState.Connecting;
+            X509Certificate2 certificate = new X509Certificate2(PrivateKeyFileName, "notasecret", X509KeyStorageFlags.Exportable);
+            ServiceAccountCredential credential = new ServiceAccountCredential(new ServiceAccountCredential.Initializer(ServiceAccountEmail) {
+                Scopes = new[] { BigqueryService.Scope.Bigquery }
+            }.FromCertificate(certificate));
+
+            Service = new BigqueryService(new BaseClientService.Initializer() {
+                HttpClientInitializer = credential,
+                ApplicationName = "DevExpress.DataAccess.BigQuery ADO.NET Provider"
+            });
+            JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
+            await listRequest.ExecuteAsync();
             state = ConnectionState.Open;
         }
 

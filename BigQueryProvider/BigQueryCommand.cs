@@ -4,6 +4,8 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Dynamic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryCommand : DbCommand, ICloneable {
@@ -99,14 +101,49 @@ namespace DevExpress.DataAccess.BigQuery {
             return new BigQueryParameter();
         }
 
+
+        protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            cancellationToken.Register(Cancel);
+            var reader = new BigQueryDataReader(behavior, this, Connection.Service);
+            await reader.InitializeAsync().ConfigureAwait(false);
+            return reader;
+        }
+
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) {
-            return new BigQueryDataReader(behavior, this, Connection.Service);
+            var reader = new BigQueryDataReader(behavior, this, Connection.Service);
+            reader.Initialize();
+            return reader;
+        }
+
+        public async override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            cancellationToken.Register(Cancel);
+            using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken)) {
+                while(await dbDataReader.NextResultAsync())
+                    ;
+                return dbDataReader.RecordsAffected;
+            }
         }
 
         public override int ExecuteNonQuery() {
             using(DbDataReader dbDataReader = ExecuteDbDataReader(CommandBehavior.Default)) {
+                while(dbDataReader.NextResult())
+                    ;
                 return dbDataReader.RecordsAffected;
             }
+        }
+
+        public override async Task<object> ExecuteScalarAsync(CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            cancellationToken.Register(Cancel);
+            object result = null;
+            using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken)) {
+                if(await dbDataReader.ReadAsync())
+                    if(dbDataReader.FieldCount > 0)
+                        result = dbDataReader.GetValue(0);
+            }
+            return result;
         }
 
         public override object ExecuteScalar() {

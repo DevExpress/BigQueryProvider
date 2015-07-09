@@ -10,7 +10,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
 
         static ConnStringHelper() {
-            connectionStringBuilder["PrivateKeyFileName"] = @"E:\work\data_access\BigQueryProvider\WindowsFormsApplication1\zymosimeter-e34a09c6f230.p12";
+            connectionStringBuilder["PrivateKeyFileName"] = @"..\..\zymosimeter-e34a09c6f230.p12";
             connectionStringBuilder["ProjectID"] = "zymosimeter";
             connectionStringBuilder["ServiceAccountEmail"] = "227277881286-l0fodnq2h35m58b80up9vi4g83p1ogus@developer.gserviceaccount.com";
             connectionStringBuilder["DataSetId"] = "testdata";

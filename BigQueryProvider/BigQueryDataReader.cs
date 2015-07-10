@@ -111,8 +111,12 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken) {
+            return Task.Run(() => GetFieldValue<T>(ordinal), cancellationToken);
+        }
+
+        public override T GetFieldValue<T>(int ordinal) {
             object value = GetValue(ordinal);
-            return Task.Run(() => ChangeValueType<T>(value, ordinal), cancellationToken);
+            return ChangeValueType<T>(value, ordinal);
         }
 
         public override DataTable GetSchemaTable() {
@@ -240,6 +244,10 @@ namespace DevExpress.DataAccess.BigQuery {
             return schema.Fields[ordinal].Name;
         }
 
+        public override int GetProviderSpecificValues(object[] values) {
+            return GetValues(values);
+        }
+
         public override int GetValues(object[] values) {
             this.DisposeCheck();
             for(int i = 0; i < fieldsCount; i++) {
@@ -279,6 +287,10 @@ namespace DevExpress.DataAccess.BigQuery {
             this.DisposeCheck();
             this.RangeCheck(ordinal);
             return GetValue(ordinal) == null;
+        }
+
+        public override int VisibleFieldCount {
+            get { return this.FieldCount; }
         }
 
         public override int FieldCount {
@@ -323,6 +335,10 @@ namespace DevExpress.DataAccess.BigQuery {
             return GetFieldType(ordinal).Name;
         }
 
+        public override Type GetProviderSpecificFieldType(int ordinal) {
+            return GetFieldType(ordinal);
+        }
+
         public override Type GetFieldType(int ordinal) {
             this.DisposeCheck();
             this.RangeCheck(ordinal);
@@ -349,6 +365,10 @@ namespace DevExpress.DataAccess.BigQuery {
                     return typeof(object);
             }
             return null;
+        }
+
+        public override object GetProviderSpecificValue(int ordinal) {
+            return GetValue(ordinal);
         }
 
         public override object GetValue(int ordinal) {

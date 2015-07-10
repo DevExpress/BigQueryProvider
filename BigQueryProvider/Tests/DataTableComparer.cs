@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DEBUGTEST
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -62,3 +63,4 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
     }
 }
+#endif

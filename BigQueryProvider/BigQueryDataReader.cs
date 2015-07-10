@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Google.Apis.Bigquery.v2;
 using Google.Apis.Bigquery.v2.Data;
@@ -97,7 +98,6 @@ namespace DevExpress.DataAccess.BigQuery {
             return command.CommandType == CommandType.TableDirect ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) : command.CommandText;
         }
 
-
         static object PrepareParameterValue(object value) {
             Type valueType = value.GetType();
             if(valueType == typeof(string)) {
@@ -108,6 +108,15 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override void Close() {
             this.Dispose();
+        }
+
+        public override Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken) {
+            return Task.Run(() => GetFieldValue<T>(ordinal), cancellationToken);
+        }
+
+        public override T GetFieldValue<T>(int ordinal) {
+            object value = GetValue(ordinal);
+            return ChangeValueType<T>(value, ordinal);
         }
 
         public override DataTable GetSchemaTable() {
@@ -133,12 +142,20 @@ namespace DevExpress.DataAccess.BigQuery {
             return dataTable;
         }
 
+        public override Task<bool> NextResultAsync(CancellationToken cancellationToken) {
+            return Task.Run(() => NextResult(), cancellationToken);
+        }
+
         public override bool NextResult() {
             this.DisposeCheck();
             if (behavior == CommandBehavior.SchemaOnly) {
                 return tables.MoveNext();
             }
             return false;
+        }
+
+        public override Task<bool> ReadAsync(CancellationToken cancellationToken) {
+            return Task.Run(() => Read(), cancellationToken);
         }
 
         public override bool Read() {
@@ -227,6 +244,10 @@ namespace DevExpress.DataAccess.BigQuery {
             return schema.Fields[ordinal].Name;
         }
 
+        public override int GetProviderSpecificValues(object[] values) {
+            return GetValues(values);
+        }
+
         public override int GetValues(object[] values) {
             this.DisposeCheck();
             for(int i = 0; i < fieldsCount; i++) {
@@ -258,10 +279,18 @@ namespace DevExpress.DataAccess.BigQuery {
             return dtDateTime;
         }
 
+        public override Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken) {
+            return Task.Run(() => IsDBNull(ordinal), cancellationToken);
+        }
+
         public override bool IsDBNull(int ordinal) {
             this.DisposeCheck();
             this.RangeCheck(ordinal);
             return GetValue(ordinal) == null;
+        }
+
+        public override int VisibleFieldCount {
+            get { return this.FieldCount; }
         }
 
         public override int FieldCount {
@@ -306,6 +335,10 @@ namespace DevExpress.DataAccess.BigQuery {
             return GetFieldType(ordinal).Name;
         }
 
+        public override Type GetProviderSpecificFieldType(int ordinal) {
+            return GetFieldType(ordinal);
+        }
+
         public override Type GetFieldType(int ordinal) {
             this.DisposeCheck();
             this.RangeCheck(ordinal);
@@ -332,6 +365,10 @@ namespace DevExpress.DataAccess.BigQuery {
                     return typeof(object);
             }
             return null;
+        }
+
+        public override object GetProviderSpecificValue(int ordinal) {
+            return GetValue(ordinal);
         }
 
         public override object GetValue(int ordinal) {

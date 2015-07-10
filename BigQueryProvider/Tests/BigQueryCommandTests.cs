@@ -1,5 +1,4 @@
-#if DEBUGTEST
-using System;
+﻿using System;
 using System.Data;
 using NUnit.Framework;
 
@@ -123,4 +122,3 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
     }
 }
-#endif

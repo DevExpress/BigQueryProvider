@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Google.Apis.Bigquery.v2;
 using Google.Apis.Bigquery.v2.Data;
@@ -97,7 +98,6 @@ namespace DevExpress.DataAccess.BigQuery {
             return command.CommandType == CommandType.TableDirect ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) : command.CommandText;
         }
 
-
         static object PrepareParameterValue(object value) {
             Type valueType = value.GetType();
             if(valueType == typeof(string)) {
@@ -108,6 +108,11 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override void Close() {
             this.Dispose();
+        }
+
+        public override Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken) {
+            object value = GetValue(ordinal);
+            return Task.Run(() => ChangeValueType<T>(value, ordinal), cancellationToken);
         }
 
         public override DataTable GetSchemaTable() {
@@ -133,12 +138,20 @@ namespace DevExpress.DataAccess.BigQuery {
             return dataTable;
         }
 
+        public override Task<bool> NextResultAsync(CancellationToken cancellationToken) {
+            return Task.Run(() => NextResult(), cancellationToken);
+        }
+
         public override bool NextResult() {
             this.DisposeCheck();
             if (behavior == CommandBehavior.SchemaOnly) {
                 return tables.MoveNext();
             }
             return false;
+        }
+
+        public override Task<bool> ReadAsync(CancellationToken cancellationToken) {
+            return Task.Run(() => Read(), cancellationToken);
         }
 
         public override bool Read() {
@@ -256,6 +269,10 @@ namespace DevExpress.DataAccess.BigQuery {
             DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             dtDateTime = dtDateTime.AddSeconds(unixTimeStamp);
             return dtDateTime;
+        }
+
+        public override Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken) {
+            return Task.Run(() => IsDBNull(ordinal), cancellationToken);
         }
 
         public override bool IsDBNull(int ordinal) {

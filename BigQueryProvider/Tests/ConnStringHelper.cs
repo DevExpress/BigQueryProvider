@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿#if DEBUGTEST
+using System.Data.Common;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     public static class ConnStringHelper {
@@ -17,3 +18,4 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
     }
 }
+#endif

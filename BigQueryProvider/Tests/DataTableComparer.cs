@@ -1,9 +1,8 @@
-﻿using System;
+﻿#if DEBUGTEST
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     public class DataTableComparer : IEqualityComparer<DataTable> {
@@ -62,3 +61,4 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
     }
 }
+#endif

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DEBUGTEST
+using System;
 using System.Data;
 using NUnit.Framework;
 
@@ -9,12 +10,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void OpenConnectionTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnStringHelper.ConnectionString)) {
                 Assert.IsNotNull(connection.ConnectionString);
-                Assert.AreEqual(ConnStringHelper.ConnectionString, connection.ConnectionString);
+                Assert.IsTrue(string.Equals(ConnStringHelper.ConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.AreEqual(ConnectionState.Closed, connection.State);
                 Assert.IsNull(connection.Service);
                 connection.Open();
                 Assert.IsNotNull(connection.ConnectionString);
-                Assert.AreEqual(ConnStringHelper.ConnectionString, connection.ConnectionString);
+                Assert.IsTrue(string.Equals(ConnStringHelper.ConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.AreEqual(ConnectionState.Open, connection.State);
                 Assert.IsNotNull(connection.Service);
             }
@@ -24,12 +25,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void OpenCloseConnectionTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnStringHelper.ConnectionString)) {
                 Assert.IsNotNull(connection.ConnectionString);
-                Assert.AreEqual(ConnStringHelper.ConnectionString, connection.ConnectionString);
+                Assert.IsTrue(string.Equals(ConnStringHelper.ConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.AreEqual(ConnectionState.Closed, connection.State);
                 Assert.IsNull(connection.Service);
                 connection.Open();
                 Assert.IsNotNull(connection.ConnectionString);
-                Assert.AreEqual(ConnStringHelper.ConnectionString, connection.ConnectionString);
+                Assert.IsTrue(string.Equals(ConnStringHelper.ConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.AreEqual(ConnectionState.Open, connection.State);
                 Assert.IsNotNull(connection.Service);
                 connection.Close();
@@ -42,12 +43,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             BigQueryConnection connection;
             using(connection = new BigQueryConnection(ConnStringHelper.ConnectionString)) {
                 Assert.IsNotNull(connection.ConnectionString);
-                Assert.AreEqual(ConnStringHelper.ConnectionString, connection.ConnectionString);
+                Assert.IsTrue(string.Equals(ConnStringHelper.ConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.AreEqual(ConnectionState.Closed, connection.State);
                 Assert.IsNull(connection.Service);
                 connection.Open();
                 Assert.IsNotNull(connection.ConnectionString);
-                Assert.AreEqual(ConnStringHelper.ConnectionString, connection.ConnectionString);
+                Assert.IsTrue(string.Equals(ConnStringHelper.ConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.AreEqual(ConnectionState.Open, connection.State);
                 Assert.IsNotNull(connection.Service);
                 connection.Dispose();
@@ -159,3 +160,4 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
     }
 }
+#endif

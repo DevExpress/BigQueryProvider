@@ -9,7 +9,7 @@ namespace WindowsFormsApplication1 {
             InitializeComponent();
 
             //System.Data.DataTable t = new System.Data.DataTable();
-            //using(BigQueryConnection connection = new BigQueryConnection("PrivateKeyFileName=zymosimeter-e34a09c6f230.p12;ProjectID=zymosimeter;DataSetId=testdata;ServiceAccountEmail=227277881286-l0fodnq2h35m58b80up9vi4g83p1ogus@developer.gserviceaccount.com")) {
+            //using(BigQueryConnection connection = new BigQueryConnection("PrivateKeyFileName=p12key.p12;ProjectID=zymosimeter;DataSetId=testdata;ServiceAccountEmail=227277881286-l0fodnq2h35m58b80up9vi4g83p1ogus@developer.gserviceaccount.com")) {
             //    connection.Open();
             //    connection.ChangeDatabase("testdata");
             //    using(BigQueryDataAdapter adapter = new BigQueryDataAdapter("SELECT * FROM [testdata.natality2]", connection)) {

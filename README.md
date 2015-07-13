@@ -1,9 +1,8 @@
 # BigQueryProvider
 DevExpress Google BigQuery Provider
 
-Master: 
-[![Build Status](http://23.97.221.112:8080/job/BigQuery/branch/master/badge/icon)](http://23.97.221.112:8080/job/BigQuery/branch/master/)
-
-Develop:
-[![Build Status](http://23.97.221.112:8080/job/BigQuery/branch/develop/badge/icon)](http://23.97.221.112:8080/job/BigQuery/branch/develop/)
+|        |master                                                                                             | develop
+|--------|---------------------------------------------------------------------------------------------------|-------------
+|Debug   |![Build Status](http://dataaccess.cloudapp.net:8080/job/BigQueryDebugTest/branch/master/badge/icon)|![Build Status](http://dataaccess.cloudapp.net:8080/job/BigQueryDebugTest/branch/develop/badge/icon)
+|Release |![Build Status](http://dataaccess.cloudapp.net:8080/job/BigQuery/branch/master/badge/icon)         |![Build Status](http://dataaccess.cloudapp.net:8080/job/BigQuery/branch/develop/badge/icon)
 

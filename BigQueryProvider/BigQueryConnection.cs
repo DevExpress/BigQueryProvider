@@ -81,7 +81,7 @@ namespace DevExpress.DataAccess.BigQuery {
             if(IsOpened)
                 throw new InvalidOperationException("Connection allready open");
             try {
-                await InitializeServiceAsync();
+                await InitializeServiceAsync().ConfigureAwait(false);
             }
             catch(GoogleApiException e) {
                 state = ConnectionState.Broken;
@@ -129,6 +129,12 @@ namespace DevExpress.DataAccess.BigQuery {
                 HttpClientInitializer = credential,
                 ApplicationName = "DevExpress.DataAccess.BigQuery ADO.NET Provider"
             });
+<<<<<<< HEAD
+=======
+            JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
+            await listRequest.ExecuteAsync().ConfigureAwait(false);
+            state = ConnectionState.Open;
+>>>>>>> 5efe8c29274c95e55e8f06bbe8d3fa9eabf3eebf
         }
 
         public override void Close() {

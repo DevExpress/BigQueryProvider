@@ -103,7 +103,15 @@ namespace DevExpress.DataAccess.BigQuery {
             return reader;
         }
 
+<<<<<<< HEAD
         public override async Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken) {
+=======
+        public async override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken) {
+            return await ExecuteNonQueryInternalAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        async Task<int> ExecuteNonQueryInternalAsync(CancellationToken cancellationToken) {
+>>>>>>> 5efe8c29274c95e55e8f06bbe8d3fa9eabf3eebf
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken)) {
@@ -122,6 +130,10 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override async Task<object> ExecuteScalarAsync(CancellationToken cancellationToken) {
+            return await ExecuteScalarInternalAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        async Task<object> ExecuteScalarInternalAsync(CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             object result = null;

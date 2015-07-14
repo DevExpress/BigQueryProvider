@@ -29,32 +29,18 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         internal async Task InitializeAsync() {
+            await InitializeInternalAsync().ConfigureAwait(false);
+        }
+
+        async Task InitializeInternalAsync() {
             try {
                 if(behavior == CommandBehavior.SchemaOnly) {
                     TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync();
                     tables = tableList.Tables.GetEnumerator();
-                }
-                else {
-                    BigQueryParameterCollection collection = (BigQueryParameterCollection) bigQueryCommand.Parameters;
-                    foreach(BigQueryParameter parameter in collection) {
-                        bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace("@" + parameter.ParameterName, PrepareParameterValue(parameter.Value).ToString());
-                    }
-                    QueryRequest queryRequest = new QueryRequest() {Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? bigQueryCommand.CommandTimeout : int.MaxValue};
-                    JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
+                } else {
+                    JobsResource.QueryRequest request = CreateRequest();
                     QueryResponse queryResponse = await request.ExecuteAsync();
-                    rows = queryResponse.Rows;
-                    schema = queryResponse.Schema;
-                    if(rows != null) {
-                        TableRow firstOrDefault = rows.FirstOrDefault();
-                        if(firstOrDefault != null)
-                            fieldsCount = firstOrDefault.F.Count;
-                        enumerator = rows.GetEnumerator();
-                    }
-                    else {
-                        rows = new TableRow[] {};
-                        fieldsCount = 0;
-                        enumerator = rows.GetEnumerator();
-                    }
+                    ProcessQuqeryResponse(queryResponse);
                 }
             }
             catch(Google.GoogleApiException e) {
@@ -68,29 +54,38 @@ namespace DevExpress.DataAccess.BigQuery {
                     TableList tableList = bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).Execute();
                     tables = tableList.Tables.GetEnumerator();
                 } else {
-                    BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
-                    foreach(BigQueryParameter parameter in collection) {
-                        bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace("@" + parameter.ParameterName, PrepareParameterValue(parameter.Value).ToString());
-                    }
-                    QueryRequest queryRequest = new QueryRequest() { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? bigQueryCommand.CommandTimeout : int.MaxValue };
-                    JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
+                    JobsResource.QueryRequest request = CreateRequest();
                     QueryResponse queryResponse = request.Execute();
-                    rows = queryResponse.Rows;
-                    schema = queryResponse.Schema;
-                    if(rows != null) {
-                        TableRow firstOrDefault = rows.FirstOrDefault();
-                        if(firstOrDefault != null)
-                            fieldsCount = firstOrDefault.F.Count;
-                        enumerator = rows.GetEnumerator();
-                    } else {
-                        rows = new TableRow[] { };
-                        fieldsCount = 0;
-                        enumerator = rows.GetEnumerator();
-                    }
+                    ProcessQuqeryResponse(queryResponse);
                 }
             }
             catch(Google.GoogleApiException e) {
                 throw e.Wrap();
+            }
+        }
+
+        JobsResource.QueryRequest CreateRequest() {
+            BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
+            foreach(BigQueryParameter parameter in collection) {
+                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace("@" + parameter.ParameterName, PrepareParameterValue(parameter.Value).ToString());
+            }
+            QueryRequest queryRequest = new QueryRequest() { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? bigQueryCommand.CommandTimeout : int.MaxValue };
+            JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
+            return request;
+        }
+
+        void ProcessQuqeryResponse(QueryResponse queryResponse) {
+            rows = queryResponse.Rows;
+            schema = queryResponse.Schema;
+            if(rows != null) {
+                TableRow firstOrDefault = rows.FirstOrDefault();
+                if(firstOrDefault != null)
+                    fieldsCount = firstOrDefault.F.Count;
+                enumerator = rows.GetEnumerator();
+            } else {
+                rows = new TableRow[] { };
+                fieldsCount = 0;
+                enumerator = rows.GetEnumerator();
             }
         }
 
@@ -148,7 +143,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override bool NextResult() {
             this.DisposeCheck();
-            if (behavior == CommandBehavior.SchemaOnly) {
+            if(behavior == CommandBehavior.SchemaOnly) {
                 return tables.MoveNext();
             }
             return false;
@@ -257,7 +252,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         T ChangeValueType<T>(object value, int ordinal) {
-            return (T) ChangeValueType(value, ordinal);
+            return (T)ChangeValueType(value, ordinal);
         }
 
         object ChangeValueType(object value, int ordinal) {
@@ -266,7 +261,7 @@ namespace DevExpress.DataAccess.BigQuery {
             Type conversionType = FieldType(schema.Fields[ordinal].Type);
             if(conversionType == typeof(DateTime))
                 return UnixTimeStampToDateTime(value);
-            return Convert.ChangeType(value,  conversionType);
+            return Convert.ChangeType(value, conversionType);
         }
 
         public static DateTime UnixTimeStampToDateTime(object timestamp) {
@@ -295,15 +290,16 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override int FieldCount {
             get {
-                this.DisposeCheck(); 
+                this.DisposeCheck();
                 return fieldsCount;
             }
         }
 
         public override object this[int ordinal] {
-            get { 
-                this.DisposeCheck(); 
-                return GetValue(ordinal); }
+            get {
+                this.DisposeCheck();
+                return GetValue(ordinal);
+            }
         }
 
         public override object this[string name] {
@@ -395,7 +391,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         void DisposeCheck() {
-            if(disposed) 
+            if(disposed)
                 throw new ObjectDisposedException("DataReader disposed");
         }
 

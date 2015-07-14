@@ -15,12 +15,12 @@ namespace DevExpress.DataAccess.BigQuery {
                 throw new ArgumentNullException("value");
             ValidateType(value);
             innerList.Add((BigQueryParameter)value);
-            
+
             return Count - 1;
         }
 
         static void ValidateType(object value) {
-            if (!(value is BigQueryParameter))
+            if(!(value is BigQueryParameter))
                 throw new Exception("Invalid parameter type");
         }
 
@@ -33,12 +33,12 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override int IndexOf(object value) {
-            if (value == null)
+            if(value == null)
                 return -1;
             ValidateType(value);
 
-            for (int i = 0; i < innerList.Count; i++) {
-                if (innerList[i] == value)
+            for(int i = 0; i < innerList.Count; i++) {
+                if(innerList[i] == value)
                     return i;
             }
             return -1;
@@ -93,7 +93,7 @@ namespace DevExpress.DataAccess.BigQuery {
         void Replace(int index, DbParameter value) {
             ValidateType(value);
             this.Validate(index, value);
-            innerList[index] = (BigQueryParameter) value;
+            innerList[index] = (BigQueryParameter)value;
         }
 
         void Validate(int index, DbParameter value) {
@@ -174,7 +174,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override void CopyTo(Array array, int index) {
-            ((ICollection) innerList).CopyTo(array, index);
+            ((ICollection)innerList).CopyTo(array, index);
         }
 
         public override void AddRange(Array values) {

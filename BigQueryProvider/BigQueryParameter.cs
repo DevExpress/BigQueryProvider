@@ -19,7 +19,8 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
 
-        public BigQueryParameter(string parameterName, DbType dbType, string sourceColumn) : this(parameterName, dbType) {
+        public BigQueryParameter(string parameterName, DbType dbType, string sourceColumn)
+            : this(parameterName, dbType) {
             SourceColumn = sourceColumn;
         }
 
@@ -34,18 +35,18 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override DbType DbType {
-            get; 
-            set; 
+            get;
+            set;
         }
-    
+
         public override ParameterDirection Direction {
-            get; 
-            set; 
+            get;
+            set;
         }
 
         public override bool IsNullable {
-            get; 
-            set; 
+            get;
+            set;
         }
 
         public override string ParameterName {
@@ -54,28 +55,28 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override string SourceColumn {
-            get; 
-            set; 
+            get;
+            set;
         }
 
         public override DataRowVersion SourceVersion {
-            get; 
-            set; 
+            get;
+            set;
         }
 
         public override object Value {
-            get; 
+            get;
             set;
         }
 
         public override bool SourceColumnNullMapping {
             get;
-            set; 
+            set;
         }
 
         public override int Size {
-            get; 
-            set; 
+            get;
+            set;
         }
 
         public BigQueryParameter Clone() {

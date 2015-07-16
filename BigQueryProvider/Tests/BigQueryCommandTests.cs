@@ -8,7 +8,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
     public class BigQueryCommandTests {
         IDbConnection connection;
         DataTable natalitySchemaTable;
-        private DataTable natality2FreeDataTable;
+        private DataTable emptyDataTable;
         const string commandText = "SELECT * FROM [testdata.natality] LIMIT 10";
 
         [TestFixtureSetUp]
@@ -18,7 +18,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             natalitySchemaTable.Columns.Add("DataType", typeof(Type));
             natalitySchemaTable.Rows.Add("weight_pounds", typeof(float));
             natalitySchemaTable.Rows.Add("is_male", typeof(bool));
-            natality2FreeDataTable = new DataTable();
+            emptyDataTable = new DataTable();
         }
 
         [SetUp]
@@ -89,7 +89,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Test]
-        public void EscapingOrdinaryQoutesTest() {
+        public void EscapingSingleQoutesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
                 dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
@@ -99,7 +99,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 var result = (BigQueryDataReader) dbCommand.ExecuteReader(CommandBehavior.Default);
                 var dataTable = new DataTable();
                 dataTable.Load(result);
-                Assert.AreEqual(DataTableComparer.Equals(dataTable, natality2FreeDataTable), true);
+                Assert.AreEqual(DataTableComparer.Equals(dataTable, emptyDataTable), true);
             }
         }
 
@@ -114,7 +114,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
                 var dataTable = new DataTable();
                 dataTable.Load(result);
-                Assert.AreEqual(DataTableComparer.Equals(dataTable, natality2FreeDataTable), true);
+                Assert.AreEqual(DataTableComparer.Equals(dataTable, emptyDataTable), true);
             }
         }
 
@@ -129,7 +129,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
                 var dataTable = new DataTable();
                 dataTable.Load(result);
-                Assert.AreEqual(DataTableComparer.Equals(dataTable, natality2FreeDataTable), true);
+                Assert.AreEqual(DataTableComparer.Equals(dataTable, emptyDataTable), true);
             }
         }
 

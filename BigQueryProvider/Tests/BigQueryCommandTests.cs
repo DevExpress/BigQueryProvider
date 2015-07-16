@@ -8,7 +8,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
     public class BigQueryCommandTests {
         IDbConnection connection;
         DataTable natalitySchemaTable;
-        private DataTable emptyDataTable;
         const string commandText = "SELECT * FROM [testdata.natality] LIMIT 10";
 
         [TestFixtureSetUp]
@@ -18,7 +17,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             natalitySchemaTable.Columns.Add("DataType", typeof(Type));
             natalitySchemaTable.Rows.Add("weight_pounds", typeof(float));
             natalitySchemaTable.Rows.Add("is_male", typeof(bool));
-            emptyDataTable = new DataTable();
         }
 
         [SetUp]
@@ -96,7 +94,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 param.Value = "CA' or 1=1--";
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
-                var result = (BigQueryDataReader) dbCommand.ExecuteReader(CommandBehavior.Default);
+                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
                 Assert.IsFalse(result.Read());
             }
         }

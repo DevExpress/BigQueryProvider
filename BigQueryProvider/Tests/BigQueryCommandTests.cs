@@ -97,9 +97,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
                 var result = (BigQueryDataReader) dbCommand.ExecuteReader(CommandBehavior.Default);
-                var dataTable = new DataTable();
-                dataTable.Load(result);
-                Assert.AreEqual(DataTableComparer.Equals(dataTable, emptyDataTable), true);
+                Assert.IsFalse(result.Read());
             }
         }
 
@@ -112,9 +110,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
                 var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
-                var dataTable = new DataTable();
-                dataTable.Load(result);
-                Assert.AreEqual(DataTableComparer.Equals(dataTable, emptyDataTable), true);
+                Assert.IsFalse(result.Read());
             }
         }
 
@@ -127,46 +123,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
                 var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
-                var dataTable = new DataTable();
-                dataTable.Load(result);
-                Assert.AreEqual(DataTableComparer.Equals(dataTable, emptyDataTable), true);
-            }
-        }
-
-        [Test, ExpectedException(typeof(BigQueryException))]
-        public void EscapingInNumeralParametresTest() {
-            using(var dbCommand = connection.CreateCommand()) {
-                var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@mother_married";
-                param.Value = "0 or 1=1--";
-                param.ParameterName = "mother_married";
-                dbCommand.Parameters.Add(param);
-                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
-            }
-        }
-
-        [Test]
-        public void NumeralParameterTest() {
-            using(var dbCommand = connection.CreateCommand()) {
-                var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@mother_married";
-                param.Value = 0;
-                param.ParameterName = "mother_married";
-                dbCommand.Parameters.Add(param);
-                var result = (BigQueryDataReader) dbCommand.ExecuteReader(CommandBehavior.Default);
-                Assert.AreEqual(result.Read(), true);
-            }
-        }
-
-        [Test, ExpectedException(typeof(BigQueryException))]
-        public void NumeralStringParametersTest() {
-            using(var dbCommand = connection.CreateCommand()) {
-                var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@mother_married";
-                param.Value = "0";
-                param.ParameterName = "mother_married";
-                dbCommand.Parameters.Add(param);
-                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
+                Assert.IsFalse(result.Read());
             }
         }
     }

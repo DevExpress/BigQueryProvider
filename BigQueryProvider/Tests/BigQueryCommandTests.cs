@@ -8,6 +8,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
     public class BigQueryCommandTests {
         IDbConnection connection;
         DataTable natalitySchemaTable;
+        private DataTable natality2FreeDataTable;
         const string commandText = "SELECT * FROM [testdata.natality] LIMIT 10";
 
         [TestFixtureSetUp]
@@ -17,6 +18,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             natalitySchemaTable.Columns.Add("DataType", typeof(Type));
             natalitySchemaTable.Rows.Add("weight_pounds", typeof(float));
             natalitySchemaTable.Rows.Add("is_male", typeof(bool));
+            natality2FreeDataTable = new DataTable();
         }
 
         [SetUp]
@@ -86,39 +88,85 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
 
-        [Test, ExpectedException(typeof(BigQueryException))]
-        public void EscapingParametersOneQoutesTest() {
+        [Test]
+        public void EscapingOrdinaryQoutesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@married";
-                param.Value = "0;' 'union select * from [tesdata.natality]";
-                param.ParameterName = "married";
+                dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
+                param.Value = "CA' or 1=1--";
+                param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
-                dbCommand.ExecuteReader(CommandBehavior.Default);
+                var result = (BigQueryDataReader) dbCommand.ExecuteReader(CommandBehavior.Default);
+                var dataTable = new DataTable();
+                dataTable.Load(result);
+                Assert.AreEqual(DataTableComparer.Equals(dataTable, natality2FreeDataTable), true);
+            }
+        }
+
+        [Test]
+        public void EscapingDoubleQoutesTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                var param = dbCommand.CreateParameter();
+                dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
+                param.Value = @"CA"" or 1=1--";
+                param.ParameterName = "state";
+                dbCommand.Parameters.Add(param);
+                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
+                var dataTable = new DataTable();
+                dataTable.Load(result);
+                Assert.AreEqual(DataTableComparer.Equals(dataTable, natality2FreeDataTable), true);
+            }
+        }
+
+        [Test]
+        public void EscapingBackSlashesTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                var param = dbCommand.CreateParameter();
+                dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
+                param.Value = @"CA\' or 1=1--";
+                param.ParameterName = "state";
+                dbCommand.Parameters.Add(param);
+                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
+                var dataTable = new DataTable();
+                dataTable.Load(result);
+                Assert.AreEqual(DataTableComparer.Equals(dataTable, natality2FreeDataTable), true);
             }
         }
 
         [Test, ExpectedException(typeof(BigQueryException))]
-        public void EscapingParametersDoubleQoutesTest() {
+        public void EscapingInNumeralParametresTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@married";
-                param.Value = "0;\" \"union select * from [tesdata.natality]";
-                param.ParameterName = "married";
+                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@mother_married";
+                param.Value = "0 or 1=1--";
+                param.ParameterName = "mother_married";
                 dbCommand.Parameters.Add(param);
-                dbCommand.ExecuteReader(CommandBehavior.Default);
+                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
+            }
+        }
+
+        [Test]
+        public void NumeralParameterTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                var param = dbCommand.CreateParameter();
+                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@mother_married";
+                param.Value = 0;
+                param.ParameterName = "mother_married";
+                dbCommand.Parameters.Add(param);
+                var result = (BigQueryDataReader) dbCommand.ExecuteReader(CommandBehavior.Default);
+                Assert.AreEqual(result.Read(), true);
             }
         }
 
         [Test, ExpectedException(typeof(BigQueryException))]
-        public void EscapingParametersBackslashTest() {
+        public void NumeralStringParametersTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@married";
-                param.Value = "0;\\ \\union select * from [tesdata.natality]";
-                param.ParameterName = "married";
+                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@mother_married";
+                param.Value = "0";
+                param.ParameterName = "mother_married";
                 dbCommand.Parameters.Add(param);
-                dbCommand.ExecuteReader(CommandBehavior.Default);
+                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
             }
         }
     }

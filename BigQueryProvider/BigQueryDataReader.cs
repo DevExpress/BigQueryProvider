@@ -67,7 +67,7 @@ namespace DevExpress.DataAccess.BigQuery {
         JobsResource.QueryRequest CreateRequest() {
             BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
             foreach(BigQueryParameter parameter in collection) {
-                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace("@" + parameter.ParameterName, PrepareParameterValue(parameter.Value).ToString());
+                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace("@" + parameter.ParameterName, PrepareParameterValue(parameter.Value));
             }
             QueryRequest queryRequest = new QueryRequest() { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? bigQueryCommand.CommandTimeout : int.MaxValue };
             JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
@@ -93,12 +93,13 @@ namespace DevExpress.DataAccess.BigQuery {
             return command.CommandType == CommandType.TableDirect ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) : command.CommandText;
         }
 
-        static object PrepareParameterValue(object value) {
+        static string PrepareParameterValue(object value) {
             Type valueType = value.GetType();
             if(valueType == typeof(string)) {
-                value = value.ToString().Replace("'", "''").Replace("\"", @"""").Replace(@"\", @"\\");
+                value = value.ToString().Replace(@"\", @"\\").Replace("'", @"\'").Replace("\"", @"""");
+                value = @"'" + value + @"'";
             }
-            return value;
+            return value.ToString();
         }
 
         public override void Close() {

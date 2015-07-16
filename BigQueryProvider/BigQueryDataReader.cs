@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Apis.Bigquery.v2;
@@ -94,10 +95,10 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         static string PrepareParameterValue(object value) {
-            Type valueType = value.GetType();
-            if(valueType == typeof(string)) {
-                value = value.ToString().Replace(@"\", @"\\").Replace("'", @"\'").Replace("\"", @"""");
-                value = @"'" + value + @"'";
+            string stringValue = value as string;
+            if(stringValue != null) {
+                stringValue = stringValue.Replace(@"\", @"\\").Replace("'", @"\'").Replace("\"", @"""");
+                return string.Format("{0}"+stringValue+"{0}", @"'");
             }
             return value.ToString();
         }

@@ -86,39 +86,42 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
 
-        [Test, ExpectedException(typeof(BigQueryException))]
-        public void EscapingParametersOneQoutesTest() {
+        [Test]
+        public void EscapingSingleQoutesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@married";
-                param.Value = "0;' 'union select * from [tesdata.natality]";
-                param.ParameterName = "married";
+                dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
+                param.Value = "CA' or 1=1--";
+                param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
-                dbCommand.ExecuteReader(CommandBehavior.Default);
+                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
+                Assert.IsFalse(result.Read());
             }
         }
 
-        [Test, ExpectedException(typeof(BigQueryException))]
-        public void EscapingParametersDoubleQoutesTest() {
+        [Test]
+        public void EscapingDoubleQoutesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@married";
-                param.Value = "0;\" \"union select * from [tesdata.natality]";
-                param.ParameterName = "married";
+                dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
+                param.Value = @"CA"" or 1=1--";
+                param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
-                dbCommand.ExecuteReader(CommandBehavior.Default);
+                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
+                Assert.IsFalse(result.Read());
             }
         }
 
-        [Test, ExpectedException(typeof(BigQueryException))]
-        public void EscapingParametersBackslashTest() {
+        [Test]
+        public void EscapingBackSlashesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@married";
-                param.Value = "0;\\ \\union select * from [tesdata.natality]";
-                param.ParameterName = "married";
+                dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
+                param.Value = @"CA\' or 1=1--";
+                param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
-                dbCommand.ExecuteReader(CommandBehavior.Default);
+                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
+                Assert.IsFalse(result.Read());
             }
         }
     }

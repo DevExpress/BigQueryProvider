@@ -161,7 +161,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         async Task<BigqueryService> CreateService() {
             IConfigurableHttpClientInitializer credential;
-            if(string.IsNullOrEmpty(PrivateKeyFileName)) {
+            if (string.IsNullOrEmpty(PrivateKeyFileName)) {
                 var dataStore = new DataStore(OAuthRefreshToken, OAuthAccessToken);
 
                 var clientSecrets = new ClientSecrets {
@@ -170,24 +170,21 @@ namespace DevExpress.DataAccess.BigQuery {
                 };
 
                 credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(clientSecrets,
-                new[] { BigqueryService.Scope.Bigquery },
-                "user",
-                CancellationToken.None,
-                dataStore);
+                    new[] {BigqueryService.Scope.Bigquery},
+                    "user",
+                    CancellationToken.None,
+                    dataStore);
 
                 OAuthRefreshToken = dataStore.RefreshToken;
                 OAuthAccessToken = dataStore.AccessToken;
-
-                return new BigqueryService(new BaseClientService.Initializer() {
-                    HttpClientInitializer = credential,
-                    ApplicationName = applicationName
-                });
+            }
+            else {
+                X509Certificate2 certificate = new X509Certificate2(PrivateKeyFileName, "notasecret", X509KeyStorageFlags.Exportable);
+                credential = new ServiceAccountCredential(new ServiceAccountCredential.Initializer(ServiceAccountEmail) {
+                        Scopes = new[] {BigqueryService.Scope.Bigquery}
+                    }.FromCertificate(certificate));
             }
             
-            X509Certificate2 certificate = new X509Certificate2(PrivateKeyFileName, "notasecret", X509KeyStorageFlags.Exportable);
-            credential = new ServiceAccountCredential(new ServiceAccountCredential.Initializer(ServiceAccountEmail) {
-                Scopes = new[] {BigqueryService.Scope.Bigquery}
-            }.FromCertificate(certificate));
             return new BigqueryService(new BaseClientService.Initializer() {
                 HttpClientInitializer = credential,
                 ApplicationName = applicationName

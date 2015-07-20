@@ -5,14 +5,18 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using DevExpress.DataAccess.BigQuery.Native;
 using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Bigquery.v2;
 using Google.Apis.Bigquery.v2.Data;
+using Google.Apis.Http;
 using Google.Apis.Services;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryConnection : DbConnection, ICloneable {
+        const string applicationName = "DevExpress.DataAccess.BigQuery ADO.NET Provider";
+
         ConnectionState state;
         readonly DbConnectionStringBuilder connectionStringBuilder = new DbConnectionStringBuilder();
         bool disposed = false;
@@ -25,13 +29,13 @@ namespace DevExpress.DataAccess.BigQuery {
 
         string ServiceAccountEmail {
             get {
-                return (string)connectionStringBuilder["ServiceAccountEmail"];
+                return connectionStringBuilder.ContainsKey("ServiceAccountEmail") ? (string)connectionStringBuilder["ServiceAccountEmail"] : string.Empty;
             }
         }
 
         string PrivateKeyFileName {
             get {
-                return (string)connectionStringBuilder["PrivateKeyFileName"];
+                return connectionStringBuilder.ContainsKey("PrivateKeyFileName") ? (string)connectionStringBuilder["PrivateKeyFileName"] : String.Empty;
             }
         }
 
@@ -47,6 +51,41 @@ namespace DevExpress.DataAccess.BigQuery {
                 ConnectionString = connectionStringBuilder.ConnectionString;
             }
         }
+
+        #region OAuth
+        internal string OAuthRefreshToken {
+            get {
+                return connectionStringBuilder.ContainsKey("OAuthRefreshToken") ? (string)connectionStringBuilder["OAuthRefreshToken"] : null;
+            }
+            set {
+                connectionStringBuilder["OAuthRefreshToken"] = value;
+                ConnectionString = connectionStringBuilder.ConnectionString;
+
+            }
+        }
+
+        internal string OAuthAccessToken {
+            get {
+                return connectionStringBuilder.ContainsKey("OAuthAccessToken") ? (string)connectionStringBuilder["OAuthAccessToken"] : null;
+            }
+            set {
+                connectionStringBuilder["OAuthAccessToken"] = value;
+                ConnectionString = connectionStringBuilder.ConnectionString;
+            }
+        }
+
+        internal string OAuthClientId {
+            get {
+                return (string)connectionStringBuilder["OAuthClientId"];
+            }
+        }
+
+        internal string OAuthClientSecret {
+            get {
+                return (string)connectionStringBuilder["OAuthClientSecret"];
+            }
+        }
+        #endregion
 
         internal BigqueryService Service { get; private set; }
 
@@ -105,7 +144,7 @@ namespace DevExpress.DataAccess.BigQuery {
         void InitializeService() {
             CheckDisposed();
             state = ConnectionState.Connecting;
-            Service = CreateService();
+            Service = CreateService().Result;
             JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
             listRequest.Execute();
             state = ConnectionState.Open;
@@ -114,20 +153,44 @@ namespace DevExpress.DataAccess.BigQuery {
         async Task InitializeServiceAsync() {
             CheckDisposed();
             state = ConnectionState.Connecting;
-            Service = CreateService();
+            Service = await CreateService();
             JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
             await listRequest.ExecuteAsync();
             state = ConnectionState.Open;
         }
 
-        BigqueryService CreateService() {
+        async Task<BigqueryService> CreateService() {
+            IConfigurableHttpClientInitializer credential;
+            if(string.IsNullOrEmpty(PrivateKeyFileName)) {
+                var dataStore = new DataStore(OAuthRefreshToken, OAuthAccessToken);
+
+                var clientSecrets = new ClientSecrets {
+                    ClientId = OAuthClientId,
+                    ClientSecret = OAuthClientSecret
+                };
+
+                credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(clientSecrets,
+                new[] { BigqueryService.Scope.Bigquery },
+                "user",
+                CancellationToken.None,
+                dataStore);
+
+                OAuthRefreshToken = dataStore.RefreshToken;
+                OAuthAccessToken = dataStore.AccessToken;
+
+                return new BigqueryService(new BaseClientService.Initializer() {
+                    HttpClientInitializer = credential,
+                    ApplicationName = applicationName
+                });
+            }
+            
             X509Certificate2 certificate = new X509Certificate2(PrivateKeyFileName, "notasecret", X509KeyStorageFlags.Exportable);
-            ServiceAccountCredential credential = new ServiceAccountCredential(new ServiceAccountCredential.Initializer(ServiceAccountEmail) {
-                Scopes = new[] { BigqueryService.Scope.Bigquery }
+            credential = new ServiceAccountCredential(new ServiceAccountCredential.Initializer(ServiceAccountEmail) {
+                Scopes = new[] {BigqueryService.Scope.Bigquery}
             }.FromCertificate(certificate));
             return new BigqueryService(new BaseClientService.Initializer() {
                 HttpClientInitializer = credential,
-                ApplicationName = "DevExpress.DataAccess.BigQuery ADO.NET Provider"
+                ApplicationName = applicationName
             });
         }
 

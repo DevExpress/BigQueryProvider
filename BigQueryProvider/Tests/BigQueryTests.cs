@@ -9,7 +9,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
     public class BigQueryTests {
         [Test]
         public void OpenConnectionTest() {
-            var connection = new BigQueryConnection(ConnStringHelper.ConnectionString);
+            var connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString);
             connection.Open();
             Assert.AreEqual(ConnectionState.Open, connection.State);
 
@@ -21,7 +21,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void DataReaderTest() {
             int rowsCount = 10;
 
-            var connection = new BigQueryConnection(ConnStringHelper.ConnectionString);
+            var connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString);
             connection.Open();
 
             var command = connection.CreateCommand();

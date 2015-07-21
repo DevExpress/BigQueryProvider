@@ -148,7 +148,7 @@
     <Compile Include="Tests\BigQueryCommandTests.cs" />
     <Compile Include="Tests\BigQueryConnectionTests.cs" />
     <Compile Include="Tests\BigQueryTests.cs" />
-    <Compile Include="Tests\ConnStringHelper.cs" />
+    <Compile Include="Tests\ConnectionStringHelper.cs" />
     <Compile Include="Tests\DataTableComparer.cs" />
   </ItemGroup>
   <ItemGroup>

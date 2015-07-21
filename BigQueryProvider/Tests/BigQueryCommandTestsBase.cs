@@ -5,10 +5,12 @@ using NUnit.Framework;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     [TestFixture]
-    public class BigQueryCommandTests {
+    public abstract class BigQueryCommandTestsBase {
         IDbConnection connection;
         DataTable natalitySchemaTable;
         const string commandText = "SELECT * FROM [testdata.natality] LIMIT 10";
+
+        protected abstract string GetConnectionString();
 
         [TestFixtureSetUp]
         public void Initialize() {
@@ -21,7 +23,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [SetUp]
         public void OpenConnection() {
-            connection = new BigQueryConnection(ConnStringHelper.ConnectionString);
+            connection = new BigQueryConnection(GetConnectionString());
             connection.Open();
         }
 
@@ -125,5 +127,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
     }
+
 }
 #endif

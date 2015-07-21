@@ -145,10 +145,14 @@
     <Compile Include="BigQueryParameterCollection.cs" />
     <Compile Include="Native\DataStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tests\BigQueryCommandTests.cs" />
+    <Compile Include="Tests\BigQueryCommandTestsBase.cs" />
+    <Compile Include="Tests\BigQueryCommandTestsOAuth.cs" />
+    <Compile Include="Tests\BigQueryCommandTestsP12.cs" />
     <Compile Include="Tests\BigQueryConnectionTests.cs" />
-    <Compile Include="Tests\BigQueryTests.cs" />
-    <Compile Include="Tests\ConnStringHelper.cs" />
+    <Compile Include="Tests\BigQueryTestsBase.cs" />
+    <Compile Include="Tests\BigQueryTestsOAuth.cs" />
+    <Compile Include="Tests\BigQueryTestsP12.cs" />
+    <Compile Include="Tests\ConnectionStringHelper.cs" />
     <Compile Include="Tests\DataTableComparer.cs" />
   </ItemGroup>
   <ItemGroup>

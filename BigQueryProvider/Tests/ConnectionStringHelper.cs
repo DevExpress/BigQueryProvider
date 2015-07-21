@@ -6,7 +6,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public static string OAuthConnectionString {
             get { return ConfigurationManager.ConnectionStrings["bigqueryConnectionStringOAuth"].ConnectionString; }
         }
-        public static string P14ConnectionString {
+        public static string P12ConnectionString {
             get { return ConfigurationManager.ConnectionStrings["bigqueryConnectionStringP12"].ConnectionString; }
         }
     }

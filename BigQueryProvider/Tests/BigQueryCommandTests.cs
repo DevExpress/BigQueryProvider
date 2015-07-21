@@ -21,7 +21,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [SetUp]
         public void OpenConnection() {
-            connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString);
+            connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString);
             connection.Open();
         }
 

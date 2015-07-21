@@ -8,14 +8,14 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
     public class BigQueryConnectionTests {
         [Test]
         public void OpenConnectionTest() {
-            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 Assert.IsNotNull(connection.ConnectionString);
-                Assert.IsTrue(string.Equals(ConnectionStringHelper.ConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.AreEqual(ConnectionState.Closed, connection.State);
                 Assert.IsNull(connection.Service);
                 connection.Open();
                 Assert.IsNotNull(connection.ConnectionString);
-                Assert.IsTrue(string.Equals(ConnectionStringHelper.ConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.AreEqual(ConnectionState.Open, connection.State);
                 Assert.IsNotNull(connection.Service);
             }
@@ -23,14 +23,14 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Test]
         public void OpenCloseConnectionTest() {
-            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 Assert.IsNotNull(connection.ConnectionString);
-                Assert.IsTrue(string.Equals(ConnectionStringHelper.ConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.AreEqual(ConnectionState.Closed, connection.State);
                 Assert.IsNull(connection.Service);
                 connection.Open();
                 Assert.IsNotNull(connection.ConnectionString);
-                Assert.IsTrue(string.Equals(ConnectionStringHelper.ConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.AreEqual(ConnectionState.Open, connection.State);
                 Assert.IsNotNull(connection.Service);
                 connection.Close();
@@ -41,14 +41,14 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Test]
         public void OpenDisposeConnectionTest() {
             BigQueryConnection connection;
-            using(connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 Assert.IsNotNull(connection.ConnectionString);
-                Assert.IsTrue(string.Equals(ConnectionStringHelper.ConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.AreEqual(ConnectionState.Closed, connection.State);
                 Assert.IsNull(connection.Service);
                 connection.Open();
                 Assert.IsNotNull(connection.ConnectionString);
-                Assert.IsTrue(string.Equals(ConnectionStringHelper.ConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.IsTrue(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.AreEqual(ConnectionState.Open, connection.State);
                 Assert.IsNotNull(connection.Service);
                 connection.Dispose();
@@ -58,7 +58,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Test]
         public void GetTableNamesTest() {
-            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
                 var tableNames = connection.GetTableNames();
                 Assert.AreEqual(3, tableNames.Length);
@@ -70,7 +70,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Test]
         public void CreateDbCommandTest() {
-            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
                 var dbCommand = connection.CreateCommand();
                 Assert.IsNotNull(dbCommand);
@@ -87,7 +87,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Test]
         [Ignore("We haven't yet something other database for tests --Repushko Anton")]
         public void ChangeDatabaseOpenTest() {
-            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
                 string newDatabase = "";
                 connection.ChangeDatabase(newDatabase);
@@ -100,7 +100,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Test]
         [Ignore("We haven't yet something other database for tests --Repushko Anton")]
         public void ChangeDatabaseCloseTest() {
-            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 string newDatabase = "";
                 connection.ChangeDatabase(newDatabase);
                 Assert.IsNotNull(connection.Service);
@@ -111,7 +111,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Test, ExpectedException(typeof(ObjectDisposedException))]
         public void DisposeChangeDatabaseTest() {
-            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
                 connection.Dispose();
                 connection.ChangeDatabase("");
@@ -120,7 +120,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Test, ExpectedException(typeof(ObjectDisposedException))]
         public void DisposeGetTableNamesTest() {
-            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Dispose();
                 connection.GetTableNames();
             }
@@ -129,7 +129,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Test, ExpectedException(typeof(ObjectDisposedException))]
         public void DisposeCreateDbCommandTest() {
-            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Dispose();
                 connection.CreateCommand();
             }
@@ -137,7 +137,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Test, ExpectedException(typeof(ObjectDisposedException))]
         public void DisposeOpenConnectionTest() {
-            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Dispose();
                 connection.Open();
             }
@@ -145,7 +145,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Test, ExpectedException(typeof(ObjectDisposedException))]
         public void DisposeCloseConnectionTest() {
-            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Dispose();
                 connection.Close();
             }
@@ -153,7 +153,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Test]
         public void DisposeDisposeConnectionTest() {
-            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.ConnectionString)) {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Dispose();
                 connection.Dispose();
             }

@@ -21,6 +21,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             natalitySchemaTable.Columns.Add("DataType", typeof(Type));
             natalitySchemaTable.Rows.Add("weight_pounds", typeof(float));
             natalitySchemaTable.Rows.Add("is_male", typeof(bool));
+
             var schema = new TableSchema();
 
             var weight_pounds = new TableFieldSchema {
@@ -29,27 +30,23 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 Mode = "NULLABLE"
             };
 
-            TableFieldSchema is_male = new TableFieldSchema {
+            var is_male = new TableFieldSchema {
                 Name = "is_male",
                 Type = "BOOLEAN",
                 Mode = "NULLABLE"
             };
 
-            var fs = new List<TableFieldSchema> { weight_pounds, is_male };
+            schema.Fields = new List<TableFieldSchema> { weight_pounds, is_male };
 
-            schema.Fields = fs;
-
-            Table table = new Table { Schema = schema };
+            var table = new Table { Schema = schema };
 
             connection = new BigQueryConnection(GetConnectionString());
 
-            TableReference tableRef = new TableReference {
+            table.TableReference = new TableReference {
                 DatasetId = connection.DataSetId,
                 ProjectId = connection.ProjectId,
                 TableId = "natality3"
             };
-            table.TableReference = tableRef;
-
             
             connection.Open();
             try {

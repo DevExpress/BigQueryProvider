@@ -1,14 +1,16 @@
 ﻿#if DEBUGTEST
 using System;
+using System.Collections.Generic;
 using System.Data;
+using Google.Apis.Bigquery.v2.Data;
 using NUnit.Framework;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     [TestFixture]
     public abstract class BigQueryCommandTestsBase {
-        IDbConnection connection;
+        BigQueryConnection connection;
         DataTable natalitySchemaTable;
-        const string commandText = "SELECT * FROM [testdata.natality] LIMIT 10";
+        const string commandText = "SELECT * FROM [testdata.natality3] LIMIT 10";
 
         protected abstract string GetConnectionString();
 
@@ -19,6 +21,58 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             natalitySchemaTable.Columns.Add("DataType", typeof(Type));
             natalitySchemaTable.Rows.Add("weight_pounds", typeof(float));
             natalitySchemaTable.Rows.Add("is_male", typeof(bool));
+            var schema = new TableSchema();
+
+            var weight_pounds = new TableFieldSchema {
+                Name = "weight_pounds",
+                Type = "FLOAT",
+                Mode = "NULLABLE"
+            };
+
+            TableFieldSchema is_male = new TableFieldSchema {
+                Name = "is_male",
+                Type = "BOOLEAN",
+                Mode = "NULLABLE"
+            };
+
+            var fs = new List<TableFieldSchema> { weight_pounds, is_male };
+
+            schema.Fields = fs;
+
+            Table table = new Table { Schema = schema };
+
+            connection = new BigQueryConnection(GetConnectionString());
+
+            TableReference tableRef = new TableReference {
+                DatasetId = connection.DataSetId,
+                ProjectId = connection.ProjectId,
+                TableId = "natality3"
+            };
+            table.TableReference = tableRef;
+
+            
+            connection.Open();
+            try {
+                connection.Service.Tables.Insert(table, connection.ProjectId, connection.DataSetId).Execute();
+            }
+            finally {
+                connection.Close();
+            }
+        }
+
+        [TestFixtureTearDown]
+        public void TearDown()
+        {
+            connection = new BigQueryConnection(GetConnectionString());
+            connection.Open();
+            try
+            {
+                connection.Service.Tables.Delete(connection.ProjectId, connection.DataSetId, "natality3").Execute();
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
 
         [SetUp]

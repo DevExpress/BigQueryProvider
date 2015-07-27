@@ -61,10 +61,9 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
                 var tableNames = connection.GetTableNames();
-                Assert.AreEqual(3, tableNames.Length);
+                Assert.AreEqual(2, tableNames.Length);
                 Assert.AreEqual("natality", tableNames[0]);
                 Assert.AreEqual("natality2", tableNames[1]);
-                Assert.AreEqual("test1", tableNames[2]);
             }
         }
 

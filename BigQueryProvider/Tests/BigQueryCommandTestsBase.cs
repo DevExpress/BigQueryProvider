@@ -15,7 +15,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
     public abstract class BigQueryCommandTestsBase {
         BigQueryConnection connection;
         DataTable natalitySchemaTable;
-        const string commandText = "SELECT * FROM [testdata.natality] LIMIT 10";
+        const string natalityTable = "natality";
+        const string commandText = "SELECT * FROM [testdata." + natalityTable + "] LIMIT 10";
 
         protected abstract string GetConnectionString();
 
@@ -64,23 +65,22 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             {
                 DatasetId = connection.DataSetId,
                 ProjectId = connection.ProjectId,
-                TableId = "natality"
+                TableId = natalityTable
             };
-
 
             connection.Open();
             try
             {
-                TableList tableList = connection.Service.Tables.List(connection.ProjectId, connection.DataSetId).Execute();
+                var tableList = connection.Service.Tables.List(connection.ProjectId, connection.DataSetId).Execute();
 
-                if (tableList.Tables != null && tableList.Tables.Any(t => t.TableReference.TableId == "natality"))
-                    connection.Service.Tables.Delete(connection.ProjectId, connection.DataSetId, "natality").Execute();
+                if (tableList.Tables != null && tableList.Tables.Any(t => t.TableReference.TableId == natalityTable))
+                    connection.Service.Tables.Delete(connection.ProjectId, connection.DataSetId, natalityTable).Execute();
 
                 connection.Service.Tables.Insert(table, connection.ProjectId, connection.DataSetId).Execute();
 
                 Job job = new Job();
-                JobConfiguration config = new JobConfiguration();
-                JobConfigurationLoad configLoad = new JobConfigurationLoad
+                var config = new JobConfiguration();
+                var configLoad = new JobConfigurationLoad
                 {
                     Schema = schema,
                     DestinationTable = table.TableReference,
@@ -103,23 +103,17 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                     ProjectId = connection.ProjectId
                 };
                 job.JobReference = jobRef;
-                using (
-                    Stream stream =
-                        Assembly.GetExecutingAssembly()
-                            .GetManifestResourceStream("DevExpress.DataAccess.BigQuery.Tests.natality.csv"))
-                {
-                    stream.Position = 0;
+                using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    $"DevExpress.DataAccess.BigQuery.Tests.{natalityTable}.csv")) { 
                     JobsResource.InsertMediaUpload insertMediaUpload = new JobsResource.InsertMediaUpload(connection.Service,
                         job, job.JobReference.ProjectId, stream, "application/octet-stream");
                     insertMediaUpload.Upload();
                 }
 
-                while (true)
-                {
+                while (true) {
                     Job job1 = connection.Service.Jobs.Get(connection.ProjectId, jobId).Execute();
 
-                    if (job1.Status.State.Equals("DONE"))
-                    {
+                    if (job1.Status.State.Equals("DONE")) {
                         break;
                     }
                     Thread.Sleep(5000);

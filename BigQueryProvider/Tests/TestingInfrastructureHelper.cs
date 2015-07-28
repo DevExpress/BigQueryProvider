@@ -1,0 +1,178 @@
+﻿#if DEBUGTEST
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using Google.Apis.Bigquery.v2;
+using Google.Apis.Bigquery.v2.Data;
+using NUnit.Framework;
+
+namespace DevExpress.DataAccess.BigQuery.Tests {
+    [TestFixture]
+    public class TestingInfrastructureHelper {
+        public const string NatalityTableName = "natality";
+        public const string Natality2TableName = "natality2";
+
+        BigQueryConnection connection;
+
+        [TestFixtureSetUp]
+        public void OpenConnection() {
+            connection = new BigQueryConnection(ConnectionStringHelper.P12ConnectionString);
+            connection.Open();
+        }
+
+        [TestFixtureTearDown]
+        public void CloseConnection() {
+            connection.Close();
+        }
+
+        [Test, Explicit]
+        public void CreateDBTables() {
+            CreateNatalityTable();
+            CreateNatality2Table();
+        }
+
+        [Test, Explicit]
+        public void CreateNatalityTable() {
+            var table = new Table {
+                Schema = CreateNatalityTableSchema(),
+                TableReference = new TableReference {
+                    DatasetId = connection.DataSetId,
+                    ProjectId = connection.ProjectId,
+                    TableId = NatalityTableName
+                }
+            };
+
+            InsertTable(table);
+
+            UploadData(table);
+        }
+
+        static TableSchema CreateNatalityTableSchema() {
+            var weight_pounds = new TableFieldSchema {
+                Name = "weight_pounds",
+                Type = "FLOAT",
+                Mode = "NULLABLE"
+            };
+
+            var is_male = new TableFieldSchema {
+                Name = "is_male",
+                Type = "BOOLEAN",
+                Mode = "NULLABLE"
+            };
+
+            return new TableSchema { Fields = new List<TableFieldSchema> { weight_pounds, is_male } };
+        }
+
+        void InsertTable(Table table) {
+            var tableList = connection.Service.Tables.List(connection.ProjectId, connection.DataSetId).Execute();
+
+            if (tableList.Tables != null && tableList.Tables.Any(t => t.TableReference.TableId == table.TableReference.TableId))
+                connection.Service.Tables.Delete(connection.ProjectId, connection.DataSetId, table.TableReference.TableId).Execute();
+
+            connection.Service.Tables.Insert(table, connection.ProjectId, connection.DataSetId).Execute();
+        }
+
+        void UploadData(Table table) {
+            Job job = new Job();
+            var config = new JobConfiguration();
+            var configLoad = new JobConfigurationLoad {
+                Schema = table.Schema,
+                DestinationTable = table.TableReference,
+                Encoding = "ISO-8859-1",
+                CreateDisposition = "CREATE_IF_NEEDED",
+                WriteDisposition = "",
+                FieldDelimiter = ",",
+                AllowJaggedRows = true,
+                SourceFormat = "CSV"
+            };
+
+            config.Load = configLoad;
+            job.Configuration = config;
+
+            var jobId = "---" + Environment.TickCount;
+
+            var jobRef = new JobReference {
+                JobId = jobId,
+                ProjectId = connection.ProjectId
+            };
+            job.JobReference = jobRef;
+            using (
+                Stream stream =
+                    Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream(string.Format("DevExpress.DataAccess.BigQuery.Tests.{0}.csv",
+                            table.TableReference.TableId))) {
+                var insertMediaUpload = new JobsResource.InsertMediaUpload(connection.Service,
+                    job, job.JobReference.ProjectId, stream, "application/octet-stream");
+                insertMediaUpload.Upload();
+            }
+
+            while (true) {
+                Job job1 = connection.Service.Jobs.Get(connection.ProjectId, jobId).Execute();
+
+                if (job1.Status.State.Equals("DONE")) {
+                    break;
+                }
+                Thread.Sleep(5000);
+            }
+        }
+
+        [Test, Explicit]
+        public void CreateNatality2Table() {
+            var schema = CreateNatality2TableSchema();
+
+            var table = new Table {
+                Schema = schema,
+                TableReference = new TableReference {
+                    DatasetId = connection.DataSetId,
+                    ProjectId = connection.ProjectId,
+                    TableId = Natality2TableName
+                }
+            };
+
+
+            InsertTable(table);
+
+            UploadData(table);
+        }
+
+        static TableSchema CreateNatality2TableSchema() {
+            var state = new TableFieldSchema {
+                Name = "state",
+                Type = "STRING",
+                Mode = "NULLABLE"
+            };
+
+            var source_year = new TableFieldSchema {
+                Name = "source_year",
+                Type = "INTEGER",
+                Mode = "NULLABLE"
+            };
+
+            var year = new TableFieldSchema {
+                Name = "year",
+                Type = "INTEGER",
+                Mode = "NULLABLE"
+            };
+
+            var weight_pounds = new TableFieldSchema {
+                Name = "weight_pounds",
+                Type = "FLOAT",
+                Mode = "NULLABLE"
+            };
+
+            var mother_married = new TableFieldSchema {
+                Name = "mother_married",
+                Type = "BOOLEAN",
+                Mode = "NULLABLE"
+            };
+
+            return new TableSchema {
+                Fields = new List<TableFieldSchema> { state, source_year, year, weight_pounds, mother_married }
+            };
+        }
+    }
+}
+#endif

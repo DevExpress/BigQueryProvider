@@ -154,6 +154,7 @@
     <Compile Include="Tests\BigQueryTestsP12.cs" />
     <Compile Include="Tests\ConnectionStringHelper.cs" />
     <Compile Include="Tests\DataTableComparer.cs" />
+    <Compile Include="Tests\TestingInfrastructureHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">

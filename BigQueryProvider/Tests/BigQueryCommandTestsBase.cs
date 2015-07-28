@@ -15,8 +15,9 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
     public abstract class BigQueryCommandTestsBase {
         BigQueryConnection connection;
         DataTable natalitySchemaTable;
-        const string natalityTable = "natality";
-        const string commandText = "SELECT * FROM [testdata." + natalityTable + "] LIMIT 10";
+        const string natalityTableName = "natality";
+        const string natality2TableName = "natality2";
+        const string commandText = "SELECT * FROM [testdata." + natalityTableName + "] LIMIT 10";
 
         protected abstract string GetConnectionString();
 
@@ -29,7 +30,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             natalitySchemaTable.Rows.Add("is_male", typeof(bool));
         }
 
-
         [Test, Explicit]
         public void CreateTestingInfrastructure() {
             CreateNatalityTable();
@@ -37,98 +37,110 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Test, Explicit]
-        public void CreateNatalityTable()
-        {
-            var schema = new TableSchema();
+        public void CreateNatalityTable() {
+            var table = new Table {
+                Schema = CreateNatalityTableSchema(),
+                TableReference = new TableReference {
+                    DatasetId = connection.DataSetId,
+                    ProjectId = connection.ProjectId,
+                    TableId = natalityTableName
+                }
+            };
 
-            var weight_pounds = new TableFieldSchema
-            {
+            InsertTable(table);
+
+            UploadData(table);
+        }
+
+        static TableSchema CreateNatalityTableSchema() {
+            var weight_pounds = new TableFieldSchema {
                 Name = "weight_pounds",
                 Type = "FLOAT",
                 Mode = "NULLABLE"
             };
 
-            var is_male = new TableFieldSchema
-            {
+            var is_male = new TableFieldSchema {
                 Name = "is_male",
                 Type = "BOOLEAN",
                 Mode = "NULLABLE"
             };
 
-            schema.Fields = new List<TableFieldSchema> {weight_pounds, is_male};
+            return new TableSchema {Fields = new List<TableFieldSchema> {weight_pounds, is_male}};
+        }
 
-            var table = new Table {Schema = schema};
+        void InsertTable(Table table) {
+            var tableList = connection.Service.Tables.List(connection.ProjectId, connection.DataSetId).Execute();
 
-            connection = new BigQueryConnection(GetConnectionString());
+            if (tableList.Tables != null && tableList.Tables.Any(t => t.TableReference.TableId == table.TableReference.TableId))
+                connection.Service.Tables.Delete(connection.ProjectId, connection.DataSetId, table.TableReference.TableId).Execute();
 
-            table.TableReference = new TableReference
-            {
-                DatasetId = connection.DataSetId,
-                ProjectId = connection.ProjectId,
-                TableId = natalityTable
+            connection.Service.Tables.Insert(table, connection.ProjectId, connection.DataSetId).Execute();
+        }
+
+        void UploadData(Table table) {
+            Job job = new Job();
+            var config = new JobConfiguration();
+            var configLoad = new JobConfigurationLoad {
+                Schema = table.Schema,
+                DestinationTable = table.TableReference,
+                Encoding = "ISO-8859-1",
+                CreateDisposition = "CREATE_IF_NEEDED",
+                WriteDisposition = "",
+                FieldDelimiter = ",",
+                AllowJaggedRows = true,
+                SourceFormat = "CSV"
             };
 
-            connection.Open();
-            try
-            {
-                var tableList = connection.Service.Tables.List(connection.ProjectId, connection.DataSetId).Execute();
+            config.Load = configLoad;
+            job.Configuration = config;
 
-                if (tableList.Tables != null && tableList.Tables.Any(t => t.TableReference.TableId == natalityTable))
-                    connection.Service.Tables.Delete(connection.ProjectId, connection.DataSetId, natalityTable).Execute();
+            var jobId = "---" + Environment.TickCount;
 
-                connection.Service.Tables.Insert(table, connection.ProjectId, connection.DataSetId).Execute();
-
-                Job job = new Job();
-                var config = new JobConfiguration();
-                var configLoad = new JobConfigurationLoad
-                {
-                    Schema = schema,
-                    DestinationTable = table.TableReference,
-                    Encoding = "ISO-8859-1",
-                    CreateDisposition = "CREATE_IF_NEEDED",
-                    WriteDisposition = "",
-                    FieldDelimiter = ",",
-                    AllowJaggedRows = true,
-                    SourceFormat = "CSV"
-                };
-
-                config.Load = configLoad;
-                job.Configuration = config;
-
-                var jobId = "---" + Environment.TickCount;
-
-                JobReference jobRef = new JobReference
-                {
-                    JobId = jobId,
-                    ProjectId = connection.ProjectId
-                };
-                job.JobReference = jobRef;
-                using (Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                    $"DevExpress.DataAccess.BigQuery.Tests.{natalityTable}.csv")) { 
-                    JobsResource.InsertMediaUpload insertMediaUpload = new JobsResource.InsertMediaUpload(connection.Service,
-                        job, job.JobReference.ProjectId, stream, "application/octet-stream");
-                    insertMediaUpload.Upload();
-                }
-
-                while (true) {
-                    Job job1 = connection.Service.Jobs.Get(connection.ProjectId, jobId).Execute();
-
-                    if (job1.Status.State.Equals("DONE")) {
-                        break;
-                    }
-                    Thread.Sleep(5000);
-                }
+            var jobRef = new JobReference {
+                JobId = jobId,
+                ProjectId = connection.ProjectId
+            };
+            job.JobReference = jobRef;
+            using (
+                Stream stream =
+                    Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream(string.Format("DevExpress.DataAccess.BigQuery.Tests.{0}.csv",
+                            table.TableReference.TableId))) {
+                var insertMediaUpload = new JobsResource.InsertMediaUpload(connection.Service,
+                    job, job.JobReference.ProjectId, stream, "application/octet-stream");
+                insertMediaUpload.Upload();
             }
-            finally
-            {
-                connection.Close();
+
+            while (true) {
+                Job job1 = connection.Service.Jobs.Get(connection.ProjectId, jobId).Execute();
+
+                if (job1.Status.State.Equals("DONE")) {
+                    break;
+                }
+                Thread.Sleep(5000);
             }
         }
 
         [Test, Explicit]
         public void CreateNatality2Table() {
-            var schema = new TableSchema();
+            var schema = CreateNatality2TableSchema();
 
+            var table = new Table {
+                Schema = schema,
+                TableReference = new TableReference {
+                    DatasetId = connection.DataSetId,
+                    ProjectId = connection.ProjectId,
+                    TableId = natality2TableName
+                }
+            };
+
+
+            InsertTable(table);
+
+            UploadData(table);
+        }
+
+        static TableSchema CreateNatality2TableSchema() {
             var state = new TableFieldSchema {
                 Name = "state",
                 Type = "STRING",
@@ -159,70 +171,9 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 Mode = "NULLABLE"
             };
 
-            schema.Fields = new List<TableFieldSchema> { state, source_year, year, weight_pounds, mother_married };
-
-            var table = new Table { Schema = schema };
-
-            connection = new BigQueryConnection(GetConnectionString());
-
-            table.TableReference = new TableReference {
-                DatasetId = connection.DataSetId,
-                ProjectId = connection.ProjectId,
-                TableId = "natality2"
+            return new TableSchema {
+                Fields = new List<TableFieldSchema> {state, source_year, year, weight_pounds, mother_married}
             };
-
-
-            connection.Open();
-            try {
-                TableList tableList = connection.Service.Tables.List(connection.ProjectId, connection.DataSetId).Execute();
-
-                if (tableList.Tables != null && tableList.Tables.Any(t => t.TableReference.TableId == "natality2"))
-                    connection.Service.Tables.Delete(connection.ProjectId, connection.DataSetId, "natality2").Execute();
-
-                connection.Service.Tables.Insert(table, connection.ProjectId, connection.DataSetId).Execute();
-
-                Job job = new Job();
-                JobConfiguration config = new JobConfiguration();
-                JobConfigurationLoad configLoad = new JobConfigurationLoad {
-                    Schema = schema,
-                    DestinationTable = table.TableReference,
-                    Encoding = "ISO-8859-1",
-                    CreateDisposition = "CREATE_IF_NEEDED",
-                    WriteDisposition = "",
-                    FieldDelimiter = ",",
-                    AllowJaggedRows = true,
-                    SourceFormat = "CSV",
-                };
-
-                config.Load = configLoad;
-                job.Configuration = config;
-
-                var jobId = "---" + Environment.TickCount;
-
-                JobReference jobRef = new JobReference {
-                    JobId = jobId,
-                    ProjectId = connection.ProjectId
-                };
-                job.JobReference = jobRef;
-                using (
-                    Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("DevExpress.DataAccess.BigQuery.Tests.natality2.csv")) {
-                    stream.Position = 0;
-                    JobsResource.InsertMediaUpload insertMediaUpload = new JobsResource.InsertMediaUpload(connection.Service, job, job.JobReference.ProjectId, stream, "application/octet-stream");
-                    insertMediaUpload.Upload();
-                }
-
-                while (true) {
-                    Job job1 = connection.Service.Jobs.Get(connection.ProjectId, jobId).Execute();
-
-                    if (job1.Status.State.Equals("DONE")) {
-                        break;
-                    }
-                    Thread.Sleep(5000);
-                }
-            }
-            finally {
-                connection.Close();
-            }
         }
 
         [SetUp]
@@ -296,7 +247,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void EscapingSingleQoutesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
+                dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", natality2TableName);
                 param.Value = "CA' or 1=1--";
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
@@ -309,7 +260,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void EscapingDoubleQoutesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
+                dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", natality2TableName);
                 param.Value = @"CA"" or 1=1--";
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
@@ -322,7 +273,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void EscapingBackSlashesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
+                dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", natality2TableName);
                 param.Value = @"CA\' or 1=1--";
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);

@@ -124,6 +124,31 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 Assert.IsFalse(result.Read());
             }
         }
+
+        [Test, ExpectedException(typeof(BigQueryException))]
+        public void MismatchingNumericParameterTypeTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                var param = dbCommand.CreateParameter();
+                dbCommand.CommandText = "select * from [testdata.natality2] where year=@year";
+                param.Value = "string, but expected number";
+                param.ParameterName = "year";
+                dbCommand.Parameters.Add(param);
+                dbCommand.ExecuteReader(CommandBehavior.Default);
+            }
+        }
+
+        [Test, ExpectedException(typeof(BigQueryException))]
+        public void MismatchingBooleanParameterTypeTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                var param = dbCommand.CreateParameter();
+                dbCommand.CommandText = "select * from [testdata.natality2] where mother_married=@mother_married";
+                param.Value = "string, but excepted bool";
+                param.ParameterName = "mother_married";
+                dbCommand.Parameters.Add(param);
+                dbCommand.ExecuteReader(CommandBehavior.Default);
+            }
+        }
+
     }
 }
 #endif

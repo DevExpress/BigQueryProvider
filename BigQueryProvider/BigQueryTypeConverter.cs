@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Text;
@@ -20,7 +21,7 @@ namespace DevExpress.DataAccess.BigQuery {
     internal static class BigQueryTypeConverter {
         private static readonly Dictionary<BigQueryDbType, DbType> BigQueryDbTypeToDbType = new Dictionary<BigQueryDbType, DbType>() {
             {BigQueryDbType.Boolean, DbType.Boolean},
-            //{BigQueryDbType.Float, DbType.Double},
+            {BigQueryDbType.Float, DbType.Single},
             {BigQueryDbType.Integer, DbType.Int32},
             //{BigQueryDbType.Record,},
             {BigQueryDbType.String, DbType.String},
@@ -30,7 +31,7 @@ namespace DevExpress.DataAccess.BigQuery {
             {DbType.Boolean, BigQueryDbType.Boolean},
             {DbType.Date, BigQueryDbType.Timestamp},
             {DbType.DateTime, BigQueryDbType.Timestamp},
-            //{DbType.Double, BigQueryDbType.Float},
+            {DbType.Single, BigQueryDbType.Float},
             {DbType.Int32, BigQueryDbType.Integer},
             {DbType.String, BigQueryDbType.String},
             {DbType.DateTime2, BigQueryDbType.Timestamp},
@@ -59,21 +60,21 @@ namespace DevExpress.DataAccess.BigQuery {
             BigQueryDbType bigQueryDbTypeType;
             if(DbTypeToBigQueryDbType.TryGetValue(type, out bigQueryDbTypeType))
                 return bigQueryDbTypeType;
-            throw new NotSupportedException("Can't convert " + type + "for BigQueryDbType.");
+            throw new NotSupportedException("Can't convert " + type + "to BigQueryDbType.");
         }
 
         public static BigQueryDbType ToBigQueryDbType(Type type) {
             BigQueryDbType bigQueryDbTypeType;
             if(TypeToBigQueryDbType.TryGetValue(type, out bigQueryDbTypeType))
                 return bigQueryDbTypeType;
-            throw new NotSupportedException("Can't convert " + type + "for BigQueryDbType.");
+            throw new NotSupportedException("Can't convert " + type + "to BigQueryDbType.");
         }
 
         public static DbType ToDbType(BigQueryDbType type) {
             DbType dbType;
             if(BigQueryDbTypeToDbType.TryGetValue(type, out dbType))
                 return dbType;
-            throw new NotSupportedException("Can't convert " + type + "for DbType.");
+            throw new NotSupportedException("Can't convert " + type + "to DbType.");
         }
 
         public static DbType ToDbType(Type type) {

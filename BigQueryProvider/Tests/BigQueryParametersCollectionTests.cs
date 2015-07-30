@@ -20,11 +20,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Test]
-        public void RangeCheckTest() {
-            
-        }
-
-        [Test]
         public void AddRangeTest() {
             
         }

@@ -149,21 +149,18 @@
     <Compile Include="Tests\BigQueryCommandTestsOAuth.cs" />
     <Compile Include="Tests\BigQueryCommandTestsP12.cs" />
     <Compile Include="Tests\BigQueryConnectionTests.cs" />
-<<<<<<< HEAD
+
     <Compile Include="Tests\BigQueryParametersCollectionTests.cs" />
     <Compile Include="Tests\BigQueryParameterTests.cs" />
-    <Compile Include="Tests\BigQueryTests.cs" />
-    <Compile Include="Tests\ConnStringHelper.cs" />
-    <Compile Include="Tests\DataTableComparer.cs" />
     <Compile Include="TypeConverter.cs" />
-=======
+
     <Compile Include="Tests\BigQueryTestsBase.cs" />
     <Compile Include="Tests\BigQueryTestsOAuth.cs" />
     <Compile Include="Tests\BigQueryTestsP12.cs" />
     <Compile Include="Tests\ConnectionStringHelper.cs" />
     <Compile Include="Tests\DataTableComparer.cs" />
     <Compile Include="Tests\TestingInfrastructureHelper.cs" />
->>>>>>> develop
+
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -184,7 +181,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

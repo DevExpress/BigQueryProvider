@@ -34,8 +34,21 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             CreateNatality2Table();
         }
 
+        void CreateDatasetIfRequired() {
+            var dataSetList = connection.Service.Datasets.List(connection.ProjectId).Execute();
+            if (dataSetList.Datasets == null || dataSetList.Datasets.All(d => d.DatasetReference.DatasetId != connection.DataSetId)) {
+                var dataSet = new Dataset {
+                    DatasetReference = new DatasetReference { DatasetId = connection.DataSetId, ProjectId = connection.ProjectId }
+                };
+
+                connection.Service.Datasets.Insert(dataSet, connection.ProjectId).Execute();
+            }
+        }
+
         [Test, Explicit]
         public void CreateNatalityTable() {
+            CreateDatasetIfRequired();
+
             var table = new Table {
                 Schema = CreateNatalityTableSchema(),
                 TableReference = new TableReference {
@@ -121,6 +134,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Test, Explicit]
         public void CreateNatality2Table() {
+            CreateDatasetIfRequired();
+
             var schema = CreateNatality2TableSchema();
 
             var table = new Table {

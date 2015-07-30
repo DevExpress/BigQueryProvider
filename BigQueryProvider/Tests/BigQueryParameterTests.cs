@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿#if DEBUGTEST
 using NUnit.Framework;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
@@ -18,7 +16,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 Assert.IsTrue(clone.IsEqual(param));
             }
         }
-
-
     }
 }
+#endif

@@ -17,7 +17,7 @@ namespace DevExpress.DataAccess.BigQuery {
         Unknown,
     }
 
-    internal static class TypeConverter {
+    internal static class BigQueryTypeConverter {
         private static readonly Dictionary<BigQueryDbType, DbType> BigQueryDbTypeToDbType = new Dictionary<BigQueryDbType, DbType>() {
             {BigQueryDbType.Boolean, DbType.Boolean},
             //{BigQueryDbType.Float, DbType.Double},

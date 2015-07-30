@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿#if DEBUGTEST
+using NUnit.Framework;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     [TestFixture]
@@ -39,3 +40,4 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
     }
 }
+#endif

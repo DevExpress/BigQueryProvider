@@ -26,14 +26,6 @@ namespace DevExpress.DataAccess.BigQuery {
         BigQueryDbType? bigQueryDbType;
         DbType? dbType;
 
-#if DEBUGTEST
-        public bool IsEqual(BigQueryParameter parameter) {
-            return (parameter.DbType == DbType) && (parameter.Direction == Direction) &&
-                   (parameter.ParameterName == ParameterName) && (parameter.Value == Value);
-        }
-#endif
-
-
         public override void ResetDbType() {
             DbType = DbType.Object;
             Value = null;
@@ -49,12 +41,12 @@ namespace DevExpress.DataAccess.BigQuery {
                 if(bigQueryDbType.HasValue)
                     return bigQueryDbType.Value;
                 if(Value != null)
-                    return TypeConverter.ToBigQueryDbType(Value.GetType());
+                    return BigQueryTypeConverter.ToBigQueryDbType(Value.GetType());
                 return BigQueryDbType.Unknown;
             }
             set {
                 bigQueryDbType = value;
-                dbType = TypeConverter.ToDbType(value);
+                dbType = BigQueryTypeConverter.ToDbType(value);
             }
         }
 
@@ -63,12 +55,12 @@ namespace DevExpress.DataAccess.BigQuery {
                 if(dbType.HasValue)
                     return dbType.Value;
                 if(Value != null)
-                    return TypeConverter.ToDbType(Value.GetType());
+                    return BigQueryTypeConverter.ToDbType(Value.GetType());
                 return DbType.Object;
             }
             set {
                 dbType = value;
-                bigQueryDbType = TypeConverter.ToBigQueryDbType(value);
+                bigQueryDbType = BigQueryTypeConverter.ToBigQueryDbType(value);
             } 
         }
 

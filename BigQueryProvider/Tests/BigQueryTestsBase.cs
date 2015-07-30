@@ -1,15 +1,16 @@
 ﻿#if DEBUGTEST
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using NUnit.Framework;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     [TestFixture]
-    public class BigQueryTests {
+    public abstract class BigQueryTestsBase {
+        protected abstract string GetConnectionString();
+
         [Test]
         public void OpenConnectionTest() {
-            var connection = new BigQueryConnection(ConnStringHelper.ConnectionString);
+            var connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString);
             connection.Open();
             Assert.AreEqual(ConnectionState.Open, connection.State);
 
@@ -21,7 +22,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void DataReaderTest() {
             int rowsCount = 10;
 
-            var connection = new BigQueryConnection(ConnStringHelper.ConnectionString);
+            var connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString);
             connection.Open();
 
             var command = connection.CreateCommand();

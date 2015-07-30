@@ -1,14 +1,23 @@
 ﻿#if DEBUGTEST
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using Google.Apis.Bigquery.v2;
+using Google.Apis.Bigquery.v2.Data;
 using NUnit.Framework;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     [TestFixture]
-    public class BigQueryCommandTests {
-        IDbConnection connection;
+    public abstract class BigQueryCommandTestsBase {
+        BigQueryConnection connection;
         DataTable natalitySchemaTable;
-        const string commandText = "SELECT * FROM [testdata.natality] LIMIT 10";
+        const string commandText = "SELECT * FROM [testdata." + TestingInfrastructureHelper.NatalityTableName + "] LIMIT 10";
+
+        protected abstract string GetConnectionString();
 
         [TestFixtureSetUp]
         public void Initialize() {
@@ -21,7 +30,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [SetUp]
         public void OpenConnection() {
-            connection = new BigQueryConnection(ConnStringHelper.ConnectionString);
+            connection = new BigQueryConnection(GetConnectionString());
             connection.Open();
         }
 
@@ -90,7 +99,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void EscapingSingleQoutesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
+                dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", TestingInfrastructureHelper.Natality2TableName);
                 param.Value = "CA' or 1=1--";
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
@@ -103,7 +112,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void EscapingDoubleQoutesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
+                dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", TestingInfrastructureHelper.Natality2TableName);
                 param.Value = @"CA"" or 1=1--";
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
@@ -116,7 +125,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void EscapingBackSlashesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = "select * from [testdata.natality2] where state=@state";
+                dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", TestingInfrastructureHelper.Natality2TableName);
                 param.Value = @"CA\' or 1=1--";
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
@@ -150,5 +159,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
     }
+
 }
 #endif

@@ -143,15 +143,27 @@
     <Compile Include="BigQueryException.cs" />
     <Compile Include="BigQueryParameter.cs" />
     <Compile Include="BigQueryParameterCollection.cs" />
+    <Compile Include="Native\DataStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tests\BigQueryCommandTests.cs" />
+    <Compile Include="Tests\BigQueryCommandTestsBase.cs" />
+    <Compile Include="Tests\BigQueryCommandTestsOAuth.cs" />
+    <Compile Include="Tests\BigQueryCommandTestsP12.cs" />
     <Compile Include="Tests\BigQueryConnectionTests.cs" />
+<<<<<<< HEAD
     <Compile Include="Tests\BigQueryParametersCollectionTests.cs" />
     <Compile Include="Tests\BigQueryParameterTests.cs" />
     <Compile Include="Tests\BigQueryTests.cs" />
     <Compile Include="Tests\ConnStringHelper.cs" />
     <Compile Include="Tests\DataTableComparer.cs" />
     <Compile Include="TypeConverter.cs" />
+=======
+    <Compile Include="Tests\BigQueryTestsBase.cs" />
+    <Compile Include="Tests\BigQueryTestsOAuth.cs" />
+    <Compile Include="Tests\BigQueryTestsP12.cs" />
+    <Compile Include="Tests\ConnectionStringHelper.cs" />
+    <Compile Include="Tests\DataTableComparer.cs" />
+    <Compile Include="Tests\TestingInfrastructureHelper.cs" />
+>>>>>>> develop
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -160,6 +172,8 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <EmbeddedResource Include="Tests\natality.csv" />
+    <EmbeddedResource Include="Tests\natality2.csv" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

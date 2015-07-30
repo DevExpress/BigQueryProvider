@@ -77,14 +77,11 @@ namespace DevExpress.DataAccess.BigQuery {
         void ProcessQuqeryResponse(QueryResponse queryResponse) {
             rows = queryResponse.Rows;
             schema = queryResponse.Schema;
-            if(rows != null) {
-                TableRow firstOrDefault = rows.FirstOrDefault();
-                if(firstOrDefault != null)
-                    fieldsCount = firstOrDefault.F.Count;
+            fieldsCount = schema.Fields.Count;
+            if (rows != null) {
                 enumerator = rows.GetEnumerator();
             } else {
                 rows = new TableRow[] { };
-                fieldsCount = 0;
                 enumerator = rows.GetEnumerator();
             }
         }

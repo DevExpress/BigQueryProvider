@@ -344,21 +344,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         static Type FieldType(string type) {
-            switch(type) {
-                case "STRING":
-                    return typeof(string);
-                case "INTEGER":
-                    return typeof(int);
-                case "FLOAT":
-                    return typeof(float);
-                case "BOOLEAN":
-                    return typeof(bool);
-                case "TIMESTAMP":
-                    return typeof(DateTime);
-                case "RECORD":
-                    return typeof(object);
-            }
-            return null;
+            return BigQueryTypeConverter.ToType(BigQueryTypeConverter.ToBigQueryDbType(type));
         }
 
         public override object GetProviderSpecificValue(int ordinal) {

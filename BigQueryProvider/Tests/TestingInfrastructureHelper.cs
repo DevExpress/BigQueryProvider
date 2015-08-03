@@ -7,28 +7,21 @@ using System.Reflection;
 using System.Threading;
 using Google.Apis.Bigquery.v2;
 using Google.Apis.Bigquery.v2.Data;
-using NUnit.Framework;
+using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
-    [TestFixture]
-    public class TestingInfrastructureHelper {
+    public class TestingInfrastructureHelper : IDisposable {
+        public TestingInfrastructureHelper() {
+            connection = new BigQueryConnection(ConnectionStringHelper.P12ConnectionString);
+            connection.Open();
+        }
+
         public const string NatalityTableName = "natality";
         public const string Natality2TableName = "natality2";
 
         BigQueryConnection connection;
 
-        [TestFixtureSetUp]
-        public void OpenConnection() {
-            connection = new BigQueryConnection(ConnectionStringHelper.P12ConnectionString);
-            connection.Open();
-        }
-
-        [TestFixtureTearDown]
-        public void CloseConnection() {
-            connection.Close();
-        }
-
-        [Test, Explicit]
+        [Fact(Skip = "Explicit")]
         public void CreateDBTables() {
             CreateNatalityTable();
             CreateNatality2Table();
@@ -45,7 +38,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
 
-        [Test, Explicit]
+        [Fact(Skip = "Explicit")]
         public void CreateNatalityTable() {
             CreateDatasetIfRequired();
 
@@ -132,7 +125,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
 
-        [Test, Explicit]
+        [Fact(Skip = "Explicit")]
         public void CreateNatality2Table() {
             CreateDatasetIfRequired();
 
@@ -187,6 +180,10 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             return new TableSchema {
                 Fields = new List<TableFieldSchema> { state, source_year, year, weight_pounds, mother_married }
             };
+        }
+
+        public void Dispose() {
+            connection.Close();
         }
     }
 }

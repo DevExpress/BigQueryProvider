@@ -1,24 +1,24 @@
 ﻿#if DEBUGTEST
+using System;
 using System.Collections.Generic;
 using System.Data;
-using NUnit.Framework;
+using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
-    [TestFixture]
-    public abstract class BigQueryTestsBase {
+    public abstract class BigQueryTestsBase  {
         protected abstract string GetConnectionString();
 
-        [Test]
+        [Fact]
         public void OpenConnectionTest() {
             var connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString);
             connection.Open();
-            Assert.AreEqual(ConnectionState.Open, connection.State);
+            Assert.Equal(ConnectionState.Open, connection.State);
 
             connection.Close();
-            Assert.AreEqual(ConnectionState.Closed, connection.State);
+            Assert.Equal(ConnectionState.Closed, connection.State);
         }
         
-        [Test]
+        [Fact]
         public void DataReaderTest() {
             int rowsCount = 10;
 
@@ -34,13 +34,14 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 object[] values = new object[reader.FieldCount];
                 list.Add(values);
                 int i = reader.GetValues(values);
-                Assert.AreEqual(i, reader.FieldCount);
+                Assert.Equal(i, reader.FieldCount);
                 counter++;
             }
 
-            Assert.AreEqual(rowsCount, counter);
+            Assert.Equal(rowsCount, counter);
 
         }
+
     }
 }
 #endif

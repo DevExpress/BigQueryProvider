@@ -155,6 +155,7 @@
     <Compile Include="Tests\BigQueryTestsBase.cs" />
     <Compile Include="Tests\BigQueryTestsOAuth.cs" />
     <Compile Include="Tests\BigQueryTestsP12.cs" />
+    <Compile Include="Tests\BigQueryTypeConverterTest.cs" />
     <Compile Include="Tests\ConnectionStringHelper.cs" />
     <Compile Include="Tests\DataTableComparer.cs" />
     <Compile Include="Tests\TestingInfrastructureHelper.cs" />

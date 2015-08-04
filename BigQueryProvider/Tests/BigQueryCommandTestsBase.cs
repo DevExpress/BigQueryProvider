@@ -126,6 +126,11 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 Assert.IsFalse(result.Read());
             }
         }
+
+        [Test]
+        public void DateTimeTest() {
+                    
+        }
     }
 }
 #endif

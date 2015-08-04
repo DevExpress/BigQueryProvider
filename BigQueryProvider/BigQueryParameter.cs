@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
+using System.Runtime.Remoting.Messaging;
+using NUnit.Framework;
 
 namespace DevExpress.DataAccess.BigQuery {
     public sealed class BigQueryParameter : DbParameter, ICloneable {
@@ -25,6 +27,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         BigQueryDbType? bigQueryDbType;
         DbType? dbType;
+        object value;
 
         public override void ResetDbType() {
             DbType = DbType.Object;
@@ -36,12 +39,21 @@ namespace DevExpress.DataAccess.BigQuery {
             Direction = ParameterDirection.Input;
         }
 
+        internal void Validate() {
+            if(string.IsNullOrEmpty(ParameterName))
+                throw new ArgumentException("Parameter's name is empty");
+            if (Value == null)
+                throw new ArgumentException("Parameter's value is not initialized"); 
+            if(BigQueryDbType == BigQueryDbType.Unknown)
+                throw new ArgumentException("Error in validating parameter's BigQueryDbType");
+        }
+
         public BigQueryDbType BigQueryDbType {
             get {
                 if(bigQueryDbType.HasValue)
                     return bigQueryDbType.Value;
                 if(Value != null)
-                    return BigQueryTypeConverter.ToBigQueryDbType(Value.GetType());
+                    return BigQueryTypeConverter.ToBigQueryDbType(DbType);
                 return BigQueryDbType.Unknown;
             }
             set {
@@ -90,8 +102,10 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override object Value {
-            get;
-            set;
+            get {
+                return value ?? (value = BigQueryTypeConverter.GetDefaultValueFor(DbType));
+            }
+            set { this.value = value; }
         }
 
         public override bool SourceColumnNullMapping {
@@ -112,7 +126,7 @@ namespace DevExpress.DataAccess.BigQuery {
             return parameter;
         }
 
-        object ICloneable.Clone() {
+        object ICloneable.Clone(){
             return this.Clone();
         }
     }

@@ -344,7 +344,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         static Type FieldType(string type) {
-            return BigQueryTypeConverter.ToType(BigQueryTypeConverter.ToBigQueryDbType(type));
+            return BigQueryTypeConverter.ToType(type);
         }
 
         public override object GetProviderSpecificValue(int ordinal) {

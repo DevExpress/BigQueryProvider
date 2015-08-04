@@ -26,16 +26,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             natalitySchemaTable.Columns.Add("DataType", typeof(Type));
             natalitySchemaTable.Rows.Add("weight_pounds", typeof(float));
             natalitySchemaTable.Rows.Add("is_male", typeof(bool));
-        }
 
-        [SetUp]
-        public void OpenConnection() {
             connection = new BigQueryConnection(GetConnectionString());
             connection.Open();
         }
-
-        [TearDown]
-        public void CloseConnection() {
+        [TestFixtureTearDown]
+        public void TearDown() {
             connection.Close();
         }
 

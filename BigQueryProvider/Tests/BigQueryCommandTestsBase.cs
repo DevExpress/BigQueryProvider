@@ -86,11 +86,11 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Test, ExpectedException(typeof(System.InvalidOperationException))]
         public void CommandCloseConnectionTest() {
-            BigQueryConnection c = new BigQueryConnection(GetConnectionString());
-            c.Open();
+            var bigQueryConnection = new BigQueryConnection(GetConnectionString());
+            bigQueryConnection.Open();
+            bigQueryConnection.Close();
 
-            c.Close();
-            using(var dbCommand = c.CreateCommand()) {
+            using (var dbCommand = bigQueryConnection.CreateCommand()) {
             }
         }
 

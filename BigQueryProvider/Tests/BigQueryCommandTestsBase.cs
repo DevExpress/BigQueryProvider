@@ -84,7 +84,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
 
-        [Test, ExpectedException(typeof(System.InvalidOperationException))]
+        [Test, Ignore,  ExpectedException(typeof(System.InvalidOperationException))]
         public void CommandCloseConnectionTest() {
             connection.Close();
             using(var dbCommand = connection.CreateCommand()) {

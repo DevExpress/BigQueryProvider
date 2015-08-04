@@ -23,6 +23,7 @@ namespace DevExpress.DataAccess.BigQuery {
             new Tuple<DbType, BigQueryDbType>(DbType.DateTime, BigQueryDbType.Timestamp),
             new Tuple<DbType, BigQueryDbType>(DbType.Single, BigQueryDbType.Float),
             new Tuple<DbType, BigQueryDbType>(DbType.Int64, BigQueryDbType.Integer),
+            new Tuple<DbType, BigQueryDbType>(DbType.Object, BigQueryDbType.Unknown),
             //new Tuple<DbType, BigQueryDbType>(, BigQueryDbType.Record),
         }; 
 
@@ -32,6 +33,7 @@ namespace DevExpress.DataAccess.BigQuery {
             new Tuple<Type, DbType>(typeof(string), DbType.String),
             new Tuple<Type, DbType>(typeof(DateTime), DbType.DateTime),
             new Tuple<Type, DbType>(typeof(bool), DbType.Boolean),
+            new Tuple<Type, DbType>(typeof(object), DbType.Object),
             //place for BigQueryRecord
         }; 
 

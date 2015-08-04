@@ -1,8 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
-using System.Runtime.Remoting.Messaging;
-using NUnit.Framework;
 
 namespace DevExpress.DataAccess.BigQuery {
     public sealed class BigQueryParameter : DbParameter, ICloneable {
@@ -43,9 +42,14 @@ namespace DevExpress.DataAccess.BigQuery {
             if(string.IsNullOrEmpty(ParameterName))
                 throw new ArgumentException("Parameter's name is empty");
             if (Value == null)
-                throw new ArgumentException("Parameter's value is not initialized"); 
+                throw new ArgumentException("Parameter's value is not initialized");
             if(BigQueryDbType == BigQueryDbType.Unknown)
-                throw new ArgumentException("Error in validating parameter's BigQueryDbType");
+                throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
+            var typeConverter = TypeDescriptor.GetConverter(BigQueryTypeConverter.ToType(DbType));
+            if (typeConverter == null)
+                throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
+            if (!typeConverter.IsValid(Value))
+                throw new ArgumentException("Can't convert Value to DbType");
         }
 
         public BigQueryDbType BigQueryDbType {
@@ -53,7 +57,7 @@ namespace DevExpress.DataAccess.BigQuery {
                 if(bigQueryDbType.HasValue)
                     return bigQueryDbType.Value;
                 if(Value != null)
-                    return BigQueryTypeConverter.ToBigQueryDbType(DbType);
+                    return BigQueryTypeConverter.ToBigQueryDbType(Value.GetType());
                 return BigQueryDbType.Unknown;
             }
             set {
@@ -126,7 +130,7 @@ namespace DevExpress.DataAccess.BigQuery {
             return parameter;
         }
 
-        object ICloneable.Clone(){
+        object ICloneable.Clone() {
             return this.Clone();
         }
     }

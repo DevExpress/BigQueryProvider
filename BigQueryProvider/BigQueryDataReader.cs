@@ -40,7 +40,7 @@ namespace DevExpress.DataAccess.BigQuery {
                 } else {
                     JobsResource.QueryRequest request = CreateRequest();
                     QueryResponse queryResponse = await request.ExecuteAsync();
-                    ProcessQuqeryResponse(queryResponse);
+                    ProcessQueryResponse(queryResponse);
                 }
             }
             catch(Google.GoogleApiException e) {
@@ -56,7 +56,7 @@ namespace DevExpress.DataAccess.BigQuery {
                 } else {
                     JobsResource.QueryRequest request = CreateRequest();
                     QueryResponse queryResponse = request.Execute();
-                    ProcessQuqeryResponse(queryResponse);
+                    ProcessQueryResponse(queryResponse);
                 }
             }
             catch(Google.GoogleApiException e) {
@@ -74,7 +74,7 @@ namespace DevExpress.DataAccess.BigQuery {
             return request;
         }
 
-        void ProcessQuqeryResponse(QueryResponse queryResponse) {
+        void ProcessQueryResponse(QueryResponse queryResponse) {
             rows = queryResponse.Rows;
             schema = queryResponse.Schema;
             fieldsCount = schema.Fields.Count;

@@ -92,7 +92,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
-        public void EscapingSingleQoutesTest() {
+        public void EscapingSingleQuotesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
                 dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", TestingInfrastructureHelper.Natality2TableName);
@@ -105,7 +105,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
-        public void EscapingDoubleQoutesTest() {
+        public void EscapingDoubleQuotesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
                 dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", TestingInfrastructureHelper.Natality2TableName);

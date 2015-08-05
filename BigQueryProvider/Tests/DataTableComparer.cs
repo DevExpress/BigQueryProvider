@@ -14,7 +14,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             if(x.Rows.Count != y.Rows.Count || x.Columns.Count != y.Columns.Count)
                 return false;
             for(int i = 0; i < x.Rows.Count; i++) {
-                if(!Equals(x.Rows[i], y.Rows[i]))
+                if(!DataRowComparer.Equals(x.Rows[i], y.Rows[i]))
                     return false;
             }
             return true;

@@ -13,7 +13,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             jsonContent = NewtonsoftJsonSerializer.Instance.Serialize(new TokenResponse {
                 RefreshToken = refreshToken,
                 AccessToken = accessToken,
-                TokenType = "Bearer",
+                TokenType = "Bearer"
             });
         }
 
@@ -47,7 +47,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             if(string.IsNullOrEmpty(key))
                 throw new ArgumentNullException("key");
 
-            this.jsonContent = null;
+            jsonContent = null;
             return TaskEx.Delay(0);
         }
 
@@ -66,7 +66,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public Task ClearAsync() {
-            this.jsonContent = null;
+            jsonContent = null;
             return TaskEx.Delay(0);
         }
     }

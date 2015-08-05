@@ -88,7 +88,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         object ICloneable.Clone() {
-            return this.Clone();
+            return Clone();
         }
     }
 }

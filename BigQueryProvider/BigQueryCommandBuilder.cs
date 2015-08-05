@@ -5,12 +5,12 @@ namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryCommandBuilder : DbCommandBuilder {
         public new BigQueryDataAdapter DataAdapter {
             get { return (BigQueryDataAdapter)base.DataAdapter; }
-            set { this.DataAdapter = value; }
+            set { DataAdapter = value; }
         }
 
         public BigQueryCommandBuilder() {
-            this.QuotePrefix = "[";
-            this.QuoteSuffix = "]";
+            QuotePrefix = "[";
+            QuoteSuffix = "]";
         }
 
         public BigQueryCommandBuilder(BigQueryDataAdapter dataAdapter) {
@@ -74,7 +74,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         protected override void SetRowUpdatingHandler(DbDataAdapter dataAdapter) {
-            if(this.DataAdapter == dataAdapter) {
+            if(DataAdapter == dataAdapter) {
                 ((BigQueryDataAdapter)dataAdapter).RowUpdating -= OnRowUpdatingHandler;
             } else {
                 ((BigQueryDataAdapter)dataAdapter).RowUpdating += OnRowUpdatingHandler;
@@ -82,7 +82,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         void OnRowUpdatingHandler(object sender, RowUpdatingEventArgs e) {
-            this.RowUpdatingHandler(e);
+            RowUpdatingHandler(e);
         }
     }
 }

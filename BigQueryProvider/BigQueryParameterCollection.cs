@@ -50,7 +50,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         void RangeCheck(int index) {
-            if(index < 0 || this.Count <= index)
+            if(index < 0 || Count <= index)
                 throw new Exception("index out of range");
         }
 
@@ -65,8 +65,8 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override void RemoveAt(int index) {
-            this.RangeCheck(index);
-            this.RemoveIndex(index);
+            RangeCheck(index);
+            RemoveIndex(index);
         }
 
         void RemoveIndex(int index) {
@@ -74,11 +74,11 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override void RemoveAt(string parameterName) {
-            this.RemoveIndex(this.CheckName(parameterName));
+            RemoveIndex(CheckName(parameterName));
         }
 
         int CheckName(string parameterName) {
-            int index = this.IndexOf(parameterName);
+            int index = IndexOf(parameterName);
             if(index < 0)
                 throw new Exception("wrong parameter name");
             return index;
@@ -86,20 +86,20 @@ namespace DevExpress.DataAccess.BigQuery {
 
         protected override void SetParameter(int index, DbParameter value) {
             ValidateType(value);
-            this.RangeCheck(index);
-            this.Replace(index, value);
+            RangeCheck(index);
+            Replace(index, value);
         }
 
         void Replace(int index, DbParameter value) {
             ValidateType(value);
-            this.Validate(index, value);
+            Validate(index, value);
             innerList[index] = (BigQueryParameter)value;
         }
 
         void Validate(int index, DbParameter value) {
             if(value == null)
                 throw new NullReferenceException("parameter");
-            if(index == this.IndexOf(value))
+            if(index == IndexOf(value))
                 return;
             if(!string.IsNullOrEmpty(value.ParameterName))
                 return;
@@ -109,16 +109,16 @@ namespace DevExpress.DataAccess.BigQuery {
                 parameterName = "Parameters" + index.ToString(CultureInfo.CurrentCulture);
                 index++;
             }
-            while(this.IndexOf(parameterName) != -1);
+            while(IndexOf(parameterName) != -1);
 
             value.ParameterName = parameterName;
         }
 
         protected override void SetParameter(string parameterName, DbParameter value) {
-            int index = this.IndexOf(parameterName);
+            int index = IndexOf(parameterName);
             if(index < 0)
                 throw new Exception("wrong parameter name");
-            this.Replace(index, value);
+            Replace(index, value);
         }
 
         public override int Count {
@@ -127,10 +127,10 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override object SyncRoot {
             get {
-                if(this.syncRoot == null) {
-                    Interlocked.CompareExchange(ref this.syncRoot, new object(), null);
+                if(syncRoot == null) {
+                    Interlocked.CompareExchange(ref syncRoot, new object(), null);
                 }
-                return this.syncRoot;
+                return syncRoot;
             }
         }
 
@@ -150,7 +150,7 @@ namespace DevExpress.DataAccess.BigQuery {
             BigQueryParameter value = innerList.FirstOrDefault(p => p.ParameterName == parameterName);
             if(value == null)
                 throw new Exception("wrong parameter name");
-            return this.IndexOf(value);
+            return IndexOf(value);
         }
 
         public override IEnumerator GetEnumerator() {
@@ -158,19 +158,19 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         protected override DbParameter GetParameter(int index) {
-            this.RangeCheck(index);
+            RangeCheck(index);
             return innerList[index];
         }
 
         protected override DbParameter GetParameter(string parameterName) {
-            int index = this.IndexOf(parameterName);
+            int index = IndexOf(parameterName);
             if(index < 0)
                 throw new Exception("index out of range");
             return innerList[index];
         }
 
         public override bool Contains(string value) {
-            return this.IndexOf(value) != -1;
+            return IndexOf(value) != -1;
         }
 
         public override void CopyTo(Array array, int index) {

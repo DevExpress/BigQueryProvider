@@ -20,16 +20,14 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         protected BigQueryCommandTestsBase() {
             natalitySchemaTable = new DataTable();
-            natalitySchemaTable.Columns.Add("ColumnName", typeof(string));
-            natalitySchemaTable.Columns.Add("DataType", typeof(Type));
-            natalitySchemaTable.Rows.Add("weight_pounds", typeof(float));
-            natalitySchemaTable.Rows.Add("is_male", typeof(bool));
+            natalitySchemaTable.Columns.Add("ColumnName", typeof (string));
+            natalitySchemaTable.Columns.Add("DataType", typeof (Type));
+            natalitySchemaTable.Rows.Add("weight_pounds", typeof (float));
+            natalitySchemaTable.Rows.Add("is_male", typeof (bool));
 
             connection = new BigQueryConnection(GetConnectionString());
             connection.Open();
-
         }
-
 
         [Fact]
         public void ExecuteReaderTest_TypeText() {

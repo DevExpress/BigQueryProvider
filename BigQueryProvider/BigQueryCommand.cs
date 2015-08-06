@@ -2,8 +2,6 @@
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
-using System.Data.SqlClient;
-using System.Dynamic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,15 +12,17 @@ namespace DevExpress.DataAccess.BigQuery {
         int commandTimeout;
         const int DefaultTimeout = 30;
 
-        public BigQueryCommand(BigQueryCommand command) : this(command.CommandText, command.Connection) {
-            this.commandType = command.CommandType;
-            this.commandTimeout = command.commandTimeout;
+        public BigQueryCommand(BigQueryCommand command)
+            : this(command.CommandText, command.Connection) {
+            commandType = command.CommandType;
+            commandTimeout = command.commandTimeout;
             foreach(BigQueryParameter bigQueryParameter in command.Parameters) {
-                this.Parameters.Add(bigQueryParameter.Clone());
+                Parameters.Add(bigQueryParameter.Clone());
             }
         }
 
-        public BigQueryCommand(string commandText, BigQueryConnection connection) : this(commandText) {
+        public BigQueryCommand(string commandText, BigQueryConnection connection)
+            : this(commandText) {
             Connection = connection;
         }
 
@@ -30,7 +30,7 @@ namespace DevExpress.DataAccess.BigQuery {
             CommandText = commandText;
         }
 
-        public BigQueryCommand() : this(string.Empty) {}
+        public BigQueryCommand() : this(string.Empty) { }
 
         public override void Prepare() {
             throw new NotSupportedException();
@@ -40,11 +40,9 @@ namespace DevExpress.DataAccess.BigQuery {
         public override string CommandText { get; set; }
 
         [DefaultValue(DefaultTimeout)]
-        public override int CommandTimeout
-        {
+        public override int CommandTimeout {
             get { return commandTimeout; }
-            set
-            {
+            set {
                 if(value < 0)
                     throw new ArgumentOutOfRangeException("value", value, "CommandTimeout can't be less than zero");
                 commandTimeout = value;
@@ -52,51 +50,44 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         [DefaultValue(CommandType.Text)]
-        public override CommandType CommandType
-        {
+        public override CommandType CommandType {
             get { return commandType; }
-            set
-            {
+            set {
                 if(value == CommandType.StoredProcedure)
                     throw new ArgumentOutOfRangeException("value", value, "BigQuery does not support stored procedures");
                 commandType = value;
             }
         }
 
-        public override UpdateRowSource UpdatedRowSource
-        {
+        public override UpdateRowSource UpdatedRowSource {
             get { throw new NotImplementedException(); }
             set { throw new NotImplementedException(); }
         }
 
-        protected override DbConnection DbConnection
-        {
+        protected override DbConnection DbConnection {
             get { return Connection; }
-            set { Connection = (BigQueryConnection) value; }
+            set { Connection = (BigQueryConnection)value; }
         }
 
         [DefaultValue(null)]
         public new BigQueryConnection Connection { get; set; }
 
-        protected override DbParameterCollection DbParameterCollection
-        {
+        protected override DbParameterCollection DbParameterCollection {
             get { return bigQueryParameterCollection; }
         }
 
         protected override DbTransaction DbTransaction { get; set; }
 
-        public override bool DesignTimeVisible
-        {
+        public override bool DesignTimeVisible {
             get { return false; }
             set { throw new NotSupportedException(); }
         }
 
-        public override void Cancel() {}
+        public override void Cancel() { }
 
         protected override DbParameter CreateDbParameter() {
             return new BigQueryParameter();
         }
-
 
         protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
@@ -112,7 +103,12 @@ namespace DevExpress.DataAccess.BigQuery {
             return reader;
         }
 
+
         public async override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken) {
+            return await ExecuteNonQueryInternalAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        async Task<int> ExecuteNonQueryInternalAsync(CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken)) {
@@ -131,6 +127,10 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override async Task<object> ExecuteScalarAsync(CancellationToken cancellationToken) {
+            return await ExecuteScalarInternalAsync(cancellationToken).ConfigureAwait(false);
+        }
+
+        async Task<object> ExecuteScalarInternalAsync(CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             object result = null;

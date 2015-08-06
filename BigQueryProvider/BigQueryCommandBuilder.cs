@@ -3,19 +3,18 @@ using System.Data.Common;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryCommandBuilder : DbCommandBuilder {
-        public BigQueryDataAdapter DataDataAdapter
-        {
-            get { return (BigQueryDataAdapter) base.DataAdapter; }
-            set { this.DataDataAdapter = value; }
+        public new BigQueryDataAdapter DataAdapter {
+            get { return (BigQueryDataAdapter)base.DataAdapter; }
+            set { DataAdapter = value; }
         }
 
         public BigQueryCommandBuilder() {
-            this.QuotePrefix = "[";
-            this.QuoteSuffix = "]";
+            QuotePrefix = "[";
+            QuoteSuffix = "]";
         }
 
         public BigQueryCommandBuilder(BigQueryDataAdapter dataAdapter) {
-            DataDataAdapter = dataAdapter;
+            DataAdapter = dataAdapter;
         }
 
         public override string QuoteIdentifier(string unquotedIdentifier) {
@@ -37,21 +36,20 @@ namespace DevExpress.DataAccess.BigQuery {
             return unquotedIdentifier;
         }
 
-
         public new BigQueryCommand GetDeleteCommand() {
-            return (BigQueryCommand) base.GetDeleteCommand();
+            return (BigQueryCommand)base.GetDeleteCommand();
         }
 
         public new BigQueryCommand GetDeleteCommand(bool useColumnsForParameterNames) {
-            return (BigQueryCommand) base.GetDeleteCommand(useColumnsForParameterNames);
+            return (BigQueryCommand)base.GetDeleteCommand(useColumnsForParameterNames);
         }
 
         public new BigQueryCommand GetInsertCommand() {
-            return (BigQueryCommand) base.GetInsertCommand();
+            return (BigQueryCommand)base.GetInsertCommand();
         }
 
         public new BigQueryCommand GetInsertCommand(bool useColumnsForParameterNames) {
-            return (BigQueryCommand) base.GetInsertCommand(useColumnsForParameterNames);
+            return (BigQueryCommand)base.GetInsertCommand(useColumnsForParameterNames);
         }
 
         protected override DataTable GetSchemaTable(DbCommand sourceCommand) {
@@ -76,16 +74,15 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         protected override void SetRowUpdatingHandler(DbDataAdapter dataAdapter) {
-            if(this.DataDataAdapter == dataAdapter) {
-                ((BigQueryDataAdapter) dataAdapter).RowUpdating -= OnRowUpdatingHandler;
-            }
-            else {
-                ((BigQueryDataAdapter) dataAdapter).RowUpdating += OnRowUpdatingHandler;
+            if(DataAdapter == dataAdapter) {
+                ((BigQueryDataAdapter)dataAdapter).RowUpdating -= OnRowUpdatingHandler;
+            } else {
+                ((BigQueryDataAdapter)dataAdapter).RowUpdating += OnRowUpdatingHandler;
             }
         }
 
         void OnRowUpdatingHandler(object sender, RowUpdatingEventArgs e) {
-            this.RowUpdatingHandler(e);
+            RowUpdatingHandler(e);
         }
     }
 }

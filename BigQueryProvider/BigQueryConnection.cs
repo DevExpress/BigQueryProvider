@@ -5,52 +5,91 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using DevExpress.DataAccess.BigQuery.Native;
 using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Bigquery.v2;
 using Google.Apis.Bigquery.v2.Data;
+using Google.Apis.Http;
 using Google.Apis.Services;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryConnection : DbConnection, ICloneable {
+        const string applicationName = "DevExpress.DataAccess.BigQuery ADO.NET Provider";
+
         ConnectionState state;
         readonly DbConnectionStringBuilder connectionStringBuilder = new DbConnectionStringBuilder();
-        bool disposed = false;
+        bool disposed;
 
-       internal string ProjectId {
+        internal string ProjectId {
             get {
-                return (string) connectionStringBuilder["ProjectId"];
+                return (string)connectionStringBuilder["ProjectId"];
             }
         }
 
         string ServiceAccountEmail {
             get {
-                return (string)connectionStringBuilder["ServiceAccountEmail"];
+                return connectionStringBuilder.ContainsKey("ServiceAccountEmail") ? (string)connectionStringBuilder["ServiceAccountEmail"] : string.Empty;
             }
         }
 
         string PrivateKeyFileName {
             get {
-                return (string)connectionStringBuilder["PrivateKeyFileName"];
+                return connectionStringBuilder.ContainsKey("PrivateKeyFileName") ? (string)connectionStringBuilder["PrivateKeyFileName"] : String.Empty;
             }
         }
 
-       internal string DataSetId {
+        internal string DataSetId {
             get {
                 return (string)connectionStringBuilder["DataSetId"];
             }
 
             set {
-                if((string) connectionStringBuilder["DataSetId"] == value)
+                if((string)connectionStringBuilder["DataSetId"] == value)
                     return;
                 connectionStringBuilder["DataSetId"] = value;
                 ConnectionString = connectionStringBuilder.ConnectionString;
             }
         }
 
+        #region OAuth
+        internal string OAuthRefreshToken {
+            get {
+                return connectionStringBuilder.ContainsKey("OAuthRefreshToken") ? (string)connectionStringBuilder["OAuthRefreshToken"] : null;
+            }
+            set {
+                connectionStringBuilder["OAuthRefreshToken"] = value;
+                ConnectionString = connectionStringBuilder.ConnectionString;
+
+            }
+        }
+
+        internal string OAuthAccessToken {
+            get {
+                return connectionStringBuilder.ContainsKey("OAuthAccessToken") ? (string)connectionStringBuilder["OAuthAccessToken"] : null;
+            }
+            set {
+                connectionStringBuilder["OAuthAccessToken"] = value;
+                ConnectionString = connectionStringBuilder.ConnectionString;
+            }
+        }
+
+        internal string OAuthClientId {
+            get {
+                return (string)connectionStringBuilder["OAuthClientId"];
+            }
+        }
+
+        internal string OAuthClientSecret {
+            get {
+                return (string)connectionStringBuilder["OAuthClientSecret"];
+            }
+        }
+        #endregion
+
         internal BigqueryService Service { get; private set; }
 
-        public BigQueryConnection() {}
+        public BigQueryConnection() { }
 
         public BigQueryConnection(string connectionString) {
             ConnectionString = connectionString;
@@ -64,7 +103,7 @@ namespace DevExpress.DataAccess.BigQuery {
         public override void ChangeDatabase(string databaseName) {
             CheckDisposed();
             if(IsOpened)
-                this.Close();
+                Close();
             DataSetId = databaseName;
             try {
                 InitializeService();
@@ -81,7 +120,7 @@ namespace DevExpress.DataAccess.BigQuery {
             if(IsOpened)
                 throw new InvalidOperationException("Connection allready open");
             try {
-                await InitializeServiceAsync();
+                await InitializeServiceAsync().ConfigureAwait(false);
             }
             catch(GoogleApiException e) {
                 state = ConnectionState.Broken;
@@ -105,15 +144,7 @@ namespace DevExpress.DataAccess.BigQuery {
         void InitializeService() {
             CheckDisposed();
             state = ConnectionState.Connecting;
-            X509Certificate2 certificate = new X509Certificate2(PrivateKeyFileName, "notasecret", X509KeyStorageFlags.Exportable);
-            ServiceAccountCredential credential = new ServiceAccountCredential(new ServiceAccountCredential.Initializer(ServiceAccountEmail) {
-                Scopes = new[] {BigqueryService.Scope.Bigquery}
-            }.FromCertificate(certificate));
-
-            Service = new BigqueryService(new BaseClientService.Initializer() {
-                HttpClientInitializer = credential,
-                ApplicationName = "DevExpress.DataAccess.BigQuery ADO.NET Provider"
-            });
+            Service = CreateService().Result;
             JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
             listRequest.Execute();
             state = ConnectionState.Open;
@@ -122,18 +153,42 @@ namespace DevExpress.DataAccess.BigQuery {
         async Task InitializeServiceAsync() {
             CheckDisposed();
             state = ConnectionState.Connecting;
-            X509Certificate2 certificate = new X509Certificate2(PrivateKeyFileName, "notasecret", X509KeyStorageFlags.Exportable);
-            ServiceAccountCredential credential = new ServiceAccountCredential(new ServiceAccountCredential.Initializer(ServiceAccountEmail) {
-                Scopes = new[] { BigqueryService.Scope.Bigquery }
-            }.FromCertificate(certificate));
-
-            Service = new BigqueryService(new BaseClientService.Initializer() {
-                HttpClientInitializer = credential,
-                ApplicationName = "DevExpress.DataAccess.BigQuery ADO.NET Provider"
-            });
+            Service = await CreateService();
             JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
             await listRequest.ExecuteAsync();
             state = ConnectionState.Open;
+        }
+
+        async Task<BigqueryService> CreateService() {
+            IConfigurableHttpClientInitializer credential;
+            if (string.IsNullOrEmpty(PrivateKeyFileName)) {
+                var dataStore = new DataStore(OAuthRefreshToken, OAuthAccessToken);
+
+                var clientSecrets = new ClientSecrets {
+                    ClientId = OAuthClientId,
+                    ClientSecret = OAuthClientSecret
+                };
+
+                credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(clientSecrets,
+                    new[] {BigqueryService.Scope.Bigquery},
+                    "user",
+                    CancellationToken.None,
+                    dataStore);
+
+                OAuthRefreshToken = dataStore.RefreshToken;
+                OAuthAccessToken = dataStore.AccessToken;
+            }
+            else {
+                X509Certificate2 certificate = new X509Certificate2(PrivateKeyFileName, "notasecret", X509KeyStorageFlags.Exportable);
+                credential = new ServiceAccountCredential(new ServiceAccountCredential.Initializer(ServiceAccountEmail) {
+                        Scopes = new[] {BigqueryService.Scope.Bigquery}
+                    }.FromCertificate(certificate));
+            }
+            
+            return new BigqueryService(new BaseClientService.Initializer {
+                HttpClientInitializer = credential,
+                ApplicationName = applicationName
+            });
         }
 
         public override void Close() {
@@ -173,13 +228,13 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public string[] GetTableNames() {
             CheckDisposed();
-            this.CheckOpen();
+            CheckOpen();
             TableList tableList;
             try {
                 tableList = Service.Tables.List(ProjectId, DataSetId).Execute();
             }
             catch(GoogleApiException e) {
-                throw e.Wrap();             
+                throw e.Wrap();
             }
             return tableList.Tables.Select(t => t.Id.Split('.')[1]).ToArray();
         }
@@ -191,26 +246,26 @@ namespace DevExpress.DataAccess.BigQuery {
 
         protected override DbCommand CreateDbCommand() {
             CheckDisposed();
-            this.CheckOpen();
-            return new BigQueryCommand() {Connection = this};
+            CheckOpen();
+            return new BigQueryCommand { Connection = this };
         }
 
         public override string DataSource {
             get {
-                this.CheckOpen();
-                return this.ProjectId;
+                CheckOpen();
+                return ProjectId;
             }
         }
 
         public override string Database {
             get {
-                this.CheckOpen();
-                return this.DataSetId;
+                CheckOpen();
+                return DataSetId;
             }
         }
 
         public override string ServerVersion {
-            get { throw new NotSupportedException();}
+            get { throw new NotSupportedException(); }
         }
 
         public override ConnectionState State {

@@ -21,42 +21,42 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Assert.AreEqual(d2, BigQueryTypeConverter.ToDbType(b));
         }
 
-        [Test]
-        public void TypeAndBigQueryDbTypeTest() {
+        [TestCase(typeof(string), BigQueryDbType.String, typeof(string))]
+        [TestCase(typeof(bool), BigQueryDbType.Boolean, typeof(bool))]
+        [TestCase(typeof(Int64), BigQueryDbType.Integer, typeof(Int64))]
+        [TestCase(typeof(Single), BigQueryDbType.Float, typeof(Single))]
+        [TestCase(typeof(DateTime), BigQueryDbType.Timestamp, typeof(DateTime))]
+        [TestCase(typeof(double), BigQueryDbType.Unknown, typeof(object))]
+        [TestCase(typeof(object), BigQueryDbType.Unknown, typeof(object))]
+        public void TypeAndBigQueryDbTypeTest(Type t1, BigQueryDbType b, Type t2) {
             //Type -> BigQueryDbType
-            Assert.AreEqual(BigQueryDbType.String, BigQueryTypeConverter.ToBigQueryDbType(typeof(string)));
-            Assert.AreEqual(BigQueryDbType.Boolean, BigQueryTypeConverter.ToBigQueryDbType(typeof(bool)));
-            Assert.AreEqual(BigQueryDbType.Integer, BigQueryTypeConverter.ToBigQueryDbType(typeof(Int64)));
-            Assert.AreEqual(BigQueryDbType.Float, BigQueryTypeConverter.ToBigQueryDbType(typeof(Single)));
-            Assert.AreEqual(BigQueryDbType.Timestamp, BigQueryTypeConverter.ToBigQueryDbType(typeof(DateTime)));
-            Assert.AreEqual(BigQueryDbType.Unknown, BigQueryTypeConverter.ToBigQueryDbType(typeof(Double)));
-            Assert.AreEqual(BigQueryDbType.Unknown, BigQueryTypeConverter.ToBigQueryDbType(typeof(object)));
+            Assert.AreEqual(b, BigQueryTypeConverter.ToBigQueryDbType(t1));
             //BigQueryDbType -> Type
-            Assert.AreEqual(typeof(string), BigQueryTypeConverter.ToType(BigQueryDbType.String));
-            Assert.AreEqual(typeof(bool), BigQueryTypeConverter.ToType(BigQueryDbType.Boolean));
-            Assert.AreEqual(typeof(Int64), BigQueryTypeConverter.ToType(BigQueryDbType.Integer));
-            Assert.AreEqual(typeof(Single), BigQueryTypeConverter.ToType(BigQueryDbType.Float));
-            Assert.AreEqual(typeof(DateTime), BigQueryTypeConverter.ToType(BigQueryDbType.Timestamp));
-            Assert.AreEqual(typeof(object), BigQueryTypeConverter.ToType(BigQueryDbType.Unknown));
+            Assert.AreEqual(t2, BigQueryTypeConverter.ToType(b));
+        }
+
+        [TestCase(typeof(string), DbType.String, typeof(string))]
+        [TestCase(typeof(bool), DbType.Boolean, typeof(bool))]
+        [TestCase(typeof(Int64), DbType.Int64, typeof(Int64))]
+        [TestCase(typeof(Single), DbType.Single, typeof(Single))]
+        [TestCase(typeof(DateTime), DbType.DateTime, typeof(DateTime))]
+        [TestCase(typeof(double), DbType.Object, typeof(object))]
+        [TestCase(typeof(object), DbType.Object, typeof(object))]
+        public void TypeAndDbTypeTest(Type t1, DbType d, Type t2) {
+            //Type -> DbType
+            Assert.AreEqual(d, BigQueryTypeConverter.ToDbType(t1));
+            //DbType -> Type
+            Assert.AreEqual(t2, BigQueryTypeConverter.ToType(d));
         }
 
         [Test]
-        public void TypeAndDbTypeTest() {
-            //Type -> DbType
-            Assert.AreEqual(DbType.String, BigQueryTypeConverter.ToDbType(typeof(string)));
-            Assert.AreEqual(DbType.Boolean, BigQueryTypeConverter.ToDbType(typeof(bool)));
-            Assert.AreEqual(DbType.Int64, BigQueryTypeConverter.ToDbType(typeof(Int64)));
-            Assert.AreEqual(DbType.Single, BigQueryTypeConverter.ToDbType(typeof(Single)));
-            Assert.AreEqual(DbType.DateTime, BigQueryTypeConverter.ToDbType(typeof(DateTime)));
-            Assert.AreEqual(DbType.Object, BigQueryTypeConverter.ToDbType(typeof(object)));
-            //DbType -> Type
-            Assert.AreEqual(typeof(string), BigQueryTypeConverter.ToType(DbType.String));
-            Assert.AreEqual(typeof(bool), BigQueryTypeConverter.ToType(DbType.Boolean));
-            Assert.AreEqual(typeof(Int64), BigQueryTypeConverter.ToType(DbType.Int64));
-            Assert.AreEqual(typeof(Single), BigQueryTypeConverter.ToType(DbType.Single));
-            Assert.AreEqual(typeof(DateTime), BigQueryTypeConverter.ToType(DbType.DateTime));
-            Assert.AreEqual(typeof(object), BigQueryTypeConverter.ToType(DbType.Object));
-
+        public void DefaultValueTest() {
+            Assert.AreEqual(0, BigQueryTypeConverter.GetDefaultValueFor(DbType.Int64));
+            Assert.AreEqual(0, BigQueryTypeConverter.GetDefaultValueFor(DbType.Single));
+            Assert.AreEqual(false, BigQueryTypeConverter.GetDefaultValueFor(DbType.Boolean));
+            Assert.AreEqual(null, BigQueryTypeConverter.GetDefaultValueFor(DbType.String));
+            Assert.AreEqual(default(DateTime), BigQueryTypeConverter.GetDefaultValueFor(DbType.DateTime));
+            Assert.AreEqual(null, BigQueryTypeConverter.GetDefaultValueFor(DbType.Object));
         }
     }
 }

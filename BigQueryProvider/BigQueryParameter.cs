@@ -29,8 +29,8 @@ namespace DevExpress.DataAccess.BigQuery {
         object value;
 
         public override void ResetDbType() {
-            DbType = DbType.Object;
-            Value = null;
+            dbType = null;
+            value = null;
             ParameterName = null;
             IsNullable = true;
             SourceColumn = null;
@@ -45,19 +45,22 @@ namespace DevExpress.DataAccess.BigQuery {
                 throw new ArgumentException("Parameter's value is not initialized");
             if(BigQueryDbType == BigQueryDbType.Unknown)
                 throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
-            var typeConverter = TypeDescriptor.GetConverter(BigQueryTypeConverter.ToType(DbType));
-            if (typeConverter == null)
-                throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
-            if (!typeConverter.IsValid(Value))
+            if (BigQueryTypeConverter.ToType(DbType) ==  null)
+                throw new NotSupportedException("This DbType is unsupported by BigQuery");
+            try {
+                Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType));
+            }
+            catch(Exception) {
                 throw new ArgumentException("Can't convert Value to DbType");
+            }
         }
 
         public BigQueryDbType BigQueryDbType {
             get {
                 if(bigQueryDbType.HasValue)
                     return bigQueryDbType.Value;
-                if(Value != null)
-                    return BigQueryTypeConverter.ToBigQueryDbType(Value.GetType());
+                if(value != null)
+                    return BigQueryTypeConverter.ToBigQueryDbType(value.GetType());
                 return BigQueryDbType.Unknown;
             }
             set {
@@ -70,8 +73,8 @@ namespace DevExpress.DataAccess.BigQuery {
             get {
                 if(dbType.HasValue)
                     return dbType.Value;
-                if(Value != null)
-                    return BigQueryTypeConverter.ToDbType(Value.GetType());
+                if(value != null)
+                    return BigQueryTypeConverter.ToDbType(value.GetType());
                 return DbType.Object;
             }
             set {

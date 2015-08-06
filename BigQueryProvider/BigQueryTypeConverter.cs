@@ -34,6 +34,10 @@ namespace DevExpress.DataAccess.BigQuery {
             new Tuple<Type, DbType>(typeof(DateTime), DbType.DateTime),
             new Tuple<Type, DbType>(typeof(bool), DbType.Boolean),
             new Tuple<Type, DbType>(typeof(object), DbType.Object),
+            new Tuple<Type, DbType>(typeof(Int16), DbType.Int64),
+            new Tuple<Type, DbType>(typeof(Int32), DbType.Int64),
+            new Tuple<Type, DbType>(typeof(UInt32), DbType.Int64),
+            new Tuple<Type, DbType>(typeof(UInt16), DbType.Int64),
             //place for BigQueryRecord
         }; 
 
@@ -103,7 +107,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public static object GetDefaultValueFor(DbType dbType) {
             var type = ToType(dbType);
-            return type == null ? null : Activator.CreateInstance(type);
+            return type == null ? null : (type.IsValueType ? Activator.CreateInstance(type) : null);
         }
     }
 }

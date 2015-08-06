@@ -1,95 +1,91 @@
 ﻿#if DEBUGTEST
 using System;
 using System.Data;
-using NUnit.Framework;
+using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
-    [TestFixture]
-    public abstract class BigQueryCommandTestsBase {
+    public abstract class BigQueryCommandTestsBase : IDisposable {
         BigQueryConnection connection;
         DataTable natalitySchemaTable;
         const string commandText = "SELECT * FROM [testdata." + TestingInfrastructureHelper.NatalityTableName + "] LIMIT 10";
 
         protected abstract string GetConnectionString();
 
-        [TestFixtureSetUp]
-        public void Initialize() {
+        protected BigQueryCommandTestsBase() {
             natalitySchemaTable = new DataTable();
-            natalitySchemaTable.Columns.Add("ColumnName", typeof(string));
-            natalitySchemaTable.Columns.Add("DataType", typeof(Type));
-            natalitySchemaTable.Rows.Add("weight_pounds", typeof(float));
-            natalitySchemaTable.Rows.Add("is_male", typeof(bool));
-        }
+            natalitySchemaTable.Columns.Add("ColumnName", typeof (string));
+            natalitySchemaTable.Columns.Add("DataType", typeof (Type));
+            natalitySchemaTable.Rows.Add("weight_pounds", typeof (float));
+            natalitySchemaTable.Rows.Add("is_male", typeof (bool));
 
-        [SetUp]
-        public void OpenConnection() {
             connection = new BigQueryConnection(GetConnectionString());
             connection.Open();
         }
 
-        [TearDown]
-        public void CloseConnection() {
-            connection.Close();
-        }
-
-        [Test]
+        [Fact]
         public void ExecuteReaderTest_TypeText() {
             using(var dbCommand = connection.CreateCommand()) {
                 dbCommand.CommandText = commandText;
                 dbCommand.CommandType = CommandType.Text;
                 var dbDataReader = dbCommand.ExecuteReader();
-                Assert.IsNotNull(dbDataReader);
-                Assert.AreEqual(2, dbDataReader.FieldCount);
+                Assert.NotNull(dbDataReader);
+                Assert.Equal(2, dbDataReader.FieldCount);
             }
         }
 
-        [Test]
+        [Fact]
         public void ExecuteReaderTest_TypeTableDirect() {
             using(var dbCommand = connection.CreateCommand()) {
                 dbCommand.CommandText = "natality";
                 dbCommand.CommandType = CommandType.TableDirect;
                 var dbDataReader = dbCommand.ExecuteReader();
-                Assert.IsNotNull(dbDataReader);
-                Assert.AreEqual(2, dbDataReader.FieldCount);
+                Assert.NotNull(dbDataReader);
+                Assert.Equal(2, dbDataReader.FieldCount);
             }
         }
 
-        [Test, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Fact]
         public void ExecuteReader_TypeStoredProcedure() {
-            using(var dbCommand = connection.CreateCommand()) {
-                dbCommand.CommandType = CommandType.StoredProcedure;
+            Assert.Throws<ArgumentOutOfRangeException>(() => {
+                using (var dbCommand = connection.CreateCommand()) {
+                    dbCommand.CommandType = CommandType.StoredProcedure;
+                }
             }
+                );
         }
 
-        [Test]
+        [Fact]
         public void ExecuteScalarReaderTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 dbCommand.CommandText = "select 1 from [testdata.natality]";
                 var executeScalarResult = dbCommand.ExecuteScalar();
-                Assert.IsNotNull(executeScalarResult);
-                Assert.AreEqual(1, int.Parse(executeScalarResult.ToString()));
+                Assert.NotNull(executeScalarResult);
+                Assert.Equal(1, int.Parse(executeScalarResult.ToString()));
             }
         }
 
-        [Test]
+        [Fact]
         public void CommandSchemaBehaviorTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var dbDataReader = dbCommand.ExecuteReader(CommandBehavior.SchemaOnly);
                 dbDataReader.NextResult();
                 DataTable schemaTable = dbDataReader.GetSchemaTable();
-                Assert.IsTrue(DataTableComparer.Equals(natalitySchemaTable, schemaTable));
+                Assert.True(DataTableComparer.Equals(natalitySchemaTable, schemaTable));
             }
         }
 
-        [Test, ExpectedException(typeof(System.InvalidOperationException))]
+        [Fact]
         public void CommandCloseConnectionTest() {
             connection.Close();
-            using(var dbCommand = connection.CreateCommand()) {
-            }
+
+            Assert.Throws<InvalidOperationException>(() => {
+                using (var dbCommand = connection.CreateCommand()) {
+                }
+            });
         }
 
-        [Test]
-        public void EscapingSingleQoutesTest() {
+        [Fact]
+        public void EscapingSingleQuotesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
                 dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", TestingInfrastructureHelper.Natality2TableName);
@@ -97,12 +93,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
                 var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
-                Assert.IsFalse(result.Read());
+                Assert.False(result.Read());
             }
         }
 
-        [Test]
-        public void EscapingDoubleQoutesTest() {
+        [Fact]
+        public void EscapingDoubleQuotesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
                 dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", TestingInfrastructureHelper.Natality2TableName);
@@ -110,11 +106,11 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
                 var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
-                Assert.IsFalse(result.Read());
+                Assert.False(result.Read());
             }
         }
 
-        [Test]
+        [Fact]
         public void EscapingBackSlashesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
@@ -123,9 +119,14 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 param.ParameterName = "state";
                 dbCommand.Parameters.Add(param);
                 var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
-                Assert.IsFalse(result.Read());
+                Assert.False(result.Read());
             }
         }
+
+        public void Dispose() {
+            connection.Close();
+        }
+    }
 
         [Test]
         public void DateTimeTest() {

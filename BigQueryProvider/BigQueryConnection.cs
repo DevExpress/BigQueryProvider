@@ -19,7 +19,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         ConnectionState state;
         readonly DbConnectionStringBuilder connectionStringBuilder = new DbConnectionStringBuilder();
-        bool disposed = false;
+        bool disposed;
 
         internal string ProjectId {
             get {
@@ -103,7 +103,7 @@ namespace DevExpress.DataAccess.BigQuery {
         public override void ChangeDatabase(string databaseName) {
             CheckDisposed();
             if(IsOpened)
-                this.Close();
+                Close();
             DataSetId = databaseName;
             try {
                 InitializeService();
@@ -185,7 +185,7 @@ namespace DevExpress.DataAccess.BigQuery {
                     }.FromCertificate(certificate));
             }
             
-            return new BigqueryService(new BaseClientService.Initializer() {
+            return new BigqueryService(new BaseClientService.Initializer {
                 HttpClientInitializer = credential,
                 ApplicationName = applicationName
             });
@@ -228,7 +228,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public string[] GetTableNames() {
             CheckDisposed();
-            this.CheckOpen();
+            CheckOpen();
             TableList tableList;
             try {
                 tableList = Service.Tables.List(ProjectId, DataSetId).Execute();
@@ -246,21 +246,21 @@ namespace DevExpress.DataAccess.BigQuery {
 
         protected override DbCommand CreateDbCommand() {
             CheckDisposed();
-            this.CheckOpen();
-            return new BigQueryCommand() { Connection = this };
+            CheckOpen();
+            return new BigQueryCommand { Connection = this };
         }
 
         public override string DataSource {
             get {
-                this.CheckOpen();
-                return this.ProjectId;
+                CheckOpen();
+                return ProjectId;
             }
         }
 
         public override string Database {
             get {
-                this.CheckOpen();
-                return this.DataSetId;
+                CheckOpen();
+                return DataSetId;
             }
         }
 

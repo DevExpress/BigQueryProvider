@@ -14,10 +14,10 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public BigQueryCommand(BigQueryCommand command)
             : this(command.CommandText, command.Connection) {
-            this.commandType = command.CommandType;
-            this.commandTimeout = command.commandTimeout;
+            commandType = command.CommandType;
+            commandTimeout = command.commandTimeout;
             foreach(BigQueryParameter bigQueryParameter in command.Parameters) {
-                this.Parameters.Add(bigQueryParameter.Clone());
+                Parameters.Add(bigQueryParameter.Clone());
             }
         }
 

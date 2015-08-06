@@ -1,14 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevExpress.DataAccess.BigQuery", "BigQueryProvider\DevExpress.DataAccess.BigQuery.csproj", "{85AF87DC-9B3E-434E-990A-6E6605C23FE0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsApplication1", "WindowsFormsApplication1\WindowsFormsApplication1.csproj", "{C1A52F75-7259-4C7A-9843-BB6FF86ABA83}"
-	ProjectSection(ProjectDependencies) = postProject
-		{85AF87DC-9B3E-434E-990A-6E6605C23FE0} = {85AF87DC-9B3E-434E-990A-6E6605C23FE0}
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,11 +18,6 @@ Global
 		{85AF87DC-9B3E-434E-990A-6E6605C23FE0}.DEBUGTEST|Any CPU.Build.0 = DEBUGTEST|Any CPU
 		{85AF87DC-9B3E-434E-990A-6E6605C23FE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{85AF87DC-9B3E-434E-990A-6E6605C23FE0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C1A52F75-7259-4C7A-9843-BB6FF86ABA83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1A52F75-7259-4C7A-9843-BB6FF86ABA83}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C1A52F75-7259-4C7A-9843-BB6FF86ABA83}.DEBUGTEST|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1A52F75-7259-4C7A-9843-BB6FF86ABA83}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C1A52F75-7259-4C7A-9843-BB6FF86ABA83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

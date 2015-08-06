@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using log4net.Filter;
 
 namespace DevExpress.DataAccess.BigQuery {
-
     public enum BigQueryDbType {
         String,
         Integer,
@@ -16,7 +16,6 @@ namespace DevExpress.DataAccess.BigQuery {
     }
 
     internal static class BigQueryTypeConverter {
-
         static readonly List<Tuple<DbType, BigQueryDbType>> DbTypeToBigQueryDbTypePairs = new List<Tuple<DbType, BigQueryDbType>>() {
             new Tuple<DbType, BigQueryDbType>(DbType.String, BigQueryDbType.String),
             new Tuple<DbType, BigQueryDbType>(DbType.Boolean, BigQueryDbType.Boolean),
@@ -39,6 +38,15 @@ namespace DevExpress.DataAccess.BigQuery {
             new Tuple<Type, DbType>(typeof(UInt32), DbType.Int64),
             new Tuple<Type, DbType>(typeof(UInt16), DbType.Int64),
             //place for BigQueryRecord
+        };
+ 
+        static readonly List<Tuple<string, Type>> StringToTypePairs = new List<Tuple<string, Type>>() {
+            new Tuple<string, Type>("STRING", typeof(string)),
+            new Tuple<string, Type>("INTEGER", typeof(Int64)),
+            new Tuple<string, Type>("FLOAT", typeof(Single)),
+            new Tuple<string, Type>("BOOLEAN", typeof(bool)),
+            new Tuple<string, Type>("TIMESTAMP", typeof(DateTime)),
+            new Tuple<string, Type>("RECORD", typeof(object))
         }; 
 
         public static BigQueryDbType ToBigQueryDbType(DbType type) {
@@ -50,22 +58,9 @@ namespace DevExpress.DataAccess.BigQuery {
             return ToBigQueryDbType(ToDbType(type));
         }
 
-        public static BigQueryDbType ToBigQueryDbType(string type) {
-            switch(type) {
-                case "STRING":
-                   return BigQueryDbType.String;
-                case "INTEGER":
-                   return BigQueryDbType.Integer;
-                case "FLOAT":
-                   return BigQueryDbType.Float;
-                case "BOOLEAN":
-                   return BigQueryDbType.Boolean;
-                case "TIMESTAMP":
-                   return BigQueryDbType.Timestamp;
-                case "RECORD":
-                   return BigQueryDbType.Record;
-            }
-            return BigQueryDbType.Unknown;
+        public static BigQueryDbType ToBigQueryDbType(string stringType) {
+            var type = ToType(stringType);
+            return type == null ? BigQueryDbType.Unknown : ToBigQueryDbType(type);
         }
 
         public static DbType ToDbType(BigQueryDbType type) {
@@ -83,21 +78,8 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public static Type ToType(string type) {
-            switch(type) {
-                case "STRING":
-                    return typeof(string);
-                case "INTEGER":
-                    return typeof(Int64);
-                case "FLOAT":
-                    return typeof(Single);
-                case "BOOLEAN":
-                    return typeof(bool);
-                case "TIMESTAMP":
-                    return typeof(DateTimeOffset);
-                case "RECORD":
-                    return typeof(object);
-            }
-            return null;    
+            var typesTuple = StringToTypePairs.FirstOrDefault(i => i.Item1 == type);
+            return typesTuple == null ? null : typesTuple.Item2;
         }
 
         public static Type ToType(DbType type) {
@@ -107,6 +89,8 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public static object GetDefaultValueFor(DbType dbType) {
             var type = ToType(dbType);
+            if(type == typeof(DateTime))
+                return System.Data.SqlTypes.SqlDateTime.MinValue;
             return type == null ? null : (type.IsValueType ? Activator.CreateInstance(type) : null);
         }
     }

@@ -127,11 +127,5 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             connection.Close();
         }
     }
-
-        [Test]
-        public void DateTimeTest() {
-                    
-        }
-    }
 }
 #endif

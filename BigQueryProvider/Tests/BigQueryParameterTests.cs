@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using NUnit.Framework;
+using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     public class BigQueryParameterComparer : IEqualityComparer<BigQueryParameter> {
@@ -23,23 +23,22 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
     }
 
-    [TestFixture]
-    class BigQueryParameterTests {
-        [Test]
+    public class BigQueryParameterTests {
+        [Fact]
         public void ConstructorTest() {
             var emptyParam = new BigQueryParameter();
-            Assert.AreEqual(DbType.Object, emptyParam.DbType);
-            Assert.AreEqual(BigQueryDbType.Unknown, emptyParam.BigQueryDbType);
-            Assert.AreEqual(null, emptyParam.Value);
-            Assert.AreEqual(null, emptyParam.ParameterName);
+            Assert.Equal(DbType.Object, emptyParam.DbType);
+            Assert.Equal(BigQueryDbType.Unknown, emptyParam.BigQueryDbType);
+            Assert.Equal(null, emptyParam.Value);
+            Assert.Equal(null, emptyParam.ParameterName);
             var param = new BigQueryParameter("testParam", DbType.Int64);
-            Assert.AreEqual("testParam", param.ParameterName);
-            Assert.AreEqual(DbType.Int64, param.DbType);
-            Assert.AreEqual(BigQueryDbType.Integer, param.BigQueryDbType);
-            Assert.AreEqual(default(long), param.Value);
+            Assert.Equal("testParam", param.ParameterName);
+            Assert.Equal(DbType.Int64, param.DbType);
+            Assert.Equal(BigQueryDbType.Integer, param.BigQueryDbType);
+            Assert.Equal(default(long), param.Value);
         }
-        
-        [Test]
+
+        [Fact]
         public void CloneParameterTest() {
             var param = new BigQueryParameter {
                 Value = "test string",
@@ -48,65 +47,65 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Assert.NotNull(param.Value);
             var clone = param.Clone();
             Assert.NotNull(clone);
-            Assert.IsTrue(BigQueryParameterComparer.Equals(clone, param));
+            Assert.True(BigQueryParameterComparer.Equals(clone, param));
         }
 
-        [Test]
+        [Fact]
         public void NotInitializeDbTypeTest() {
             var param = new BigQueryParameter {Value = 1};
             Assert.NotNull(param.Value);
-            Assert.AreEqual(DbType.Int64, param.DbType);
+            Assert.Equal(DbType.Int64, param.DbType);
         }
 
-        [Test]
+        [Fact]
         public void NotInitializeBigQueryDbTypeTest() {
             var param = new BigQueryParameter("test", DbType.String);
-            Assert.AreEqual(BigQueryDbType.String, param.BigQueryDbType);
+            Assert.Equal(BigQueryDbType.String, param.BigQueryDbType);
         }
 
-        [Test, ExpectedException(typeof(ArgumentException))]
+        [Fact]
         public void ValidationEmptyNameTest() {
             var param = new BigQueryParameter {
                 Value = 1,
                 DbType = DbType.Single
             };
             Assert.NotNull(param.Value);
-            param.Validate();
+            Assert.Throws<ArgumentException>(() => param.Validate());
         }
 
-        [Test, ExpectedException(typeof(ArgumentException))]
+        [Fact]
         public void ValidationNullValueTest() {
             var param = new BigQueryParameter {ParameterName = "nullValueParameter"};
-            param.Validate();
+            Assert.Throws<ArgumentException>(() => param.Validate());
         }
 
-        [Test, ExpectedException(typeof(NotSupportedException))]
+        [Fact]
         public void ValidateUnsupportedBigQueryDbType() {
             var param = new BigQueryParameter("test", DbType.Byte) {Value = 12};
             Assert.NotNull(param.Value);
-            Assert.AreEqual(BigQueryDbType.Unknown, param.BigQueryDbType);
-            param.Validate();
+            Assert.Equal(BigQueryDbType.Unknown, param.BigQueryDbType);
+            Assert.Throws<NotSupportedException>(() => param.Validate());
         }
 
-        [Test]
+        [Fact]
         public void DefaultValueTest() {
             var param = new BigQueryParameter("test", DbType.Int64);
-            Assert.AreEqual(default(Int64), param.Value);
+            Assert.Equal(default(Int64), param.Value);
             param.Validate();
         }
 
-        [Test]
+        [Fact]
         public void ChangeDbTypeTest() {
             var param = new BigQueryParameter("test", DbType.Single) {Value = 123};
-            Assert.AreEqual(DbType.Single, param.DbType);
-            Assert.AreEqual(BigQueryDbType.Float, param.BigQueryDbType);
+            Assert.Equal(DbType.Single, param.DbType);
+            Assert.Equal(BigQueryDbType.Float, param.BigQueryDbType);
             param.DbType = DbType.Int64;
-            Assert.AreEqual(BigQueryDbType.Integer, param.BigQueryDbType);
+            Assert.Equal(BigQueryDbType.Integer, param.BigQueryDbType);
             param.DbType = DbType.String;
-            Assert.AreEqual(BigQueryDbType.String, param.BigQueryDbType);
+            Assert.Equal(BigQueryDbType.String, param.BigQueryDbType);
         }
 
-        [Test]
+        [Fact]
         public void ValidateValueConvertTest() {
             var param = new BigQueryParameter("test", DbType.Int64) {Value = 123.0F};
             Assert.NotNull(param.Value);
@@ -115,11 +114,11 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             param.Validate();
         }
 
-        [Test, ExpectedException(typeof(ArgumentException))]
+        [Fact]
         public void ValidateValueNotConvertTest() {
             var param = new BigQueryParameter("test", DbType.DateTime) { Value = 123.0F };
             Assert.NotNull(param.Value);
-            param.Validate();
+            Assert.Throws<ArgumentException>(() => param.Validate());
         }
     }
 }

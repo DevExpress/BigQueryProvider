@@ -1,35 +1,34 @@
 ﻿#if DEBUGTEST
-using NUnit.Framework;
+using Xunit;
 
-namespace DevExpress.DataAccess.BigQuery.Tests {
-    [TestFixture]
-    class BigQueryParametersCollectionTests {
-        [Test]
-        public void InsertTest() {
+namespace DevExpress.DataAccess.BigQuery.Facts {
+    class BigQueryParametersCollectionFacts {
+        [Fact]
+        public void InsertFact() {
             
         }
 
-        [Test]
-        public void DeleteByValueTest() {
+        [Fact]
+        public void DeleteByValueFact() {
             
         }
 
-        [Test]
-        public void DeleteByIndexTest() {
+        [Fact]
+        public void DeleteByIndexFact() {
             
         }
 
-        [Test]
-        public void AddRangeTest() {
+        [Fact]
+        public void AddRangeFact() {
             
         }
 
-        [Test]
+        [Fact]
         public void Contains() {
             
         }
 
-        [Test]
+        [Fact]
         public void IndexOf() {
             
         }

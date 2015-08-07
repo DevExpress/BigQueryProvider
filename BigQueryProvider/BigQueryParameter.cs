@@ -128,7 +128,13 @@ namespace DevExpress.DataAccess.BigQuery {
         public BigQueryParameter Clone() {
             BigQueryParameter parameter = new BigQueryParameter(ParameterName, Value) {
                 Direction = Direction,
-                DbType = DbType
+                DbType = DbType,
+                BigQueryDbType = BigQueryDbType,
+                IsNullable =  IsNullable,
+                SourceColumnNullMapping = SourceColumnNullMapping,
+                Size = Size,
+                SourceColumn = SourceColumn,
+                SourceVersion = SourceVersion,
             };
             return parameter;
         }

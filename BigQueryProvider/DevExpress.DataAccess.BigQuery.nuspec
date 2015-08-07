@@ -2,12 +2,12 @@
 <package >
   <metadata>
     <id>DevExpress.DataAccess.BigQuery</id>
-    <version>1.0.0.0</version>
+    <version>1.0.2.0</version>
     <title>DevExpress.DataAccess.BigQuery</title>
     <authors>DevExpress</authors>
     <owners>DevExpress</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
-    <projectUrl>https://github.com/grisme/BigQueryProvider/</projectUrl>
+    <projectUrl>https://github.com/DevExpress/BigQueryProvider</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Google BigQuery ADO.NET provider</description>
     <releaseNotes>Initial release</releaseNotes>
@@ -15,7 +15,7 @@
     <tags>DevExpress Google BigQuery</tags>
     <dependencies>
       <group>
-        <dependency id="Google.Apis.Bigquery.v2" version="1.9.1" />
+        <dependency id="Google.Apis.Bigquery.v2" version="1.9.2" />
       </group>
     </dependencies>
   </metadata>

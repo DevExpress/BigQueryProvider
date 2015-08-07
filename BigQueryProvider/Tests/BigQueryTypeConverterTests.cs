@@ -1,9 +1,10 @@
-﻿using System;
+﻿#if DEBUGTEST
+using System;
 using System.Data;
 using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
-    public class BigQueryTypeConverterTest {
+    public class BigQueryTypeConverterTests {
         [Theory]
         [InlineData(DbType.String, BigQueryDbType.String, DbType.String)]
         [InlineData(DbType.Boolean, BigQueryDbType.Boolean, DbType.Boolean)]
@@ -68,3 +69,4 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
     }
 }
+#endif

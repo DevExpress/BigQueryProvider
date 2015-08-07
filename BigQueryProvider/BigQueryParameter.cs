@@ -46,12 +46,12 @@ namespace DevExpress.DataAccess.BigQuery {
             if(BigQueryDbType == BigQueryDbType.Unknown)
                 throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
             if (BigQueryTypeConverter.ToType(DbType) ==  null)
-                throw new NotSupportedException("This DbType is unsupported by BigQuery");
+                throw new NotSupportedException("This DbType " + DbType + " is unsupported by BigQuery");
             try {
                 Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType));
             }
             catch(Exception) {
-                throw new ArgumentException("Can't convert Value to DbType");
+                throw new ArgumentException("Can't convert Value " + Value + " to DbType " + DbType);
             }
         }
 

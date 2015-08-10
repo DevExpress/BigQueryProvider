@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>DevExpress.DataAccess.BigQuery</id>
-    <version>1.0.2.0</version>
+    <version>1.0.3.0</version>
     <title>DevExpress.DataAccess.BigQuery</title>
     <authors>DevExpress</authors>
     <owners>DevExpress</owners>

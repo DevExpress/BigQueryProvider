@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>DevExpress.DataAccess.BigQuery</id>
-    <version>1.0.3.0</version>
+    <version>1.0.5.0</version>
     <title>DevExpress.DataAccess.BigQuery</title>
     <authors>DevExpress</authors>
     <owners>DevExpress</owners>
@@ -15,7 +15,7 @@
     <tags>DevExpress Google BigQuery</tags>
     <dependencies>
       <group>
-        <dependency id="Google.Apis.Bigquery.v2" version="1.9.2" />
+        <dependency id="Google.Apis.Bigquery.v2" version="1.9.2.2240" />
       </group>
     </dependencies>
   </metadata>

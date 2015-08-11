@@ -6,6 +6,7 @@ using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     public class BigQueryParameterComparer : IEqualityComparer<BigQueryParameter> {
+        
         public static bool Equals(BigQueryParameter x, BigQueryParameter y) {
             if(x == null && y == null)
                 return true;
@@ -50,12 +51,28 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
+        public void ParamValueTest() {
+            var emptyParam = new BigQueryParameter();
+            Assert.Null(emptyParam.Value);
+            var paramNotInitializeValue = new BigQueryParameter("test", DbType.Object);
+            Assert.Null(paramNotInitializeValue.Value);
+            paramNotInitializeValue.DbType = DbType.Int64;
+            Assert.Equal(default(long), paramNotInitializeValue.Value);
+            paramNotInitializeValue.DbType = DbType.Single;
+            Assert.Equal(default(long), paramNotInitializeValue.Value);
+            const string stringValue = "stringValue";
+            var paramInitializeValue = new BigQueryParameter("test", DbType.String) {Value = stringValue};
+            Assert.NotNull(paramInitializeValue.Value);
+            Assert.Equal(paramInitializeValue.Value, stringValue);
+        }
+
+
+        [Fact]
         public void CloneParameterTest() {
             var param = new BigQueryParameter {
                 Value = "test string",
                 ParameterName = "test_parameter"
             };
-            Assert.NotNull(param.Value);
             var clone = param.Clone();
             Assert.NotNull(clone);
             Assert.True(BigQueryParameterComparer.Equals(clone, param));
@@ -64,7 +81,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void InferDbTypeAndBigQueryDbTypeFromValueTest() {
             var intValueParam = new BigQueryParameter {Value = 1};
-            Assert.NotNull(intValueParam.Value);
             Assert.Equal(DbType.Int64, intValueParam.DbType);
             Assert.Equal(BigQueryDbType.Integer, intValueParam.BigQueryDbType);
 
@@ -90,7 +106,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 Value = 1,
                 DbType = DbType.Single
             };
-            Assert.NotNull(param.Value);
             Assert.Throws<ArgumentException>(() => param.Validate());
             param.ParameterName = "test";
             param.Validate();
@@ -107,7 +122,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void ValidateUnsupportedBigQueryDbType() {
             var param = new BigQueryParameter("test", DbType.Byte) {Value = 12};
-            Assert.NotNull(param.Value);
+            Assert.Equal(12, param.Value);
             Assert.Equal(BigQueryDbType.Unknown, param.BigQueryDbType);
             Assert.Throws<NotSupportedException>(() => param.Validate());
             param.DbType = DbType.Int64;
@@ -142,14 +157,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void ValidateValueConvertTest() {
             var param = new BigQueryParameter("test", DbType.Int64) {Value = 123.0F};
-            Assert.NotNull(param.Value);
             param.Validate();
         }
 
         [Fact]
         public void ValidateValueNotConvertTest() {
             var param = new BigQueryParameter("test", DbType.DateTime) { Value = 123.0F };
-            Assert.NotNull(param.Value);
             Assert.Throws<ArgumentException>(() => param.Validate());
         }
     }

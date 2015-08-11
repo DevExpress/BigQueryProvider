@@ -15,7 +15,6 @@ namespace DevExpress.DataAccess.BigQuery {
                 throw new ArgumentNullException("value");
             ValidateType(value);
             innerList.Add((BigQueryParameter)value);
-
             return Count - 1;
         }
 
@@ -51,7 +50,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         void RangeCheck(int index) {
             if(index < 0 || Count <= index)
-                throw new Exception("index out of range");
+                throw new IndexOutOfRangeException();
         }
 
         public override void Remove(object value) {
@@ -60,7 +59,7 @@ namespace DevExpress.DataAccess.BigQuery {
             if(index >= 0)
                 RemoveAt(index);
             else {
-                throw new Exception("CollectionRemoveInvalidObject");
+                throw new InvalidOperationException("Remove item not found");
             }
         }
 
@@ -148,8 +147,6 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override int IndexOf(string parameterName) {
             BigQueryParameter value = innerList.FirstOrDefault(p => p.ParameterName == parameterName);
-            if(value == null)
-                throw new Exception("wrong parameter name");
             return IndexOf(value);
         }
 
@@ -169,8 +166,8 @@ namespace DevExpress.DataAccess.BigQuery {
             return innerList[index];
         }
 
-        public override bool Contains(string value) {
-            return IndexOf(value) != -1;
+        public override bool Contains(string parameterName) {
+            return IndexOf(parameterName) != -1;
         }
 
         public override void CopyTo(Array array, int index) {

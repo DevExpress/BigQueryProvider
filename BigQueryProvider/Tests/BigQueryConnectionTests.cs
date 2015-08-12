@@ -12,7 +12,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.Equal(ConnectionState.Closed, connection.State);
                 Assert.Null(connection.Service);
-                
                 connection.Open();
                 Assert.NotNull(connection.ConnectionString);
                 Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));

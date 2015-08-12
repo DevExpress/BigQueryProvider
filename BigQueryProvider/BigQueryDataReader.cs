@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Google;
@@ -96,6 +97,9 @@ namespace DevExpress.DataAccess.BigQuery {
                 stringValue = stringValue.Replace(@"\", @"\\").Replace("'", @"\'").Replace("\"", @"""");
                 return string.Format("{0}"+stringValue+"{0}", @"'");
             }
+            DateTime? dateTime = value as DateTime?;
+            if(dateTime.HasValue)
+                return string.Format("'{0}'", dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
             return value.ToString();
         }
 

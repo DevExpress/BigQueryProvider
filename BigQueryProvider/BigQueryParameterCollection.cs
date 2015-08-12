@@ -91,11 +91,11 @@ namespace DevExpress.DataAccess.BigQuery {
 
         void Replace(int index, DbParameter value) {
             ValidateType(value);
-            Validate(index, value);
+            ValidateParameter(index, value);
             innerList[index] = (BigQueryParameter)value;
         }
 
-        void Validate(int index, DbParameter value) {
+        void ValidateParameter(int index, DbParameter value) {
             if(value == null)
                 throw new NullReferenceException("parameter");
             if(index == IndexOf(value))
@@ -111,6 +111,12 @@ namespace DevExpress.DataAccess.BigQuery {
             while(IndexOf(parameterName) != -1);
 
             value.ParameterName = parameterName;
+        }
+
+        public void Validate() {
+            foreach(var parameter in innerList) {
+                parameter.Validate();
+            }
         }
 
         protected override void SetParameter(string parameterName, DbParameter value) {

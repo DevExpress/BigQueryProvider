@@ -104,6 +104,13 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Assert.Equal(1, collection.IndexOf(param1));
             Assert.Equal(2, collection.IndexOf(param2));
         }
+
+        [Fact]
+        public void ValidateTest() {
+            var collection = new BigQueryParameterCollection();
+            collection.Add(param0);
+            Assert.Throws<ArgumentException>(() => collection.Validate());
+        }
     }
 }
 #endif

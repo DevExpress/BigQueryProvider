@@ -44,14 +44,14 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Assert.Equal(type2, BigQueryTypeConverter.ToType(dbType));
         }
 
-        [Fact]
-        public void DefaultValueTest() {
-            Assert.Equal(default(long), BigQueryTypeConverter.GetDefaultValueFor(DbType.Int64));
-            Assert.Equal(default(Single), BigQueryTypeConverter.GetDefaultValueFor(DbType.Single));
-            Assert.Equal(default(bool), BigQueryTypeConverter.GetDefaultValueFor(DbType.Boolean));
-            Assert.Equal(default(String), BigQueryTypeConverter.GetDefaultValueFor(DbType.String));
-            Assert.Equal(System.Data.SqlTypes.SqlDateTime.MinValue, BigQueryTypeConverter.GetDefaultValueFor(DbType.DateTime));
-            Assert.Equal(default(object), BigQueryTypeConverter.GetDefaultValueFor(DbType.Object));
+        [Theory]
+        [InlineData(default(long), DbType.Int64)]
+        [InlineData(default(Single), DbType.Single)]
+        [InlineData(default(bool), DbType.Boolean)]
+        [InlineData(default(String), DbType.String)]
+        [InlineData(default(object), DbType.Object)]
+        public void DefaultValueTest(object defaultValueFromSystem, DbType dbType) {
+            Assert.Equal(defaultValueFromSystem, BigQueryTypeConverter.GetDefaultValueFor(dbType));
         }
 
         [Theory]

@@ -4,14 +4,17 @@ using System.Data;
 using Xunit;
 namespace DevExpress.DataAccess.BigQuery.Tests {
     public class BigQueryParametersCollectionTests : IDisposable {
+        readonly BigQueryParameter param0 = new BigQueryParameter("param0", DbType.String);
+        readonly BigQueryParameter param1 = new BigQueryParameter("param1", DbType.String);
+        readonly BigQueryParameter param2 = new BigQueryParameter("param2", DbType.String);
+        readonly BigQueryParameter param3 = new BigQueryParameter("param3", DbType.String);
+        readonly BigQueryParameter param4 = new BigQueryParameter("param4", DbType.String);
+        readonly BigQueryParameter param5 = new BigQueryParameter("param5", DbType.String);
+        readonly BigQueryParameter nonexistentParameter = new BigQueryParameter("foo", DbType.String);
+
+
         public BigQueryParametersCollectionTests() {
             var paramCollection = new BigQueryParameterCollection();
-            var param0 = new BigQueryParameter("param0", DbType.String);
-            var param1 = new BigQueryParameter("param1", DbType.String);
-            var param2 = new BigQueryParameter("param2", DbType.String);
-            var param3 = new BigQueryParameter("param3", DbType.String);
-            var param4 = new BigQueryParameter("param4", DbType.String);
-            var param5 = new BigQueryParameter("param5", DbType.String);
             paramCollection.Insert(0, param0);
             paramCollection.Insert(1, param1);
             paramCollection.Insert(2, param2);
@@ -23,72 +26,49 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         public void Dispose() { }
 
-        public BigQueryParameterCollection Collection { get; private set; }
+        public BigQueryParameterCollection Collection { get; set; }
 
         [Fact]
-        public void RemoveByParameterTest() {
-            var collection = Collection;
-            var param = new BigQueryParameter("removeMe", DbType.String);
-            collection.Insert(3, param);
-            Assert.Equal(7, collection.Count);
-            collection.Remove(param);
-            Assert.Equal(6, collection.Count);
-            Assert.False(collection.Contains(param));
-            Assert.Throws<InvalidOperationException>(() => collection.Remove(param));
+        public void RemoveTest() {
+            var count = Collection.Count;
+            Collection.Remove(param3);
+            Assert.Equal(count - 1, Collection.Count);
+            Assert.False(Collection.Contains(param3));
+            Assert.Throws<InvalidOperationException>(() => Collection.Remove(param3));
         }
 
         [Fact]
         public void RemoveAtTest() {
-            var collection = Collection;
-            Assert.Equal(6, collection.Count);
-            collection.RemoveAt(3);
-            Assert.Throws<IndexOutOfRangeException>(() => collection[5]);
-            Assert.Equal(5, collection. Count);
-            collection.RemoveAt(0);//param0
-            collection.RemoveAt(0);//param1
-            collection.RemoveAt(0);//param2
-            Assert.Equal(2, collection.Count);
-            collection.RemoveAt(0);//param4
-            collection.RemoveAt(0);//param5
-            Assert.Equal(0, collection.Count);
-        }
-
-        [Fact]
-        public void AddRangeTest() {
-            var collection = Collection;
-            var arrayOfParameters = new BigQueryParameter[] {
-                new BigQueryParameter("param6", DbType.String), 
-                new BigQueryParameter("param7", DbType.String),
-                new BigQueryParameter("param8", DbType.String), 
-            };
-            Assert.Equal(6, collection. Count);
-            collection.AddRange(arrayOfParameters);
-            Assert.Equal(9, collection.Count);
-            Assert.Equal(6, collection.IndexOf("param6"));
-            Assert.Equal(7, collection.IndexOf("param7"));
-            Assert.Equal(8, collection.IndexOf("param8"));
+            var count = Collection.Count;
+            Collection.RemoveAt(3);
+            Assert.Throws<IndexOutOfRangeException>(() => Collection[5]);
+            Assert.Equal(count - 1, Collection. Count);
+            Collection.RemoveAt(0);
+            Collection.RemoveAt(0);
+            Collection.RemoveAt(0);
+            Collection.RemoveAt(0);
+            Collection.RemoveAt(0);
+            Assert.Equal(count - 6, Collection.Count);
         }
 
         [Fact]
         public void ContainsTest() {
-            var collection = Collection;
-            Assert.Equal(true, collection.Contains("param0"));
-            Assert.Equal(false, collection.Contains("lalala"));
+            Assert.True(Collection.Contains(param0));
+            Assert.False(Collection.Contains(nonexistentParameter));
         }
 
         [Fact]
         public void IndexOfTest() {
-            var collection = Collection;
-            Assert.Equal(0, collection.IndexOf("param0"));
-            Assert.Equal(1, collection.IndexOf("param1"));
-            Assert.Equal(4, collection.IndexOf("param4"));
-            Assert.Equal(-1, collection.IndexOf("param8"));
+            Assert.Equal(0, Collection.IndexOf(param0));
+            Assert.Equal(1, Collection.IndexOf(param1));
+            Assert.Equal(4, Collection.IndexOf(param4.ParameterName));
+            Assert.Equal(-1, Collection.IndexOf(nonexistentParameter));
+            Assert.Equal(-1, Collection.IndexOf(nonexistentParameter.ParameterName));
         }
 
         [Fact]
         public void ConstructorTest() {
             var paramCollection = new BigQueryParameterCollection();
-            Assert.NotNull(paramCollection);
             Assert.Equal(0, paramCollection.Count);
             Assert.Empty(paramCollection);
             Assert.Equal(false, paramCollection.IsFixedSize);
@@ -98,23 +78,31 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void InsertTest() {
             var paramCollection = new BigQueryParameterCollection();
-            var param0 = new BigQueryParameter("param0", DbType.String);
             paramCollection.Insert(0, param0);
-            Assert.Equal(paramCollection[0], param0);
-            Assert.Equal(paramCollection["param0"], param0);
+            Assert.Equal(param0, paramCollection[0]);
+            Assert.Equal(param0, paramCollection["param0"]);
             Assert.Equal(1, paramCollection.Count);
 
-            var param1 = new BigQueryParameter("param1", DbType.String);
             paramCollection.Insert(1, param1);
-            Assert.Equal(paramCollection[1], param1);
-            Assert.Equal(paramCollection["param1"], param1);
+            Assert.Equal(param1, paramCollection[1]);
+            Assert.Equal(param1, paramCollection["param1"]);
             Assert.Equal(2, paramCollection.Count);
 
-            var param2 = new BigQueryParameter("param2", DbType.String);
             paramCollection.Insert(2, param2);
-            Assert.Equal(paramCollection[2], param2);
-            Assert.Equal(paramCollection["param2"], param2);
+            Assert.Equal(param2, paramCollection[2]);
+            Assert.Equal(param2, paramCollection["param2"]);
             Assert.Equal(3, paramCollection.Count);
+        }
+
+        [Fact]
+        public void AddRangeTest() {
+            var collection = new BigQueryParameterCollection();
+            var arrayOfParameters = new[] {param0, param1, param2,};
+            collection.AddRange(arrayOfParameters);
+            Assert.Equal(3, collection.Count);
+            Assert.Equal(0, collection.IndexOf(param0));
+            Assert.Equal(1, collection.IndexOf(param1));
+            Assert.Equal(2, collection.IndexOf(param2));
         }
     }
 }

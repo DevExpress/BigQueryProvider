@@ -61,8 +61,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [InlineData("BOOLEAN", typeof(bool), BigQueryDbType.Boolean)]
         [InlineData("TIMESTAMP", typeof(DateTime), BigQueryDbType.Timestamp)]
         [InlineData("RECORD", typeof(object), BigQueryDbType.Unknown)] //until Record is not implemented
-        [InlineData("DFSD", null, BigQueryDbType.Unknown)]
-        [InlineData("124", null, BigQueryDbType.Unknown)]
+        [InlineData("Foo", null, BigQueryDbType.Unknown)]
+        [InlineData("123", null, BigQueryDbType.Unknown)]
         public void StringConvertTest(string stringType, Type systemType, BigQueryDbType bigQueryType) {
             Assert.Equal(systemType, BigQueryTypeConverter.ToType(stringType));
             Assert.Equal(bigQueryType, BigQueryTypeConverter.ToBigQueryDbType(stringType));

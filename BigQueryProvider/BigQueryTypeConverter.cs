@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlTypes;
 using System.Linq;
-using log4net.Filter;
 
 namespace DevExpress.DataAccess.BigQuery {
     public enum BigQueryDbType {
@@ -23,7 +23,6 @@ namespace DevExpress.DataAccess.BigQuery {
             new Tuple<DbType, BigQueryDbType>(DbType.Single, BigQueryDbType.Float),
             new Tuple<DbType, BigQueryDbType>(DbType.Int64, BigQueryDbType.Integer),
             new Tuple<DbType, BigQueryDbType>(DbType.Object, BigQueryDbType.Unknown),
-            //new Tuple<DbType, BigQueryDbType>(, BigQueryDbType.Record),
         }; 
 
         static readonly List<Tuple<Type, DbType>> TypeToDbTypePairs = new List<Tuple<Type, DbType>>() {
@@ -37,7 +36,6 @@ namespace DevExpress.DataAccess.BigQuery {
             new Tuple<Type, DbType>(typeof(Int32), DbType.Int64),
             new Tuple<Type, DbType>(typeof(UInt32), DbType.Int64),
             new Tuple<Type, DbType>(typeof(UInt16), DbType.Int64),
-            //place for BigQueryRecord
         };
  
         static readonly List<Tuple<string, Type>> StringToTypePairs = new List<Tuple<string, Type>>() {
@@ -90,7 +88,7 @@ namespace DevExpress.DataAccess.BigQuery {
         public static object GetDefaultValueFor(DbType dbType) {
             var type = ToType(dbType);
             if(type == typeof(DateTime))
-                return System.Data.SqlTypes.SqlDateTime.MinValue;
+                return SqlDateTime.MinValue;
             return type == null ? null : (type.IsValueType ? Activator.CreateInstance(type) : null);
         }
     }

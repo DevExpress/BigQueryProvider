@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
@@ -8,12 +9,19 @@ using System.Threading;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryParameterCollection : DbParameterCollection {
+        static void ValidateType(object value) {
+            if(!(value is BigQueryParameter))
+                throw new ArgumentException("Invalid parameter type");
+        }
+
         object syncRoot;
         readonly List<BigQueryParameter> innerList = new List<BigQueryParameter>();
 
         public override int Count {
             get { return innerList.Count; }
         }
+
+        public override bool IsSynchronized { get { return false; } }
 
         public override object SyncRoot {
             get {
@@ -30,15 +38,6 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override bool IsReadOnly {
             get { return false; }
-        }
-
-        public override bool IsSynchronized {
-            get { throw new NotImplementedException(); }
-        }
-
-        static void ValidateType(object value) {
-            if(!(value is BigQueryParameter))
-                throw new ArgumentException("Invalid parameter type");
         }
 
         void RangeCheck(int index) {
@@ -103,8 +102,19 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public void Validate() {
+            CheckDuplicateNames();
             foreach(var parameter in innerList) {
                 parameter.Validate();
+            }
+        }
+
+        void CheckDuplicateNames() {
+            HashSet<string> set = new HashSet<string>();
+            foreach(var bigQueryParameter in innerList) {
+                if(set.Contains(bigQueryParameter.ParameterName)) {
+                    throw new DuplicateNameException("Parameter collection contains duplicate parameters with name '" + bigQueryParameter.ParameterName + "'");
+                }
+                set.Add(bigQueryParameter.ParameterName);
             }
         }
 

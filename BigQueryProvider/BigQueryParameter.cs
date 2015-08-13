@@ -4,6 +4,10 @@ using System.Data.Common;
 
 namespace DevExpress.DataAccess.BigQuery {
     public sealed class BigQueryParameter : DbParameter, ICloneable {
+        BigQueryDbType? bigQueryDbType;
+        DbType? dbType;
+        object value;
+
         public BigQueryParameter() {
             ResetDbType();
         }
@@ -31,35 +35,6 @@ namespace DevExpress.DataAccess.BigQuery {
         public BigQueryParameter(string parameterName, BigQueryDbType bigQueryDbType, string sourceColumn)
             : this(parameterName, bigQueryDbType) {
             SourceColumn = sourceColumn;
-        }
-
-        BigQueryDbType? bigQueryDbType;
-        DbType? dbType;
-        object value;
-        
-        internal void Validate() {
-            if(string.IsNullOrEmpty(ParameterName))
-                throw new ArgumentException("Parameter's name is empty");
-            if(Value == null)
-                throw new ArgumentException("Parameter's value is not initialized");
-            if(BigQueryDbType == BigQueryDbType.Unknown)
-                throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
-            try {
-                Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType));
-            }
-            catch(Exception) {
-                throw new ArgumentException("Can't convert Value " + Value + " to DbType " + DbType);
-            }
-        }
-
-        public override void ResetDbType() {
-            dbType = null;
-            value = null;
-            ParameterName = null;
-            IsNullable = true;
-            SourceColumn = null;
-            SourceVersion = DataRowVersion.Current;
-            Direction = ParameterDirection.Input;
         }
 
         public BigQueryDbType BigQueryDbType {
@@ -115,6 +90,11 @@ namespace DevExpress.DataAccess.BigQuery {
             set;
         }
 
+        public override bool SourceColumnNullMapping {
+            get;
+            set;
+        }
+
         public override object Value {
             get {
                 return value ?? (value = BigQueryTypeConverter.GetDefaultValueFor(DbType));
@@ -122,14 +102,38 @@ namespace DevExpress.DataAccess.BigQuery {
             set { this.value = value; }
         }
 
-        public override bool SourceColumnNullMapping {
+        public override int Size {
             get;
             set;
         }
 
-        public override int Size {
-            get;
-            set;
+        internal void Validate() {
+            if(string.IsNullOrEmpty(ParameterName))
+                throw new ArgumentException("Parameter's name is empty");
+            if(Value == null)
+                throw new ArgumentException("Parameter's value is not initialized");
+            if(BigQueryDbType == BigQueryDbType.Unknown)
+                throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
+            try {
+                Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType));
+            }
+            catch(Exception) {
+                throw new ArgumentException("Can't convert Value " + Value + " to DbType " + DbType);
+            }
+        }
+
+        public override void ResetDbType() {
+            dbType = null;
+            value = null;
+            ParameterName = null;
+            IsNullable = true;
+            SourceColumn = null;
+            SourceVersion = DataRowVersion.Current;
+            Direction = ParameterDirection.Input;
+        }
+
+        object ICloneable.Clone() {
+            return Clone();
         }
 
         public BigQueryParameter Clone() {
@@ -144,10 +148,6 @@ namespace DevExpress.DataAccess.BigQuery {
                 SourceVersion = SourceVersion,
             };
             return parameter;
-        }
-
-        object ICloneable.Clone() {
-            return Clone();
         }
     }
 }

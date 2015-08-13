@@ -125,7 +125,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Fact]
         public void ValidateIncorrectParamInCollectionTest() {
-            var dbCommand = new BigQueryCommand();
+            var dbCommand = connection.CreateCommand();
             var param = dbCommand.CreateParameter();
             param.Value = "testValue";
             dbCommand.Parameters.Add(param);

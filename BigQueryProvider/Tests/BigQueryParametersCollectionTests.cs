@@ -2,24 +2,32 @@
 using System;
 using System.Data;
 using Xunit;
+
 namespace DevExpress.DataAccess.BigQuery.Tests {
     public class BigQueryParametersCollectionTests {
-        readonly BigQueryParameter param0 = new BigQueryParameter("param0", DbType.String);
-        readonly BigQueryParameter param1 = new BigQueryParameter("param1", DbType.String);
-        readonly BigQueryParameter param2 = new BigQueryParameter("param2", DbType.String);
-        readonly BigQueryParameter param3 = new BigQueryParameter("param3", DbType.String);
-        readonly BigQueryParameter param4 = new BigQueryParameter("param4", DbType.String);
-        readonly BigQueryParameter param5 = new BigQueryParameter("param5", DbType.String);
-        readonly BigQueryParameter nonexistentParameter = new BigQueryParameter("foo", DbType.String);
+        const int param0Index = 0;
+        const int param1Index = 1;
+        const int param2Index = 2;
+        const int param3Index = 3;
+        const int param4Index = 4;
+        const int param5Index = 5;
+        const int nonExistentIndex = -1;
+        readonly BigQueryParameter param0 = new BigQueryParameter("@param0", DbType.String);
+        readonly BigQueryParameter param1 = new BigQueryParameter("@param1", DbType.String);
+        readonly BigQueryParameter param2 = new BigQueryParameter("@param2", DbType.String);
+        readonly BigQueryParameter param3 = new BigQueryParameter("@param3", DbType.String);
+        readonly BigQueryParameter param4 = new BigQueryParameter("@param4", DbType.String);
+        readonly BigQueryParameter param5 = new BigQueryParameter("@param5", DbType.String);
+        readonly BigQueryParameter nonexistentParameter = new BigQueryParameter("@foo", DbType.String);
 
         public BigQueryParametersCollectionTests() {
             var paramCollection = new BigQueryParameterCollection();
-            paramCollection.Insert(0, param0);
-            paramCollection.Insert(1, param1);
-            paramCollection.Insert(2, param2);
-            paramCollection.Insert(3, param3);
-            paramCollection.Insert(4, param4);
-            paramCollection.Insert(5, param5);
+            paramCollection.Insert(param0Index, param0);
+            paramCollection.Insert(param1Index, param1);
+            paramCollection.Insert(param2Index, param2);
+            paramCollection.Insert(param3Index, param3);
+            paramCollection.Insert(param4Index, param4);
+            paramCollection.Insert(param5Index, param5);
             Collection = paramCollection;
         }
 
@@ -37,15 +45,14 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void RemoveAtTest() {
             var count = Collection.Count;
-            Collection.RemoveAt(3);
-            Assert.Throws<IndexOutOfRangeException>(() => Collection[5]);
-            Assert.Equal(count - 1, Collection. Count);
-            Collection.RemoveAt(0);
-            Collection.RemoveAt(0);
-            Collection.RemoveAt(0);
-            Collection.RemoveAt(0);
-            Collection.RemoveAt(0);
-            Assert.Equal(count - 6, Collection.Count);
+            Collection.RemoveAt(param2Index);
+            Assert.Equal(count - 1, Collection.Count);
+            count = Collection.Count;
+            Assert.False(Collection.Contains(param2));
+            for(int i = 0; i < count; i++)
+                Collection.RemoveAt(0);
+            Assert.Equal(0, Collection.Count);
+            Assert.Empty(Collection);
         }
 
         [Fact]
@@ -56,15 +63,17 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Fact]
         public void IndexOfTest() {
-            Assert.Equal(0, Collection.IndexOf(param0));
-            Assert.Equal(1, Collection.IndexOf(param1));
-            Assert.Equal(4, Collection.IndexOf(param4.ParameterName));
-            Assert.Equal(-1, Collection.IndexOf(nonexistentParameter));
-            Assert.Equal(-1, Collection.IndexOf(nonexistentParameter.ParameterName));
+            Assert.Equal(param0Index, Collection.IndexOf(param0));
+            Assert.Equal(param3Index, Collection.IndexOf(param3));
+            Assert.Equal(param4Index, Collection.IndexOf(param4.ParameterName));
+            Assert.Equal(param5Index, Collection.IndexOf(param5.ParameterName));
+
+            Assert.Equal(nonExistentIndex, Collection.IndexOf(nonexistentParameter));
+            Assert.Equal(nonExistentIndex, Collection.IndexOf(nonexistentParameter.ParameterName));
         }
 
         [Fact]
-        public void ConstructorTest() {
+        public void InitialState() {
             var paramCollection = new BigQueryParameterCollection();
             Assert.Equal(0, paramCollection.Count);
             Assert.Empty(paramCollection);
@@ -75,20 +84,26 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void InsertTest() {
             var paramCollection = new BigQueryParameterCollection();
-            paramCollection.Insert(0, param0);
-            Assert.Equal(param0, paramCollection[0]);
-            Assert.Equal(param0, paramCollection["param0"]);
+            paramCollection.Insert(param0Index, param0);
+            Assert.Same(param0, paramCollection[param0Index]);
+            Assert.Same(param0, paramCollection[param0.ParameterName]);
             Assert.Equal(1, paramCollection.Count);
 
-            paramCollection.Insert(1, param1);
-            Assert.Equal(param1, paramCollection[1]);
-            Assert.Equal(param1, paramCollection["param1"]);
+            paramCollection.Insert(param1Index, param1);
+            Assert.Same(param1, paramCollection[param1Index]);
+            Assert.Same(param1, paramCollection[param1.ParameterName]);
             Assert.Equal(2, paramCollection.Count);
 
-            paramCollection.Insert(2, param2);
-            Assert.Equal(param2, paramCollection[2]);
-            Assert.Equal(param2, paramCollection["param2"]);
+            paramCollection.Insert(0, param2);
+            Assert.Same(param2, paramCollection[0]);
+            Assert.Same(param2, paramCollection[param2.ParameterName]);
             Assert.Equal(3, paramCollection.Count);
+
+            Assert.Same(param0, paramCollection[param0Index + 1]);
+            Assert.Same(param0, paramCollection[param0.ParameterName]);
+
+            Assert.Same(param1, paramCollection[param1Index + 1]);
+            Assert.Same(param1, paramCollection[param1.ParameterName]);
         }
 
         [Fact]
@@ -96,14 +111,23 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             var collection = new BigQueryParameterCollection();
             var arrayOfParameters = new[] {param0, param1, param2,};
             collection.AddRange(arrayOfParameters);
-            Assert.Equal(3, collection.Count);
-            Assert.Equal(0, collection.IndexOf(param0));
-            Assert.Equal(1, collection.IndexOf(param1));
-            Assert.Equal(2, collection.IndexOf(param2));
+            Assert.Equal(arrayOfParameters.Length, collection.Count);
+            for(int i = 0; i < arrayOfParameters.Length; i++) {
+                Assert.Same(arrayOfParameters[i], collection[i]);
+            }
         }
 
         [Fact]
-        public void ValidateTest() {
+        public void ValidateDuplicateParametersTest() {
+            var collection = new BigQueryParameterCollection();
+            var param = new BigQueryParameter("@param1", DbType.Object);
+            collection.Add(param);
+            collection.Add(param);
+            Assert.Throws<DuplicateNameException>(() => collection.Validate());
+        }
+
+        [Fact]
+        public void ValidateBadParameterTest() {
             var collection = new BigQueryParameterCollection();
             collection.Add(param0);
             Assert.Throws<ArgumentException>(() => collection.Validate());
@@ -114,7 +138,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             var collection = new BigQueryParameterCollection();
             Assert.Equal(0, collection.Add(param0));
             Assert.Throws<ArgumentNullException>(() => collection.Add(null));
-            Assert.Throws<Exception>(() => collection.Add("notParameter"));
+            Assert.Throws<ArgumentException>(() => collection.Add("notParameter"));
         }
 
         [Fact]
@@ -125,18 +149,18 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
-        public void CopyTo() {
+        public void CopyToTest() {
             var count = Collection.Count;
             BigQueryParameter[] collectionForCopy = new BigQueryParameter[count];
             Collection.CopyTo(collectionForCopy, 0);
             Assert.Equal(count, collectionForCopy.Length);
             for(int i = 0; i < count; i++) {
-                Assert.Equal(Collection[i], collectionForCopy[i]);
+                Assert.Same(Collection[i], collectionForCopy[i]);
             }
         }
 
         [Fact]
-        public void GetEnumerator() {
+        public void GetEnumeratorTest() {
             var enumerator = Collection.GetEnumerator();
             Assert.NotNull(enumerator);
         }

@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Google;
@@ -37,6 +39,7 @@ namespace DevExpress.DataAccess.BigQuery {
                 if(behavior == CommandBehavior.SchemaOnly) {
                     TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync();
                     tables = tableList.Tables.GetEnumerator();
+                    tables.MoveNext();
                 } else {
                     JobsResource.QueryRequest request = CreateRequest();
                     QueryResponse queryResponse = await request.ExecuteAsync();
@@ -69,12 +72,15 @@ namespace DevExpress.DataAccess.BigQuery {
             foreach(BigQueryParameter parameter in collection) {
                 bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace("@" + parameter.ParameterName, PrepareParameterValue(parameter.Value));
             }
-            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? bigQueryCommand.CommandTimeout : int.MaxValue };
+            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue };
             JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
             return request;
         }
 
         void ProcessQueryResponse(QueryResponse queryResponse) {
+            if(queryResponse.JobComplete.HasValue && !queryResponse.JobComplete.Value) {
+                throw new BigQueryException("Timeout is reached");
+            }
             rows = queryResponse.Rows;
             schema = queryResponse.Schema;
             fieldsCount = schema.Fields.Count;
@@ -96,6 +102,9 @@ namespace DevExpress.DataAccess.BigQuery {
                 stringValue = stringValue.Replace(@"\", @"\\").Replace("'", @"\'").Replace("\"", @"""");
                 return string.Format("{0}"+stringValue+"{0}", @"'");
             }
+            DateTime? dateTime = value as DateTime?;
+            if(dateTime.HasValue)
+                return string.Format("'{0}'", dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
             return value.ToString();
         }
 
@@ -114,6 +123,8 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override DataTable GetSchemaTable() {
             DisposeCheck();
+            if(tables.Current == null)
+                return null;
             string projectId = bigQueryCommand.Connection.ProjectId;
             string dataSetId = bigQueryCommand.Connection.DataSetId;
             string tableId = tables.Current.TableReference.TableId;

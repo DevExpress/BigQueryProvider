@@ -25,7 +25,6 @@ namespace DevExpress.DataAccess.BigQuery {
 
         internal BigQueryDataReader(CommandBehavior behavior, BigQueryCommand command, BigqueryService service) {
             this.behavior = behavior;
-
             bigQueryService = service;
             bigQueryCommand = command;
         }
@@ -54,9 +53,13 @@ namespace DevExpress.DataAccess.BigQuery {
         internal void Initialize() {
             try {
                 if(behavior == CommandBehavior.SchemaOnly) {
-                    TableList tableList = bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).Execute();
+                    TableList tableList =
+                        bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId)
+                                       .Execute();
                     tables = tableList.Tables.GetEnumerator();
-                } else {
+                }
+                else {
+                    ((BigQueryParameterCollection) bigQueryCommand.Parameters).Validate();
                     JobsResource.QueryRequest request = CreateRequest();
                     QueryResponse queryResponse = request.Execute();
                     ProcessQueryResponse(queryResponse);
@@ -355,21 +358,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         static Type FieldType(string type) {
-            switch(type) {
-                case "STRING":
-                    return typeof(string);
-                case "INTEGER":
-                    return typeof(int);
-                case "FLOAT":
-                    return typeof(float);
-                case "BOOLEAN":
-                    return typeof(bool);
-                case "TIMESTAMP":
-                    return typeof(DateTime);
-                case "RECORD":
-                    return typeof(object);
-            }
-            return null;
+            return BigQueryTypeConverter.ToType(type);
         }
 
         public override object GetProviderSpecificValue(int ordinal) {

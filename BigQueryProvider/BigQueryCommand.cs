@@ -103,7 +103,6 @@ namespace DevExpress.DataAccess.BigQuery {
             return reader;
         }
 
-
         public async override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken) {
             return await ExecuteNonQueryInternalAsync(cancellationToken).ConfigureAwait(false);
         }

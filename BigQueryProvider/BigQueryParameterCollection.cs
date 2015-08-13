@@ -10,11 +10,11 @@ namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryParameterCollection : DbParameterCollection {
         object syncRoot;
         readonly List<BigQueryParameter> innerList = new List<BigQueryParameter>();
-        public override int Add(object value) {
-            if(value == null)
-                throw new ArgumentNullException("value");
-            ValidateType(value);
-            innerList.Add((BigQueryParameter)value);
+        public override int Add(object parameter) {
+            if(parameter == null)
+                throw new ArgumentNullException("parameter");
+            ValidateType(parameter);
+            innerList.Add((BigQueryParameter)parameter);
             return Count - 1;
         }
 
@@ -59,7 +59,7 @@ namespace DevExpress.DataAccess.BigQuery {
             if(index >= 0)
                 RemoveAt(index);
             else {
-                throw new InvalidOperationException("Remove item not found");
+                throw new InvalidOperationException("Item to remove not found");
             }
         }
 
@@ -168,7 +168,7 @@ namespace DevExpress.DataAccess.BigQuery {
         protected override DbParameter GetParameter(string parameterName) {
             int index = IndexOf(parameterName);
             if(index < 0)
-                throw new Exception("index out of range");
+                throw new IndexOutOfRangeException();
             return innerList[index];
         }
 

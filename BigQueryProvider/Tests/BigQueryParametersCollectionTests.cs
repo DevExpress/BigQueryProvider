@@ -12,7 +12,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         readonly BigQueryParameter param5 = new BigQueryParameter("param5", DbType.String);
         readonly BigQueryParameter nonexistentParameter = new BigQueryParameter("foo", DbType.String);
 
-
         public BigQueryParametersCollectionTests() {
             var paramCollection = new BigQueryParameterCollection();
             paramCollection.Insert(0, param0);
@@ -110,6 +109,38 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             var collection = new BigQueryParameterCollection();
             collection.Add(param0);
             Assert.Throws<ArgumentException>(() => collection.Validate());
+        }
+
+        [Fact]
+        public void AddTest() {
+            var collection = new BigQueryParameterCollection();
+            Assert.Equal(0, collection.Add(param0));
+            Assert.Throws<ArgumentNullException>(() => collection.Add(null));
+            Assert.Throws<Exception>(() => collection.Add("notParameter"));
+        }
+
+        [Fact]
+        public void ClearTest() {
+            Assert.NotEmpty(Collection);
+            Collection.Clear();
+            Assert.Empty(Collection);
+        }
+
+        [Fact]
+        public void CopyTo() {
+            var count = Collection.Count;
+            BigQueryParameter[] collectionForCopy = new BigQueryParameter[count];
+            Collection.CopyTo(collectionForCopy, 0);
+            Assert.Equal(count, collectionForCopy.Length);
+            for(int i = 0; i < count; i++) {
+                Assert.Equal(Collection[i], collectionForCopy[i]);
+            }
+        }
+
+        [Fact]
+        public void GetEnumerator() {
+            var enumerator = Collection.GetEnumerator();
+            Assert.NotNull(enumerator);
         }
     }
 }

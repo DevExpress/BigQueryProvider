@@ -12,12 +12,19 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Assert.Equal(BigQueryDbType.Unknown, emptyParam.BigQueryDbType);
             Assert.Null(emptyParam.Value);
             Assert.Null(emptyParam.ParameterName);
+
             const string paramName = "testParam";
             var param = new BigQueryParameter(paramName, DbType.Int64);
             Assert.Equal(paramName, param.ParameterName);
             Assert.Equal(DbType.Int64, param.DbType);
             Assert.Equal(BigQueryDbType.Integer, param.BigQueryDbType);
             Assert.Equal(default(long), param.Value);
+
+            var paramBigQuery = new BigQueryParameter(paramName, BigQueryDbType.Integer);
+            Assert.Equal(BigQueryDbType.Integer, paramBigQuery.BigQueryDbType);
+            Assert.Equal(DbType.Int64, paramBigQuery.DbType);
+            Assert.Equal(default(long), paramBigQuery.Value);
+            Assert.Equal(paramName, paramBigQuery.ParameterName);
         }
 
         [Fact]

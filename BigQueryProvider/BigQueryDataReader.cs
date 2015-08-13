@@ -38,6 +38,7 @@ namespace DevExpress.DataAccess.BigQuery {
                 if(behavior == CommandBehavior.SchemaOnly) {
                     TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync();
                     tables = tableList.Tables.GetEnumerator();
+                    tables.MoveNext();
                 } else {
                     JobsResource.QueryRequest request = CreateRequest();
                     QueryResponse queryResponse = await request.ExecuteAsync();

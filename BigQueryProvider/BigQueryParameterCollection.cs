@@ -11,6 +11,31 @@ namespace DevExpress.DataAccess.BigQuery {
         object syncRoot;
         readonly List<BigQueryParameter> innerList = new List<BigQueryParameter>();
 
+        public override int Count {
+            get { return innerList.Count; }
+        }
+
+        public override object SyncRoot {
+            get {
+                if(syncRoot == null) {
+                    Interlocked.CompareExchange(ref syncRoot, new object(), null);
+                }
+                return syncRoot;
+            }
+        }
+
+        public override bool IsFixedSize {
+            get { return false; }
+        }
+
+        public override bool IsReadOnly {
+            get { return false; }
+        }
+
+        public override bool IsSynchronized {
+            get { throw new NotImplementedException(); }
+        }
+
         static void ValidateType(object value) {
             if(!(value is BigQueryParameter))
                 throw new ArgumentException("Invalid parameter type");
@@ -146,31 +171,6 @@ namespace DevExpress.DataAccess.BigQuery {
         public override void Insert(int index, object value) {
             ValidateType(value);
             innerList.Insert(index, (BigQueryParameter)value);
-        }
-
-        public override int Count {
-            get { return innerList.Count; }
-        }
-
-        public override object SyncRoot {
-            get {
-                if(syncRoot == null) {
-                    Interlocked.CompareExchange(ref syncRoot, new object(), null);
-                }
-                return syncRoot;
-            }
-        }
-
-        public override bool IsFixedSize {
-            get { return false; }
-        }
-
-        public override bool IsReadOnly {
-            get { return false; }
-        }
-
-        public override bool IsSynchronized {
-            get { throw new NotImplementedException(); }
         }
 
         public override bool Contains(string parameterName) {

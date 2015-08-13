@@ -20,7 +20,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         static void ValidateType(object value) {
             if(!(value is BigQueryParameter))
-                throw new Exception("Invalid parameter type");
+                throw new ArgumentException("Invalid parameter type");
         }
 
         public override bool Contains(object value) {
@@ -79,7 +79,7 @@ namespace DevExpress.DataAccess.BigQuery {
         int CheckName(string parameterName) {
             int index = IndexOf(parameterName);
             if(index < 0)
-                throw new Exception("wrong parameter name");
+                throw new ArgumentException("Wrong parameter name");
             return index;
         }
 
@@ -122,7 +122,7 @@ namespace DevExpress.DataAccess.BigQuery {
         protected override void SetParameter(string parameterName, DbParameter value) {
             int index = IndexOf(parameterName);
             if(index < 0)
-                throw new Exception("wrong parameter name");
+                throw new ArgumentException("Wrong parameter name");
             Replace(index, value);
         }
 

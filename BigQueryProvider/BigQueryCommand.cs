@@ -98,7 +98,6 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) {
-            bigQueryParameterCollection.Validate();
             var reader = new BigQueryDataReader(behavior, this, Connection.Service);
             reader.Initialize();
             return reader;

@@ -23,6 +23,16 @@ namespace DevExpress.DataAccess.BigQuery {
             SourceColumn = sourceColumn;
         }
 
+        public BigQueryParameter(string parameterName, BigQueryDbType bigQueryDbType) {
+            ParameterName = parameterName;
+            BigQueryDbType = bigQueryDbType;
+        }
+
+        public BigQueryParameter(string parameterName, BigQueryDbType bigQueryDbType, string sourceColumn)
+            : this(parameterName, bigQueryDbType) {
+            SourceColumn = sourceColumn;
+        }
+
         BigQueryDbType? bigQueryDbType;
         DbType? dbType;
         object value;

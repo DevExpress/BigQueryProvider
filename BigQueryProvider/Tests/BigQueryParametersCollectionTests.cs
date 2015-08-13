@@ -3,7 +3,7 @@ using System;
 using System.Data;
 using Xunit;
 namespace DevExpress.DataAccess.BigQuery.Tests {
-    public class BigQueryParametersCollectionTests : IDisposable {
+    public class BigQueryParametersCollectionTests {
         readonly BigQueryParameter param0 = new BigQueryParameter("param0", DbType.String);
         readonly BigQueryParameter param1 = new BigQueryParameter("param1", DbType.String);
         readonly BigQueryParameter param2 = new BigQueryParameter("param2", DbType.String);
@@ -22,8 +22,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             paramCollection.Insert(5, param5);
             Collection = paramCollection;
         }
-
-        public void Dispose() { }
 
         public BigQueryParameterCollection Collection { get; set; }
 

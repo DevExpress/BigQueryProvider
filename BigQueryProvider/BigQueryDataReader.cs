@@ -23,7 +23,6 @@ namespace DevExpress.DataAccess.BigQuery {
 
         internal BigQueryDataReader(CommandBehavior behavior, BigQueryCommand command, BigqueryService service) {
             this.behavior = behavior;
-
             bigQueryService = service;
             bigQueryCommand = command;
         }
@@ -49,6 +48,8 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         internal void Initialize() {
+            var collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
+            collection.Validate();
             try {
                 if(behavior == CommandBehavior.SchemaOnly) {
                     TableList tableList = bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).Execute();

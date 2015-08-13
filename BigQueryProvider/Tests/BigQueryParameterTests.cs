@@ -10,8 +10,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             var emptyParam = new BigQueryParameter();
             Assert.Equal(DbType.Object, emptyParam.DbType);
             Assert.Equal(BigQueryDbType.Unknown, emptyParam.BigQueryDbType);
-            Assert.Equal(null, emptyParam.Value);
-            Assert.Equal(null, emptyParam.ParameterName);
+            Assert.Null(emptyParam.Value);
+            Assert.Null(emptyParam.ParameterName);
             const string paramName = "testParam";
             var param = new BigQueryParameter(paramName, DbType.Int64);
             Assert.Equal(paramName, param.ParameterName);
@@ -30,17 +30,16 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
             const string stringValue = "stringValue";
             var paramInitializeValue = new BigQueryParameter("test", DbType.String) {Value = stringValue};
-            Assert.Equal(paramInitializeValue.Value, stringValue);
+            Assert.Equal(stringValue, paramInitializeValue.Value);
 
             var intParam = new BigQueryParameter("test", DbType.Int64);
             Assert.Equal(default(Int64), intParam.Value);
 
             var stringParam = new BigQueryParameter("test", DbType.String);
-            Assert.Equal(null, stringParam.Value);
+            Assert.Null(stringParam.Value);
 
             var objectParam = new BigQueryParameter("test", DbType.Object);
-            Assert.Equal(null, objectParam.Value);
-
+            Assert.Null(objectParam.Value);
         }
 
         [Fact]
@@ -74,6 +73,30 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Assert.Equal(dbType, param.DbType);
         }
 
+        [Theory]
+        [InlineData(DbType.Int64, BigQueryDbType.Integer)]
+        [InlineData(DbType.String, BigQueryDbType.String)]
+        [InlineData(DbType.Object, BigQueryDbType.Unknown)]
+        public void ChangeDbTypeTest(DbType dbType, BigQueryDbType bigQueryDbType) {
+            var param = new BigQueryParameter("test", DbType.Single) { Value = 123 };
+            Assert.Equal(DbType.Single, param.DbType);
+            Assert.Equal(BigQueryDbType.Float, param.BigQueryDbType);
+            param.DbType = dbType;
+            Assert.Equal(bigQueryDbType, param.BigQueryDbType);
+        }
+
+        [Theory]
+        [InlineData(BigQueryDbType.Integer, DbType.Int64)]
+        [InlineData(BigQueryDbType.String, DbType.String)]
+        [InlineData(BigQueryDbType.Unknown, DbType.Object)]
+        public void ChangeBigQueryDbTypeTest(BigQueryDbType bigQueryDbType, DbType dbType) {
+            var param = new BigQueryParameter("test", DbType.Single) { Value = 123 };
+            Assert.Equal(DbType.Single, param.DbType);
+            Assert.Equal(BigQueryDbType.Float, param.BigQueryDbType);
+            param.BigQueryDbType = bigQueryDbType;
+            Assert.Equal(dbType, param.DbType);
+        }
+
         [Fact]
         public void ValidationEmptyNameTest() {
             var param = new BigQueryParameter {
@@ -101,19 +124,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Assert.Throws<NotSupportedException>(() => param.Validate());
             param.DbType = DbType.Int64;
             param.Validate();
-        }
-
-        [Fact]
-        public void ChangeDbTypeTest() {
-            var param = new BigQueryParameter("test", DbType.Single) {Value = 123};
-            Assert.Equal(DbType.Single, param.DbType);
-            Assert.Equal(BigQueryDbType.Float, param.BigQueryDbType);
-            param.DbType = DbType.Int64;
-            Assert.Equal(BigQueryDbType.Integer, param.BigQueryDbType);
-            param.DbType = DbType.String;
-            Assert.Equal(BigQueryDbType.String, param.BigQueryDbType);
-            param.DbType = DbType.Object;
-            Assert.Equal(BigQueryDbType.Unknown, param.BigQueryDbType);
         }
 
         [Fact]

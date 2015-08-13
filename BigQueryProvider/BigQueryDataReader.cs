@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
@@ -122,6 +123,8 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override DataTable GetSchemaTable() {
             DisposeCheck();
+            if(tables.Current == null)
+                return null;
             string projectId = bigQueryCommand.Connection.ProjectId;
             string dataSetId = bigQueryCommand.Connection.DataSetId;
             string tableId = tables.Current.TableReference.TableId;

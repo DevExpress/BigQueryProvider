@@ -5,8 +5,8 @@ using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     public abstract class BigQueryCommandTestsBase : IDisposable {
-        BigQueryConnection connection;
-        DataTable natalitySchemaTable;
+        readonly BigQueryConnection connection;
+        readonly DataTable natalitySchemaTable;
         const string commandText = "SELECT * FROM [testdata." + TestingInfrastructureHelper.NatalityTableName + "] LIMIT 10";
         const string commandTextWithFilter = "SELECT * FROM [testdata." + TestingInfrastructureHelper.Natality2TableName + "] WHERE state = @state LIMIT 10";
         const string injectedViaSingleQuotesValue = "CA' or 1=1--";
@@ -111,6 +111,5 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             connection.Close();
         }
     }
-
 }
 #endif

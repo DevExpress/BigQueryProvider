@@ -38,6 +38,7 @@ namespace DevExpress.DataAccess.BigQuery {
                 if(behavior == CommandBehavior.SchemaOnly) {
                     TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync();
                     tables = tableList.Tables.GetEnumerator();
+                    tables.MoveNext();
                 } else {
                     JobsResource.QueryRequest request = CreateRequest();
                     QueryResponse queryResponse = await request.ExecuteAsync();
@@ -121,6 +122,8 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override DataTable GetSchemaTable() {
             DisposeCheck();
+            if(tables.Current == null)
+                return null;
             string projectId = bigQueryCommand.Connection.ProjectId;
             string dataSetId = bigQueryCommand.Connection.DataSetId;
             string tableId = tables.Current.TableReference.TableId;

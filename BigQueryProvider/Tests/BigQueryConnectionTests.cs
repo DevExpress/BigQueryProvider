@@ -67,6 +67,17 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
+        public void GetDatabaseNamesTest() {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
+                connection.Open();
+                string[] tableNames = connection.GetDatabaseNames();
+                Assert.Equal(2, tableNames.Length);
+                Assert.Equal("TestData", tableNames[0]);
+                Assert.Equal("testdata", tableNames[1]);
+            }
+        }
+
+        [Fact]
         public void CreateDbCommandTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
@@ -121,8 +132,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             connection.Dispose();
 
             Assert.Throws<ObjectDisposedException>(() => { connection.GetTableNames(); });
-
-
         }
 
         [Fact]

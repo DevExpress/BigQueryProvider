@@ -12,6 +12,7 @@ using Google.Apis.Bigquery.v2.Data;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryDataReader : DbDataReader {
+        const char parameterPrefix = '@';
         readonly BigQueryCommand bigQueryCommand;
         readonly BigqueryService bigQueryService;
         IEnumerator<TableRow> enumerator;
@@ -69,7 +70,7 @@ namespace DevExpress.DataAccess.BigQuery {
         JobsResource.QueryRequest CreateRequest() {
             BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
             foreach(BigQueryParameter parameter in collection) {
-                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace("@" + parameter.ParameterName, PrepareParameterValue(parameter.Value));
+                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter.Value));
             }
             QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue };
             JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);

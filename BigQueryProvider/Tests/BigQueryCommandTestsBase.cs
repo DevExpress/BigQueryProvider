@@ -5,9 +5,14 @@ using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
     public abstract class BigQueryCommandTestsBase : IDisposable {
-        BigQueryConnection connection;
-        DataTable natalitySchemaTable;
+        readonly BigQueryConnection connection;
+        readonly DataTable natalitySchemaTable;
         const string commandText = "SELECT * FROM [testdata." + TestingInfrastructureHelper.NatalityTableName + "] LIMIT 10";
+        const string commandTextWithFilter = "SELECT * FROM [testdata." + TestingInfrastructureHelper.Natality2TableName + "] WHERE state = @state LIMIT 10";
+        const string injectedViaSingleQuotesValue = "CA' or 1=1--";
+        const string injectedViaDoubleQuotesValue = @"CA"" or 1=1--";
+        const string injectedViaBackSlashesValue = @"CA\' or 1=1--";
+        const string normalValue = "CA";
 
         protected abstract string GetConnectionString();
 
@@ -84,42 +89,21 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             });
         }
 
-        [Fact]
-        public void EscapingSingleQuotesTest() {
+        [Theory]
+        [InlineData("state", normalValue, true)]
+        [InlineData("@state", normalValue, true)]
+        [InlineData("state", injectedViaSingleQuotesValue, false)]
+        [InlineData("state", injectedViaDoubleQuotesValue, false)]
+        [InlineData("state", injectedViaBackSlashesValue, false)]
+        public void RunCommandWithParameterTest(string parameterName, object parameterValue, bool exceptedReadResult) {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", TestingInfrastructureHelper.Natality2TableName);
-                param.Value = "CA' or 1=1--";
-                param.ParameterName = "state";
+                dbCommand.CommandText = commandTextWithFilter;
+                param.ParameterName = parameterName;
+                param.Value = parameterValue;
                 dbCommand.Parameters.Add(param);
-                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
-                Assert.False(result.Read());
-            }
-        }
-
-        [Fact]
-        public void EscapingDoubleQuotesTest() {
-            using(var dbCommand = connection.CreateCommand()) {
-                var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", TestingInfrastructureHelper.Natality2TableName);
-                param.Value = @"CA"" or 1=1--";
-                param.ParameterName = "state";
-                dbCommand.Parameters.Add(param);
-                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
-                Assert.False(result.Read());
-            }
-        }
-
-        [Fact]
-        public void EscapingBackSlashesTest() {
-            using(var dbCommand = connection.CreateCommand()) {
-                var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = string.Format("select * from [testdata.{0}] where state=@state", TestingInfrastructureHelper.Natality2TableName);
-                param.Value = @"CA\' or 1=1--";
-                param.ParameterName = "state";
-                dbCommand.Parameters.Add(param);
-                var result = (BigQueryDataReader)dbCommand.ExecuteReader(CommandBehavior.Default);
-                Assert.False(result.Read());
+                var reader = dbCommand.ExecuteReader(CommandBehavior.Default);
+                Assert.Equal(exceptedReadResult, reader.Read());
             }
         }
 
@@ -127,6 +111,5 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             connection.Close();
         }
     }
-
 }
 #endif

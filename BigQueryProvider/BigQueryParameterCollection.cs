@@ -16,10 +16,6 @@ namespace DevExpress.DataAccess.BigQuery {
                 throw new ArgumentException("Invalid parameter type");
         }
 
-        void RemoveIndex(int index) {
-            innerList.RemoveAt(index);
-        }
-
         void RangeCheck(int index) {
             if(index < 0 || Count <= index)
                 throw new IndexOutOfRangeException();
@@ -30,12 +26,6 @@ namespace DevExpress.DataAccess.BigQuery {
             if(index < 0)
                 throw new ArgumentException("Wrong parameter name");
             return index;
-        }
-
-        void Replace(int index, DbParameter value) {
-            ValidateType(value);
-            ValidateParameter(index, value);
-            innerList[index] = (BigQueryParameter)value;
         }
 
         void ValidateParameter(int index, DbParameter value) {
@@ -54,12 +44,6 @@ namespace DevExpress.DataAccess.BigQuery {
             while(IndexOf(parameterName) != -1);
 
             value.ParameterName = parameterName;
-        }
-
-        public void Validate() {
-            foreach(var parameter in innerList) {
-                parameter.Validate();
-            }
         }
 
         protected override DbParameter GetParameter(int index) {
@@ -86,6 +70,23 @@ namespace DevExpress.DataAccess.BigQuery {
                 throw new ArgumentException("Wrong parameter name");
             Replace(index, value);
         }
+       
+        void Replace(int index, DbParameter value) {
+            ValidateType(value);
+            ValidateParameter(index, value);
+            innerList[index] = (BigQueryParameter)value;
+        }
+
+        public void Validate() {
+            foreach(var parameter in innerList) {
+                parameter.Validate();
+            }
+        }
+
+        public override int IndexOf(string parameterName) {
+            BigQueryParameter value = innerList.FirstOrDefault(p => p.ParameterName == parameterName);
+            return IndexOf(value);
+        }
 
         public override int IndexOf(object value) {
             if(value == null)
@@ -97,11 +98,6 @@ namespace DevExpress.DataAccess.BigQuery {
                     return i;
             }
             return -1;
-        }
-
-        public override int IndexOf(string parameterName) {
-            BigQueryParameter value = innerList.FirstOrDefault(p => p.ParameterName == parameterName);
-            return IndexOf(value);
         }
 
         public override IEnumerator GetEnumerator() {
@@ -125,6 +121,10 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override void RemoveAt(string parameterName) {
             RemoveIndex(CheckName(parameterName));
+        }
+
+        void RemoveIndex(int index) {
+            innerList.RemoveAt(index);
         }
 
         public override int Add(object parameter) {

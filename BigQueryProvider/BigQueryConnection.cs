@@ -244,10 +244,14 @@ namespace DevExpress.DataAccess.BigQuery {
             set { connectionStringBuilder.ConnectionString = value; }
         }
 
-        protected override DbCommand CreateDbCommand() {
+        public new BigQueryCommand CreateCommand() {
             CheckDisposed();
             CheckOpen();
             return new BigQueryCommand { Connection = this };
+        }
+
+        protected override DbCommand CreateDbCommand() {
+            return CreateCommand();
         }
 
         public override string DataSource {

@@ -51,22 +51,6 @@ namespace DevExpress.DataAccess.BigQuery {
             }
         }
 
-        internal void Initialize() {
-            try {
-                if(behavior == CommandBehavior.SchemaOnly) {
-                    TableList tableList = bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).Execute();
-                    tables = tableList.Tables.GetEnumerator();
-                } else {
-                    JobsResource.QueryRequest request = CreateRequest();
-                    QueryResponse queryResponse = request.Execute();
-                    ProcessQueryResponse(queryResponse);
-                }
-            }
-            catch(GoogleApiException e) {
-                throw e.Wrap();
-            }
-        }
-
         JobsResource.QueryRequest CreateRequest() {
             BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
             foreach(BigQueryParameter parameter in collection) {

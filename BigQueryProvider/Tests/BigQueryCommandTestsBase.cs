@@ -39,11 +39,33 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
+        public async void ExecuteReaderTest_TypeText_Async() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText = commandText;
+                dbCommand.CommandType = CommandType.Text;
+                var dbDataReader = await dbCommand.ExecuteReaderAsync();
+                Assert.NotNull(dbDataReader);
+                Assert.Equal(2, dbDataReader.FieldCount);
+            }
+        }
+
+        [Fact]
         public void ExecuteReaderTest_TypeTableDirect() {
             using(var dbCommand = connection.CreateCommand()) {
                 dbCommand.CommandText = "natality";
                 dbCommand.CommandType = CommandType.TableDirect;
                 var dbDataReader = dbCommand.ExecuteReader();
+                Assert.NotNull(dbDataReader);
+                Assert.Equal(2, dbDataReader.FieldCount);
+            }
+        }
+
+        [Fact]
+        public async void ExecuteReaderTest_TypeTableDirect_Async() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText = "natality";
+                dbCommand.CommandType = CommandType.TableDirect;
+                var dbDataReader = await dbCommand.ExecuteReaderAsync();
                 Assert.NotNull(dbDataReader);
                 Assert.Equal(2, dbDataReader.FieldCount);
             }
@@ -70,10 +92,19 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
+        public async void ExecuteScalarReaderTest_Async() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText = "select 1 from [testdata.natality]";
+                var executeScalarResult = await dbCommand.ExecuteScalarAsync();
+                Assert.NotNull(executeScalarResult);
+                Assert.Equal(1, int.Parse(executeScalarResult.ToString()));
+            }
+        }
+
+        [Fact]
         public void CommandSchemaBehaviorTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var dbDataReader = dbCommand.ExecuteReader(CommandBehavior.SchemaOnly);
-                dbDataReader.NextResult();
                 DataTable schemaTable = dbDataReader.GetSchemaTable();
                 Assert.True(DataTableComparer.Equals(natalitySchemaTable, schemaTable));
             }

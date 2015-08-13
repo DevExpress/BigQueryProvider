@@ -49,12 +49,15 @@ namespace DevExpress.DataAccess.BigQuery {
 
         internal void Initialize() {
             var collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
-            collection.Validate();
             try {
                 if(behavior == CommandBehavior.SchemaOnly) {
-                    TableList tableList = bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).Execute();
+                    TableList tableList =
+                        bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId,
+                            bigQueryCommand.Connection.DataSetId).Execute();
                     tables = tableList.Tables.GetEnumerator();
-                } else {
+                }
+                else {
+                    collection.Validate();
                     JobsResource.QueryRequest request = CreateRequest();
                     QueryResponse queryResponse = request.Execute();
                     ProcessQueryResponse(queryResponse);

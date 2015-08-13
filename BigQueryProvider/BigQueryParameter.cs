@@ -36,6 +36,20 @@ namespace DevExpress.DataAccess.BigQuery {
         BigQueryDbType? bigQueryDbType;
         DbType? dbType;
         object value;
+        internal void Validate() {
+            if(string.IsNullOrEmpty(ParameterName))
+                throw new ArgumentException("Parameter's name is empty");
+            if(Value == null)
+                throw new ArgumentException("Parameter's value is not initialized");
+            if(BigQueryDbType == BigQueryDbType.Unknown)
+                throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
+            try {
+                Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType));
+            }
+            catch(Exception) {
+                throw new ArgumentException("Can't convert Value " + Value + " to DbType " + DbType);
+            }
+        }
 
         public override void ResetDbType() {
             dbType = null;
@@ -45,23 +59,6 @@ namespace DevExpress.DataAccess.BigQuery {
             SourceColumn = null;
             SourceVersion = DataRowVersion.Current;
             Direction = ParameterDirection.Input;
-        }
-
-        internal void Validate() {
-            if(string.IsNullOrEmpty(ParameterName))
-                throw new ArgumentException("Parameter's name is empty");
-            if (Value == null)
-                throw new ArgumentException("Parameter's value is not initialized");
-            if(BigQueryDbType == BigQueryDbType.Unknown)
-                throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
-            if (BigQueryTypeConverter.ToType(DbType) ==  null)
-                throw new NotSupportedException("This DbType " + DbType + " is unsupported by BigQuery");
-            try {
-                Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType));
-            }
-            catch(Exception) {
-                throw new ArgumentException("Can't convert Value " + Value + " to DbType " + DbType);
-            }
         }
 
         public BigQueryDbType BigQueryDbType {

@@ -33,6 +33,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Theory]
         [InlineData(typeof(string), DbType.String, typeof(string))]
+        [InlineData(typeof(char), DbType.String, typeof(string))]
         [InlineData(typeof(bool), DbType.Boolean, typeof(bool))]
         [InlineData(typeof(Int64), DbType.Int64, typeof(Int64))]
         [InlineData(typeof(Single), DbType.Single, typeof(Single))]

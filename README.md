@@ -23,4 +23,10 @@ For connection to server you need:
     <li><b>OAuthClientId</b> and <b>OAuthClientSecret</b> - It is written in APIs&auth/Credentials. You need to create new credentials for "Installed application".</li>
     <li><b>OAuthRefreshToken</b> - You can get it <a href="https://developers.google.com/oauthplayground">here</a>.</li>
   </ul>
+  
+  Example connection string:
+  
+  ```xml
+  connectionString="ProjectID=projectID;DataSetId=dataSetId;OAuthClientId=oAuthClientId;OAuthClientSecret=oAuthClientSecret;OAuthRefreshToken=oAuthRefreshToken"
+  ```
 

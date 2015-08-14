@@ -139,6 +139,9 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Assert.Equal(0, collection.Add(param0));
             Assert.Throws<ArgumentNullException>(() => collection.Add(null));
             Assert.Throws<ArgumentException>(() => collection.Add("notParameter"));
+            Assert.Equal(1, collection.Add("parameter", DbType.String));
+            Assert.Equal("parameter", collection[1].ParameterName);
+            Assert.Equal(DbType.String, collection[1].DbType);
         }
 
         [Fact]

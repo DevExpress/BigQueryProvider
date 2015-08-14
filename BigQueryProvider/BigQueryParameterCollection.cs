@@ -40,6 +40,10 @@ namespace DevExpress.DataAccess.BigQuery {
             get { return false; }
         }
 
+        public int Add(string parameterName, DbType dbType) {
+            return Add(new BigQueryParameter(parameterName, dbType));
+        }
+
         void RangeCheck(int index) {
             if(index < 0 || Count <= index)
                 throw new IndexOutOfRangeException();

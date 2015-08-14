@@ -27,6 +27,6 @@ For connection to server you need:
   Example connection string:
   
   ```xml
-  connectionString="ProjectID=projectID;DataSetId=dataSetId;OAuthClientId=oAuthClientId;OAuthClientSecret=oAuthClientSecret;OAuthRefreshToken=oAuthRefreshToken"
+  ProjectID=projectID;DataSetId=dataSetId;OAuthClientId=oAuthClientId;OAuthClientSecret=oAuthClientSecret;OAuthRefreshToken=oAuthRefreshToken
   ```
 

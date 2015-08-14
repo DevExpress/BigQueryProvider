@@ -1,5 +1,4 @@
 # BigQueryProvider
-DevExpress Google BigQuery Provider
 
 <div>
 <a href="http://dataaccess.cloudapp.net:9999/viewType.html?buildTypeId=BigQueryProvider_DebugTest&guest=1">
@@ -23,3 +22,8 @@ DevExpress Google BigQuery Provider
 <img src="https://img.shields.io/nuget/v/DevExpress.DataAccess.BigQuery.svg?style=flat"/>
 </a>
 </div>
+
+BigQueryProvider is a .NET data provider for Google BigQuery. It allows you to connect and interact with BigQuery server using .NET. 
+
+Download via <a href="https://www.nuget.org/packages/DevExpress.DataAccess.BigQuery">Nuget</a>
+

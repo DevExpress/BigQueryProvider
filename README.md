@@ -18,7 +18,7 @@ Download via <a href="https://www.nuget.org/packages/DevExpress.DataAccess.BigQu
 
 For connection to server you need:
   <ul>
-    <li><b>ProjectId</b> - Is is written in your <a href="https://console.developers.google.com/project">console</a> next to the name of the project.</li>
+    <li><b>ProjectId</b> - It is written in your <a href="https://console.developers.google.com/project">console</a> next to the name of the project.</li>
     <li><b>DataSetId</b> - It is written in your project.</li>
     <li><b>OAuthClientId</b> and <b>OAuthClientSecret</b> - It is written in APIs&auth/Credentials. You need to create new credentials for "Installed application".</li>
     <li><b>OAuthRefreshToken</b> - You can get it <a href="https://developers.google.com/oauthplayground">here</a>.</li>

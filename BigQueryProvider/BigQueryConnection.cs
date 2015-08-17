@@ -153,9 +153,9 @@ namespace DevExpress.DataAccess.BigQuery {
         async Task InitializeServiceAsync() {
             CheckDisposed();
             state = ConnectionState.Connecting;
-            Service = await CreateService();
+            Service = await CreateService().ConfigureAwait(false);
             JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
-            await listRequest.ExecuteAsync();
+            await listRequest.ExecuteAsync().ConfigureAwait(false);
             state = ConnectionState.Open;
         }
 
@@ -173,7 +173,7 @@ namespace DevExpress.DataAccess.BigQuery {
                     new[] {BigqueryService.Scope.Bigquery},
                     "user",
                     CancellationToken.None,
-                    dataStore);
+                    dataStore).ConfigureAwait(false);
 
                 OAuthRefreshToken = dataStore.RefreshToken;
                 OAuthAccessToken = dataStore.AccessToken;

@@ -108,7 +108,7 @@ namespace DevExpress.DataAccess.BigQuery {
         async Task<int> ExecuteNonQueryInternalAsync(CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
-            using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken)) {
+            using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken).ConfigureAwait(false)) {
                 while(await dbDataReader.NextResultAsync())
                     ;
                 return dbDataReader.RecordsAffected;
@@ -131,8 +131,8 @@ namespace DevExpress.DataAccess.BigQuery {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             object result = null;
-            using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken)) {
-                if(await dbDataReader.ReadAsync())
+            using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken).ConfigureAwait(false)) {
+                if(await dbDataReader.ReadAsync().ConfigureAwait(false))
                     if(dbDataReader.FieldCount > 0)
                         result = dbDataReader.GetValue(0);
             }

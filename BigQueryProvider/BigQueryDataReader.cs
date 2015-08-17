@@ -30,38 +30,14 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         internal async Task InitializeAsync() {
-            await InitializeInternalAsync().ConfigureAwait(false);
-        }
-
-        async Task InitializeInternalAsync() {
             try {
                 if(behavior == CommandBehavior.SchemaOnly) {
-                    TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync();
+                    TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync().ConfigureAwait(false);
                     tables = tableList.Tables.GetEnumerator();
                     tables.MoveNext();
                 } else {
                     JobsResource.QueryRequest request = CreateRequest();
-                    QueryResponse queryResponse = await request.ExecuteAsync();
-                    ProcessQueryResponse(queryResponse);
-                }
-            }
-            catch(GoogleApiException e) {
-                throw e.Wrap();
-            }
-        }
-
-        internal void Initialize() {
-            try {
-                if(behavior == CommandBehavior.SchemaOnly) {
-                    TableList tableList =
-                        bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId)
-                                       .Execute();
-                    tables = tableList.Tables.GetEnumerator();
-                }
-                else {
-                    ((BigQueryParameterCollection) bigQueryCommand.Parameters).Validate();
-                    JobsResource.QueryRequest request = CreateRequest();
-                    QueryResponse queryResponse = request.Execute();
+                    QueryResponse queryResponse = await request.ExecuteAsync().ConfigureAwait(false);
                     ProcessQueryResponse(queryResponse);
                 }
             }

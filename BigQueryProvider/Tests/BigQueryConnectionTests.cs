@@ -21,6 +21,21 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
+        public async void OpenConnectionTest_Async() {
+            using (BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
+                Assert.NotNull(connection.ConnectionString);
+                Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(ConnectionState.Closed, connection.State);
+                Assert.Null(connection.Service);
+                await connection.OpenAsync();
+                Assert.NotNull(connection.ConnectionString);
+                Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(ConnectionState.Open, connection.State);
+                Assert.NotNull(connection.Service);
+            }
+        }
+
+        [Fact]
         public void OpenCloseConnectionTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 Assert.NotNull(connection.ConnectionString);
@@ -121,8 +136,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             connection.Dispose();
 
             Assert.Throws<ObjectDisposedException>(() => { connection.GetTableNames(); });
-
-
         }
 
         [Fact]

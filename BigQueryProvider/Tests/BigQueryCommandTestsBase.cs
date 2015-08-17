@@ -10,11 +10,14 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         readonly BigQueryConnection connection;
         readonly DataTable natalitySchemaTable;
         const string commandText = "SELECT * FROM [testdata." + TestingInfrastructureHelper.NatalityTableName + "] LIMIT 10";
-        const string commandTextWithFilter = "SELECT * FROM [testdata." + TestingInfrastructureHelper.Natality2TableName + "] WHERE state = @state LIMIT 10";
+        const string commandTextWithFilter = "SELECT * FROM [testdata." + TestingInfrastructureHelper.Natality2TableName + "] WHERE {0} LIMIT 10";
+        const string filterByString = "state = @state";
+        const string filterByBool = "mother_married = @mother_married";
         const string injectedViaSingleQuotesValue = "CA' or 1=1--";
         const string injectedViaDoubleQuotesValue = @"CA"" or 1=1--";
         const string injectedViaBackSlashesValue = @"CA\' or 1=1--";
         const string normalValue = "CA";
+        const bool trueValue = true;
 
         protected abstract string GetConnectionString();
 
@@ -79,8 +82,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 using (var dbCommand = connection.CreateCommand()) {
                     dbCommand.CommandType = CommandType.StoredProcedure;
                 }
-            }
-                );
+            });
         }
 
         [Fact]
@@ -123,15 +125,16 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Theory]
-        [InlineData("state", normalValue, true)]
-        [InlineData("@state", normalValue, true)]
-        [InlineData("state", injectedViaSingleQuotesValue, false)]
-        [InlineData("state", injectedViaDoubleQuotesValue, false)]
-        [InlineData("state", injectedViaBackSlashesValue, false)]
-        public void RunCommandWithParameterTest(string parameterName, object parameterValue, bool exceptedReadResult) {
+        [InlineData(filterByString, "state", normalValue, true)]
+        [InlineData(filterByString, "@state", normalValue, true)]
+        [InlineData(filterByString, "state", injectedViaSingleQuotesValue, false)]
+        [InlineData(filterByString, "state", injectedViaDoubleQuotesValue, false)]
+        [InlineData(filterByString, "state", injectedViaBackSlashesValue, false)]
+        [InlineData(filterByBool, "mother_married", trueValue, true)]
+        public void RunCommandWithParameterTest(string filterString, string parameterName, object parameterValue, bool exceptedReadResult) {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = commandTextWithFilter;
+                dbCommand.CommandText = string.Format(commandTextWithFilter, filterString);
                 param.ParameterName = parameterName;
                 param.Value = parameterValue;
                 dbCommand.Parameters.Add(param);

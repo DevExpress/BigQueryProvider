@@ -40,18 +40,18 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
 
-        [Fact]
-        public void ExecuteReaderTest_TypeText_Async() {
-            using(var dbCommand = connection.CreateCommand()) {
-                dbCommand.CommandText = commandText;
-                dbCommand.CommandType = CommandType.Text;
-                var task = dbCommand.ExecuteReaderAsync();
-                task.Wait();
-                var dbDataReader = task.Result;
-                Assert.NotNull(dbDataReader);
-                Assert.Equal(2, dbDataReader.FieldCount);
-            }
-        }
+        //[Fact]
+        //public void ExecuteReaderTest_TypeText_Async() {
+        //    using(var dbCommand = connection.CreateCommand()) {
+        //        dbCommand.CommandText = commandText;
+        //        dbCommand.CommandType = CommandType.Text;
+        //        var task = dbCommand.ExecuteReaderAsync();
+        //        task.Wait();
+        //        var dbDataReader = task.Result;
+        //        Assert.NotNull(dbDataReader);
+        //        Assert.Equal(2, dbDataReader.FieldCount);
+        //    }
+        //}
 
         [Fact]
         public void ExecuteReaderTest_TypeTableDirect() {
@@ -64,18 +64,18 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
 
-        [Fact]
-        public void ExecuteReaderTest_TypeTableDirect_Async() {
-            using(var dbCommand = connection.CreateCommand()) {
-                dbCommand.CommandText = "natality";
-                dbCommand.CommandType = CommandType.TableDirect;
-                var tast = dbCommand.ExecuteReaderAsync();
-                tast.Wait();
-                var dbDataReader = tast.Result;
-                Assert.NotNull(dbDataReader);
-                Assert.Equal(2, dbDataReader.FieldCount);
-            }
-        }
+        //[Fact]
+        //public void ExecuteReaderTest_TypeTableDirect_Async() {
+        //    using(var dbCommand = connection.CreateCommand()) {
+        //        dbCommand.CommandText = "natality";
+        //        dbCommand.CommandType = CommandType.TableDirect;
+        //        var tast = dbCommand.ExecuteReaderAsync();
+        //        tast.Wait();
+        //        var dbDataReader = tast.Result;
+        //        Assert.NotNull(dbDataReader);
+        //        Assert.Equal(2, dbDataReader.FieldCount);
+        //    }
+        //}
 
         [Fact]
         public void ExecuteReader_TypeStoredProcedure() {
@@ -97,17 +97,17 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
 
-        [Fact]
-        public void ExecuteScalarReaderTest_Async() {
-            using(var dbCommand = connection.CreateCommand()) {
-                dbCommand.CommandText = "select 1 from [testdata.natality]";
-                var task = dbCommand.ExecuteScalarAsync();
-                task.Wait();
-                var executeScalarResult = task.Result;
-                Assert.NotNull(executeScalarResult);
-                Assert.Equal(1, int.Parse(executeScalarResult.ToString()));
-            }
-        }
+        //[Fact]
+        //public void ExecuteScalarReaderTest_Async() {
+        //    using(var dbCommand = connection.CreateCommand()) {
+        //        dbCommand.CommandText = "select 1 from [testdata.natality]";
+        //        var task = dbCommand.ExecuteScalarAsync();
+        //        task.Wait();
+        //        var executeScalarResult = task.Result;
+        //        Assert.NotNull(executeScalarResult);
+        //        Assert.Equal(1, int.Parse(executeScalarResult.ToString()));
+        //    }
+        //}
 
         [Fact]
         public void CommandSchemaBehaviorTest() {

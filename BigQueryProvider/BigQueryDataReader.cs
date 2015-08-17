@@ -31,10 +31,6 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         internal async Task InitializeAsync() {
-            await InitializeInternalAsync().ConfigureAwait(false);
-        }
-
-        async Task InitializeInternalAsync() {
             try {
                 if(behavior == CommandBehavior.SchemaOnly) {
                     TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync();

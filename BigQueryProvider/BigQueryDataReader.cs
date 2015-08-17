@@ -99,25 +99,20 @@ namespace DevExpress.DataAccess.BigQuery {
             return command.CommandType == CommandType.TableDirect ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) : command.CommandText;
         }
 
-        static string PrepareParameterValue(object value) {
-            Type type = value.GetType();
-            if(type == typeof(char))
-                return string.Format("'{0}'", (char)value);
-            if(type == typeof(string))
-                return string.Format("{0}" + ((string)value).Replace(@"\", @"\\").Replace("'", @"\'").Replace("\"", @"""") + "{0}", @"'");
-            if(type == typeof(DateTime))
-                return string.Format("TIMESTAMP('{0}')", ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
-            if(type == typeof(int))
-                return ((int)value).ToString(CultureInfo.InvariantCulture);
-            if(type == typeof(float))
-                return ((float)value).ToString(CultureInfo.InvariantCulture);
-            if(type == typeof(double))
-                return ((double)value).ToString(CultureInfo.InvariantCulture);
-            if(type == typeof(decimal))
-                return ((decimal)value).ToString(CultureInfo.InvariantCulture);
-            if(type == typeof(bool))
-                return (bool)value ? "true" : "false";
-            return value.ToString();
+        static string PrepareParameterValue(object value, BigQueryDbType bqDbType) {
+            string format = bqDbType == BigQueryDbType.Timestamp ? 
+                "TIMESTAMP('{0:u}')" : bqDbType == BigQueryDbType.String ? 
+                "'{0}'" : "{0}";
+            return string.Format(CultureInfo.InvariantCulture, format, EscapeValue(value));
+        }
+
+        static object EscapeValue(object value) {
+            var valueAsString = value as string;
+            if(valueAsString == null)
+                return value;
+            return valueAsString.Replace(@"\", @"\\")
+                .Replace("'", @"\'")
+                .Replace("\"", @"""");
         }
 
         public override void Close() {

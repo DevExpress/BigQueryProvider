@@ -140,6 +140,15 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
 
+        [Fact]
+        public void ValidateIncorrectParamInCollectionTest() {
+            var dbCommand = connection.CreateCommand();
+            var param = dbCommand.CreateParameter();
+            param.Value = "testValue";
+            dbCommand.Parameters.Add(param);
+            Assert.Throws<ArgumentException>(() => dbCommand.ExecuteReader(CommandBehavior.Default));
+        }
+
         public void Dispose() {
             connection.Close();
         }

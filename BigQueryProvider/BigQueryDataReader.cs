@@ -36,6 +36,7 @@ namespace DevExpress.DataAccess.BigQuery {
                     tables = tableList.Tables.GetEnumerator();
                     tables.MoveNext();
                 } else {
+                    ((BigQueryParameterCollection) bigQueryCommand.Parameters).Validate();
                     JobsResource.QueryRequest request = CreateRequest();
                     QueryResponse queryResponse = await request.ExecuteAsync().ConfigureAwait(false);
                     ProcessQueryResponse(queryResponse);

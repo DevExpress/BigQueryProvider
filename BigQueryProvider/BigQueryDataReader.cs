@@ -100,14 +100,23 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         static string PrepareParameterValue(object value) {
-            string stringValue = value as string;
-            if(stringValue != null) {
-                stringValue = stringValue.Replace(@"\", @"\\").Replace("'", @"\'").Replace("\"", @"""");
-                return string.Format("{0}"+stringValue+"{0}", @"'");
-            }
-            DateTime? dateTime = value as DateTime?;
-            if(dateTime.HasValue)
-                return string.Format("'{0}'", dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
+            Type type = value.GetType();
+            if(type == typeof(char))
+                return string.Format("'{0}'", (char)value);
+            if(type == typeof(string))
+                return string.Format("{0}" + ((string)value).Replace(@"\", @"\\").Replace("'", @"\'").Replace("\"", @"""") + "{0}", @"'");
+            if(type == typeof(DateTime))
+                return string.Format("TIMESTAMP('{0}')", ((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
+            if(type == typeof(int))
+                return ((int)value).ToString(CultureInfo.InvariantCulture);
+            if(type == typeof(float))
+                return ((float)value).ToString(CultureInfo.InvariantCulture);
+            if(type == typeof(double))
+                return ((double)value).ToString(CultureInfo.InvariantCulture);
+            if(type == typeof(decimal))
+                return ((decimal)value).ToString(CultureInfo.InvariantCulture);
+            if(type == typeof(bool))
+                return (bool)value ? "true" : "false";
             return value.ToString();
         }
 

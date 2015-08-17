@@ -21,13 +21,13 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
-        public async void OpenConnectionTest_Async() {
+        public void OpenConnectionTest_Async() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 Assert.NotNull(connection.ConnectionString);
                 Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.Equal(ConnectionState.Closed, connection.State);
                 Assert.Null(connection.Service);
-                await connection.OpenAsync();
+                connection.OpenAsync().Wait();
                 Assert.NotNull(connection.ConnectionString);
                 Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
                 Assert.Equal(ConnectionState.Open, connection.State);

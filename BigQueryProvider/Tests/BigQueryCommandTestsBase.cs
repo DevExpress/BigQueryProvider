@@ -1,6 +1,8 @@
 ﻿#if DEBUGTEST
 using System;
 using System.Data;
+using System.Data.Common;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
@@ -39,11 +41,13 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
-        public async void ExecuteReaderTest_TypeText_Async() {
+        public void ExecuteReaderTest_TypeText_Async() {
             using(var dbCommand = connection.CreateCommand()) {
                 dbCommand.CommandText = commandText;
                 dbCommand.CommandType = CommandType.Text;
-                var dbDataReader = await dbCommand.ExecuteReaderAsync();
+                var task = dbCommand.ExecuteReaderAsync();
+                task.Wait();
+                var dbDataReader = task.Result;
                 Assert.NotNull(dbDataReader);
                 Assert.Equal(2, dbDataReader.FieldCount);
             }
@@ -61,11 +65,13 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
-        public async void ExecuteReaderTest_TypeTableDirect_Async() {
+        public void ExecuteReaderTest_TypeTableDirect_Async() {
             using(var dbCommand = connection.CreateCommand()) {
                 dbCommand.CommandText = "natality";
                 dbCommand.CommandType = CommandType.TableDirect;
-                var dbDataReader = await dbCommand.ExecuteReaderAsync();
+                var tast = dbCommand.ExecuteReaderAsync();
+                tast.Wait();
+                var dbDataReader = tast.Result;
                 Assert.NotNull(dbDataReader);
                 Assert.Equal(2, dbDataReader.FieldCount);
             }
@@ -92,10 +98,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
-        public async void ExecuteScalarReaderTest_Async() {
+        public void ExecuteScalarReaderTest_Async() {
             using(var dbCommand = connection.CreateCommand()) {
                 dbCommand.CommandText = "select 1 from [testdata.natality]";
-                var executeScalarResult = await dbCommand.ExecuteScalarAsync();
+                var task = dbCommand.ExecuteScalarAsync();
+                task.Wait();
+                var executeScalarResult = task.Result;
                 Assert.NotNull(executeScalarResult);
                 Assert.Equal(1, int.Parse(executeScalarResult.ToString()));
             }

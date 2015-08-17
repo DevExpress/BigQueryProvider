@@ -98,7 +98,13 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) {
-            return ExecuteDbDataReaderAsync(behavior, CancellationToken.None).Result;
+            var task = ExecuteDbDataReaderAsync(behavior, CancellationToken.None);
+            try {
+                return task.Result;
+            }
+            catch (AggregateException e) {
+                throw e.Flatten().InnerException;
+            }
         }
 
         public async override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken) {

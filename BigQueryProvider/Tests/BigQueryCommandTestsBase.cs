@@ -9,8 +9,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         readonly DataTable natalitySchemaTable;
         const string commandText = "SELECT * FROM [testdata." + TestingInfrastructureHelper.NatalityTableName + "] LIMIT 10";
         const string commandTextWithFilter = "SELECT * FROM [testdata." + TestingInfrastructureHelper.Natality2TableName + "] WHERE {0} LIMIT 10";
-        const string stateFilter = "state = @state";
-        const string marriedFilter = "mother_married = @mother_married";
+        const string filterByString = "state = @state";
+        const string filterByBool = "mother_married = @mother_married";
         const string injectedViaSingleQuotesValue = "CA' or 1=1--";
         const string injectedViaDoubleQuotesValue = @"CA"" or 1=1--";
         const string injectedViaBackSlashesValue = @"CA\' or 1=1--";
@@ -92,12 +92,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Theory]
-        [InlineData(stateFilter, "state", normalValue, true)]
-        [InlineData(stateFilter, "@state", normalValue, true)]
-        [InlineData(stateFilter, "state", injectedViaSingleQuotesValue, false)]
-        [InlineData(stateFilter, "state", injectedViaDoubleQuotesValue, false)]
-        [InlineData(stateFilter, "state", injectedViaBackSlashesValue, false)]
-        [InlineData(marriedFilter, "mother_married", trueValue, true)]
+        [InlineData(filterByString, "state", normalValue, true)]
+        [InlineData(filterByString, "@state", normalValue, true)]
+        [InlineData(filterByString, "state", injectedViaSingleQuotesValue, false)]
+        [InlineData(filterByString, "state", injectedViaDoubleQuotesValue, false)]
+        [InlineData(filterByString, "state", injectedViaBackSlashesValue, false)]
+        [InlineData(filterByBool, "mother_married", trueValue, true)]
         public void RunCommandWithParameterTest(string filterString, string parameterName, object parameterValue, bool exceptedReadResult) {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();

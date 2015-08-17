@@ -93,7 +93,7 @@ namespace DevExpress.DataAccess.BigQuery {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             var reader = new BigQueryDataReader(behavior, this, Connection.Service);
-            await reader.InitializeAsync().ConfigureAwait(false);
+            await reader.InitializeAsync();
             return reader;
         }
 

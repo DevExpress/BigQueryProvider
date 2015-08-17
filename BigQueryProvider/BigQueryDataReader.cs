@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using Google;
@@ -11,6 +12,7 @@ using Google.Apis.Bigquery.v2.Data;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryDataReader : DbDataReader {
+        const char parameterPrefix = '@';
         readonly BigQueryCommand bigQueryCommand;
         readonly BigqueryService bigQueryService;
         IEnumerator<TableRow> enumerator;
@@ -23,7 +25,6 @@ namespace DevExpress.DataAccess.BigQuery {
 
         internal BigQueryDataReader(CommandBehavior behavior, BigQueryCommand command, BigqueryService service) {
             this.behavior = behavior;
-
             bigQueryService = service;
             bigQueryCommand = command;
         }
@@ -37,6 +38,7 @@ namespace DevExpress.DataAccess.BigQuery {
                 if(behavior == CommandBehavior.SchemaOnly) {
                     TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync();
                     tables = tableList.Tables.GetEnumerator();
+                    tables.MoveNext();
                 } else {
                     JobsResource.QueryRequest request = CreateRequest();
                     QueryResponse queryResponse = await request.ExecuteAsync();
@@ -51,9 +53,13 @@ namespace DevExpress.DataAccess.BigQuery {
         internal void Initialize() {
             try {
                 if(behavior == CommandBehavior.SchemaOnly) {
-                    TableList tableList = bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).Execute();
+                    TableList tableList =
+                        bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId)
+                                       .Execute();
                     tables = tableList.Tables.GetEnumerator();
-                } else {
+                }
+                else {
+                    ((BigQueryParameterCollection) bigQueryCommand.Parameters).Validate();
                     JobsResource.QueryRequest request = CreateRequest();
                     QueryResponse queryResponse = request.Execute();
                     ProcessQueryResponse(queryResponse);
@@ -67,14 +73,17 @@ namespace DevExpress.DataAccess.BigQuery {
         JobsResource.QueryRequest CreateRequest() {
             BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
             foreach(BigQueryParameter parameter in collection) {
-                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace("@" + parameter.ParameterName, PrepareParameterValue(parameter.Value));
+                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter.Value));
             }
-            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? bigQueryCommand.CommandTimeout : int.MaxValue };
+            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue };
             JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
             return request;
         }
 
         void ProcessQueryResponse(QueryResponse queryResponse) {
+            if(queryResponse.JobComplete.HasValue && !queryResponse.JobComplete.Value) {
+                throw new BigQueryException("Timeout is reached");
+            }
             rows = queryResponse.Rows;
             schema = queryResponse.Schema;
             fieldsCount = schema.Fields.Count;
@@ -96,6 +105,9 @@ namespace DevExpress.DataAccess.BigQuery {
                 stringValue = stringValue.Replace(@"\", @"\\").Replace("'", @"\'").Replace("\"", @"""");
                 return string.Format("{0}"+stringValue+"{0}", @"'");
             }
+            DateTime? dateTime = value as DateTime?;
+            if(dateTime.HasValue)
+                return string.Format("'{0}'", dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture));
             return value.ToString();
         }
 
@@ -114,6 +126,8 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override DataTable GetSchemaTable() {
             DisposeCheck();
+            if(tables.Current == null)
+                return null;
             string projectId = bigQueryCommand.Connection.ProjectId;
             string dataSetId = bigQueryCommand.Connection.DataSetId;
             string tableId = tables.Current.TableReference.TableId;
@@ -344,21 +358,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         static Type FieldType(string type) {
-            switch(type) {
-                case "STRING":
-                    return typeof(string);
-                case "INTEGER":
-                    return typeof(int);
-                case "FLOAT":
-                    return typeof(float);
-                case "BOOLEAN":
-                    return typeof(bool);
-                case "TIMESTAMP":
-                    return typeof(DateTime);
-                case "RECORD":
-                    return typeof(object);
-            }
-            return null;
+            return BigQueryTypeConverter.ToType(type);
         }
 
         public override object GetProviderSpecificValue(int ordinal) {

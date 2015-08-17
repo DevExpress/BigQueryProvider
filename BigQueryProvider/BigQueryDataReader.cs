@@ -33,12 +33,12 @@ namespace DevExpress.DataAccess.BigQuery {
         internal async Task InitializeAsync() {
             try {
                 if(behavior == CommandBehavior.SchemaOnly) {
-                    TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync();
+                    TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync().ConfigureAwait(false);
                     tables = tableList.Tables.GetEnumerator();
                     tables.MoveNext();
                 } else {
                     JobsResource.QueryRequest request = CreateRequest();
-                    QueryResponse queryResponse = await request.ExecuteAsync();
+                    QueryResponse queryResponse = await request.ExecuteAsync().ConfigureAwait(false);
                     ProcessQueryResponse(queryResponse);
                 }
             }

@@ -93,12 +93,12 @@ namespace DevExpress.DataAccess.BigQuery {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             var reader = new BigQueryDataReader(behavior, this, Connection.Service);
-            await reader.InitializeAsync();
+            await reader.InitializeAsync().ConfigureAwait(false);
             return reader;
         }
 
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) {
-            return ExecuteDbDataReaderAsync(behavior, CancellationToken.None).ConfigureAwait(false).GetAwaiter().GetResult();
+            return ExecuteDbDataReaderAsync(behavior, CancellationToken.None).Result;
         }
 
         public async override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken) {

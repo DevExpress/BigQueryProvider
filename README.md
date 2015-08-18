@@ -16,7 +16,7 @@ Here’s a basic code snippet to get started.:
   
   ```C#
 using (var connection = new BigQueryConnection("ProjectID=myProject;DataSetId=myDataSet;
-OAuthClientId=myClientId;OAuthClientSecret=myClientSecret;OAuthRefreshToken=myRefreshToken")){
+OAuthClientId=myClientId;OAuthClientSecret=mySecret;OAuthRefreshToken=myRefreshToken")){
     connection.Open();
     using (var command = new BigQueryCommand()) {
         command.Connection = connection;

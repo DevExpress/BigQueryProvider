@@ -34,7 +34,7 @@ OAuthClientId=myClientId;OAuthClientSecret=myClientSecret;OAuthRefreshToken=myRe
         command.Connection = connection;
 
         // Retrieve all rows
-        command.CommandText = "SELECT myField FROM myData";
+        command.CommandText = "SELECT my_field FROM my_data";
         using (var reader = command.ExecuteReader()) {
             while (reader.Read()) {
                 Console.WriteLine(reader.GetString(0));

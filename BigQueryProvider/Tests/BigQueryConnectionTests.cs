@@ -67,7 +67,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
-        public void GetDatabaseNamesTest() {
+        public void GetDataSetNamesTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
                 string[] tableNames = connection.GetDatabaseNames();

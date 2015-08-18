@@ -144,7 +144,7 @@ namespace DevExpress.DataAccess.BigQuery {
         void InitializeService() {
             CheckDisposed();
             state = ConnectionState.Connecting;
-            Service = CreateService().Result;
+            Service = CreateServiceAsync().Result;
             JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
             listRequest.Execute();
             state = ConnectionState.Open;
@@ -153,13 +153,13 @@ namespace DevExpress.DataAccess.BigQuery {
         async Task InitializeServiceAsync() {
             CheckDisposed();
             state = ConnectionState.Connecting;
-            Service = await CreateService().ConfigureAwait(false);
+            Service = await CreateServiceAsync().ConfigureAwait(false);
             JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
             await listRequest.ExecuteAsync().ConfigureAwait(false);
             state = ConnectionState.Open;
         }
 
-        async Task<BigqueryService> CreateService() {
+        async Task<BigqueryService> CreateServiceAsync() {
             IConfigurableHttpClientInitializer credential;
             if (string.IsNullOrEmpty(PrivateKeyFileName)) {
                 var dataStore = new DataStore(OAuthRefreshToken, OAuthAccessToken);

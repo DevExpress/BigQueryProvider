@@ -24,10 +24,23 @@ For connection to server you need:
     <li><b>OAuthRefreshToken</b> - You can get it <a href="https://developers.google.com/oauthplayground">here</a>.</li>
   </ul>
   
-  Example usage:
+  Here’s a basic code snippet to get started.:
   
   ```C#
-  var bigQueryConnection = new BigQueryConnection("ProjectID=projectID;DataSetId=dataSetId;OAuthClientId=oAuthClientId;OAuthClientSecret=oAuthClientSecret;OAuthRefreshToken=oAuthRefreshToken");
-  biqQueryConnection.Open();
+using (var connection = new BigQueryConnection("ProjectID=myProject;DataSetId=myDataSet;
+OAuthClientId=myClientId;OAuthClientSecret=myClientSecret;OAuthRefreshToken=myRefreshToken")){
+    connection.Open();
+    using (var command = new BigQueryCommand()) {
+        command.Connection = connection;
+
+        // Retrieve all rows
+        command.CommandText = "SELECT myField FROM myData";
+        using (var reader = command.ExecuteReader()) {
+            while (reader.Read()) {
+                Console.WriteLine(reader.GetString(0));
+            }
+        }
+    }
+}
   
   ```

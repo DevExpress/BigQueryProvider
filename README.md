@@ -12,8 +12,6 @@
 
 BigQueryProvider is a .NET data provider for Google <a href="https://cloud.google.com/bigquery/">BigQuery</a>. It allows you to connect and interact with Google BigQuery server using .NET. 
 
-Download via <a href="https://www.nuget.org/packages/DevExpress.DataAccess.BigQuery">Nuget</a>
-
 Here’s a basic code snippet to get started.:
   
   ```C#

@@ -70,7 +70,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void GetDataSetNamesTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
-                string[] tableNames = connection.GetDatabaseNames();
+                string[] tableNames = connection.GetDataSetNames();
                 Assert.Equal(1, tableNames.Length);
                 Assert.Equal("testdata", tableNames[0]);
             }

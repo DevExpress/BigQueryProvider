@@ -239,7 +239,7 @@ namespace DevExpress.DataAccess.BigQuery {
             return tableList.Tables.Select(t => t.Id.Split('.')[1]).ToArray();
         }
 
-        public string[] GetDatabaseNames() {
+        public string[] GetDataSetNames() {
             CheckDisposed();
             CheckOpen();
             DatasetList dataSets;

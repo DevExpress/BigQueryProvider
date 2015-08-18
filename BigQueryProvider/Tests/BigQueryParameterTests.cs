@@ -109,6 +109,14 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
+        public void DirectionTypeTest() {
+            var param = new BigQueryParameter(parameterName, DbType.String);
+            Assert.Equal(ParameterDirection.Input, param.Direction);
+            Assert.Throws<ArgumentOutOfRangeException>(() => param.Direction = ParameterDirection.Output);
+            param.Direction = ParameterDirection.Input;
+        }
+
+        [Fact]
         public void ValidationEmptyNameTest() {
             var param = new BigQueryParameter {
                 Value = intValue,

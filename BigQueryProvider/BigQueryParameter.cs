@@ -7,6 +7,7 @@ namespace DevExpress.DataAccess.BigQuery {
         BigQueryDbType? bigQueryDbType;
         DbType? dbType;
         object value;
+        ParameterDirection direction = ParameterDirection.Input;
 
         public BigQueryParameter() {
             ResetDbType();
@@ -66,8 +67,12 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override ParameterDirection Direction {
-            get;
-            set;
+            get { return direction; }
+            set {
+                if (value != ParameterDirection.Input)
+                    throw new ArgumentOutOfRangeException("value", value, "Only input parameters are supported.");
+                direction = value;
+            }
         }
 
         public override bool IsNullable {

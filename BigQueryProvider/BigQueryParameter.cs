@@ -7,17 +7,18 @@ namespace DevExpress.DataAccess.BigQuery {
         BigQueryDbType? bigQueryDbType;
         DbType? dbType;
         object value;
+        ParameterDirection direction;
 
         public BigQueryParameter() {
             ResetDbType();
         }
 
-        public BigQueryParameter(string parameterName, object value) {
+        public BigQueryParameter(string parameterName, object value) : this() {
             ParameterName = parameterName;
             Value = value;
         }
 
-        public BigQueryParameter(string parameterName, DbType dbType) {
+        public BigQueryParameter(string parameterName, DbType dbType) : this() {
             ParameterName = parameterName;
             DbType = dbType;
         }
@@ -27,7 +28,7 @@ namespace DevExpress.DataAccess.BigQuery {
             SourceColumn = sourceColumn;
         }
 
-        public BigQueryParameter(string parameterName, BigQueryDbType bigQueryDbType) {
+        public BigQueryParameter(string parameterName, BigQueryDbType bigQueryDbType) : this() {
             ParameterName = parameterName;
             BigQueryDbType = bigQueryDbType;
         }
@@ -66,8 +67,11 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override ParameterDirection Direction {
-            get;
-            set;
+            get { return direction; }
+            set {
+                if (value != ParameterDirection.Input)
+                    throw new ArgumentOutOfRangeException("value", value, "Only input parameters are supported.");
+            }
         }
 
         public override bool IsNullable {
@@ -125,11 +129,11 @@ namespace DevExpress.DataAccess.BigQuery {
         public override void ResetDbType() {
             dbType = null;
             value = null;
+            direction = ParameterDirection.Input;
             ParameterName = null;
             IsNullable = true;
             SourceColumn = null;
             SourceVersion = DataRowVersion.Current;
-            Direction = ParameterDirection.Input;
         }
 
         object ICloneable.Clone() {

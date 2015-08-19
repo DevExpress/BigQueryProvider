@@ -166,4 +166,4 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
     }
 }
--#endif
+#endif

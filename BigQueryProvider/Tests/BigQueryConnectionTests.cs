@@ -82,6 +82,16 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
+        public void GetDataSetNamesTest() {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
+                connection.Open();
+                string[] dataSetNames = connection.GetDataSetNames();
+                Assert.Equal(1, dataSetNames.Length);
+                Assert.Equal("testdata", dataSetNames[0]);
+            }
+        }
+
+        [Fact]
         public void CreateDbCommandTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();

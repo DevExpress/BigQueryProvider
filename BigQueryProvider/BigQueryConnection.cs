@@ -239,6 +239,18 @@ namespace DevExpress.DataAccess.BigQuery {
             return tableList.Tables.Select(t => t.Id.Split('.')[1]).ToArray();
         }
 
+        public string[] GetDataSetNames() {
+            CheckDisposed();
+            CheckOpen();
+            DatasetList dataSets;
+            try {
+                dataSets = Service.Datasets.List(ProjectId).Execute();
+            } catch(GoogleApiException e) {
+                throw e.Wrap();
+            }
+            return dataSets.Datasets.Select(d => d.DatasetReference.DatasetId).ToArray();
+        }
+
         public override string ConnectionString {
             get { return connectionStringBuilder.ConnectionString; }
             set { connectionStringBuilder.ConnectionString = value; }

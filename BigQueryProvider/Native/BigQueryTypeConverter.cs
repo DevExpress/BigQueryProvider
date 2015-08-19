@@ -4,19 +4,9 @@ using System.Data;
 using System.Data.SqlTypes;
 using System.Linq;
 
-namespace DevExpress.DataAccess.BigQuery {
-    public enum BigQueryDbType {
-        String,
-        Integer,
-        Float,
-        Boolean,
-        Record,
-        Timestamp,
-        Unknown,
-    }
-
-    internal static class BigQueryTypeConverter {
-        static readonly List<Tuple<DbType, BigQueryDbType>> DbTypeToBigQueryDbTypePairs = new List<Tuple<DbType, BigQueryDbType>>() {
+namespace DevExpress.DataAccess.BigQuery.Native {
+    public static class BigQueryTypeConverter {
+        static readonly List<Tuple<DbType, BigQueryDbType>> DbTypeToBigQueryDbTypePairs = new List<Tuple<DbType, BigQueryDbType>> {
             new Tuple<DbType, BigQueryDbType>(DbType.String, BigQueryDbType.String),
             new Tuple<DbType, BigQueryDbType>(DbType.Boolean, BigQueryDbType.Boolean),
             new Tuple<DbType, BigQueryDbType>(DbType.DateTime, BigQueryDbType.Timestamp),
@@ -25,7 +15,7 @@ namespace DevExpress.DataAccess.BigQuery {
             new Tuple<DbType, BigQueryDbType>(DbType.Object, BigQueryDbType.Unknown),
         }; 
 
-        static readonly List<Tuple<Type, DbType>> TypeToDbTypePairs = new List<Tuple<Type, DbType>>() {
+        static readonly List<Tuple<Type, DbType>> TypeToDbTypePairs = new List<Tuple<Type, DbType>> {
             new Tuple<Type, DbType>(typeof(long), DbType.Int64),
             new Tuple<Type, DbType>(typeof(float), DbType.Single),
             new Tuple<Type, DbType>(typeof(string), DbType.String),
@@ -39,7 +29,7 @@ namespace DevExpress.DataAccess.BigQuery {
             new Tuple<Type, DbType>(typeof(UInt16), DbType.Int64),
         };
  
-        static readonly List<Tuple<string, Type>> StringToTypePairs = new List<Tuple<string, Type>>() {
+        static readonly List<Tuple<string, Type>> StringToTypePairs = new List<Tuple<string, Type>> {
             new Tuple<string, Type>("STRING", typeof(string)),
             new Tuple<string, Type>("INTEGER", typeof(Int64)),
             new Tuple<string, Type>("FLOAT", typeof(Single)),

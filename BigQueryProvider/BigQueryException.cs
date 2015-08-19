@@ -7,10 +7,4 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public BigQueryException(string message, GoogleApiException innerException) : base(message, innerException) { }
     }
-
-    internal static class GoogleApiExceptionHelper {
-        internal static BigQueryException Wrap(this GoogleApiException exception) {
-            return new BigQueryException(exception.Message, exception);
-        }
-    }
 }

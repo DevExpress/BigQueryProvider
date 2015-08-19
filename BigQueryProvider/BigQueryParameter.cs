@@ -7,18 +7,18 @@ namespace DevExpress.DataAccess.BigQuery {
         BigQueryDbType? bigQueryDbType;
         DbType? dbType;
         object value;
-        ParameterDirection direction = ParameterDirection.Input;
+        ParameterDirection direction;
 
         public BigQueryParameter() {
             ResetDbType();
         }
 
-        public BigQueryParameter(string parameterName, object value) {
+        public BigQueryParameter(string parameterName, object value) : this() {
             ParameterName = parameterName;
             Value = value;
         }
 
-        public BigQueryParameter(string parameterName, DbType dbType) {
+        public BigQueryParameter(string parameterName, DbType dbType) : this() {
             ParameterName = parameterName;
             DbType = dbType;
         }
@@ -28,7 +28,7 @@ namespace DevExpress.DataAccess.BigQuery {
             SourceColumn = sourceColumn;
         }
 
-        public BigQueryParameter(string parameterName, BigQueryDbType bigQueryDbType) {
+        public BigQueryParameter(string parameterName, BigQueryDbType bigQueryDbType) : this() {
             ParameterName = parameterName;
             BigQueryDbType = bigQueryDbType;
         }
@@ -71,7 +71,6 @@ namespace DevExpress.DataAccess.BigQuery {
             set {
                 if (value != ParameterDirection.Input)
                     throw new ArgumentOutOfRangeException("value", value, "Only input parameters are supported.");
-                direction = value;
             }
         }
 

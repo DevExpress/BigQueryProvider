@@ -21,6 +21,21 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
+        public async void OpenConnectionTest_Async() {
+            using (BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
+                Assert.NotNull(connection.ConnectionString);
+                Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(ConnectionState.Closed, connection.State);
+                Assert.Null(connection.Service);
+                await connection.OpenAsync();
+                Assert.NotNull(connection.ConnectionString);
+                Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(ConnectionState.Open, connection.State);
+                Assert.NotNull(connection.Service);
+            }
+        }
+
+        [Fact]
         public void OpenCloseConnectionTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 Assert.NotNull(connection.ConnectionString);
@@ -63,6 +78,16 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 Assert.Equal(2, tableNames.Length);
                 Assert.Equal("natality", tableNames[0]);
                 Assert.Equal("natality2", tableNames[1]);
+            }
+        }
+
+        [Fact]
+        public void GetDataSetNamesTest() {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
+                connection.Open();
+                string[] dataSetNames = connection.GetDataSetNames();
+                Assert.Equal(1, dataSetNames.Length);
+                Assert.Equal("testdata", dataSetNames[0]);
             }
         }
 
@@ -121,8 +146,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             connection.Dispose();
 
             Assert.Throws<ObjectDisposedException>(() => { connection.GetTableNames(); });
-
-
         }
 
         [Fact]

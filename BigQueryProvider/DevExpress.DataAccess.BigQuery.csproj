@@ -176,18 +176,21 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="BigQueryDataReader.cs" />
+    <Compile Include="BigQueryDbType.cs" />
     <Compile Include="BigQueryException.cs" />
     <Compile Include="BigQueryParameter.cs" />
     <Compile Include="BigQueryParameterCollection.cs" />
+    <Compile Include="Native\GoogleApiExceptionHelper.cs" />
     <Compile Include="Native\DataStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\BigQueryCommandTestsBase.cs" />
     <Compile Include="Tests\BigQueryCommandTestsOAuth.cs" />
     <Compile Include="Tests\BigQueryCommandTestsP12.cs" />
     <Compile Include="Tests\BigQueryConnectionTests.cs" />
-    <Compile Include="Tests\BigQueryTestsBase.cs" />
-    <Compile Include="Tests\BigQueryTestsOAuth.cs" />
-    <Compile Include="Tests\BigQueryTestsP12.cs" />
+    <Compile Include="Tests\BigQueryParametersCollectionTests.cs" />
+    <Compile Include="Tests\BigQueryParameterTests.cs" />
+    <Compile Include="Native\BigQueryTypeConverter.cs" />
+    <Compile Include="Tests\BigQueryTypeConverterTests.cs" />
     <Compile Include="Tests\ConnectionStringHelper.cs" />
     <Compile Include="Tests\DataTableComparer.cs" />
     <Compile Include="Tests\TestingInfrastructureHelper.cs" />
@@ -212,7 +215,7 @@
     <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
   </Target>
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

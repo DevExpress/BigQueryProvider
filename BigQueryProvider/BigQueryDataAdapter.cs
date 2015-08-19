@@ -18,6 +18,26 @@ namespace DevExpress.DataAccess.BigQuery {
         public event BigQueryRowUpdatingEventHandler RowUpdating;
         public event BigQueryRowUpdatedEventHandler RowUpdated;
 
+        public new BigQueryCommand SelectCommand {
+            get { return (BigQueryCommand)base.SelectCommand; }
+            set { base.SelectCommand = value; }
+        }
+
+        public new BigQueryCommand DeleteCommand {
+            get { return (BigQueryCommand)base.DeleteCommand; }
+            set { base.DeleteCommand = value; }
+        }
+
+        public new BigQueryCommand InsertCommand {
+            get { return (BigQueryCommand)base.InsertCommand; }
+            set { base.InsertCommand = value; }
+        }
+
+        public new BigQueryCommand UpdateCommand {
+            get { return (BigQueryCommand)base.UpdateCommand; }
+            set { base.UpdateCommand = value; }
+        }
+
         protected override RowUpdatingEventArgs CreateRowUpdatingEvent(DataRow dataRow, IDbCommand command, StatementType statementType, DataTableMapping tableMapping) {
             return new BigQueryRowUpdatingEventArgs(dataRow, command, statementType, tableMapping);
         }
@@ -38,26 +58,6 @@ namespace DevExpress.DataAccess.BigQuery {
             if(RowUpdated != null && (args != null)) {
                 RowUpdated(this, args);
             }
-        }
-
-        public new BigQueryCommand SelectCommand {
-            get { return (BigQueryCommand)base.SelectCommand; }
-            set { base.SelectCommand = value; }
-        }
-
-        public new BigQueryCommand DeleteCommand {
-            get { return (BigQueryCommand)base.DeleteCommand; }
-            set { base.DeleteCommand = value; }
-        }
-
-        public new BigQueryCommand InsertCommand {
-            get { return (BigQueryCommand)base.InsertCommand; }
-            set { base.InsertCommand = value; }
-        }
-
-        public new BigQueryCommand UpdateCommand {
-            get { return (BigQueryCommand)base.UpdateCommand; }
-            set { base.UpdateCommand = value; }
         }
     }
 

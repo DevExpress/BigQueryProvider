@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>DevExpress.DataAccess.BigQuery</id>
-    <version>1.0.5.0</version>
+    <version>1.0.6.0</version>
     <title>DevExpress.DataAccess.BigQuery</title>
     <authors>DevExpress</authors>
     <owners>DevExpress</owners>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/DevExpress/BigQueryProvider</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Google BigQuery ADO.NET provider</description>
-    <releaseNotes>Initial release</releaseNotes>
+    <releaseNotes>Bug fixes and improvements</releaseNotes>
     <copyright>Copyright 2015</copyright>
     <tags>DevExpress Google BigQuery</tags>
     <dependencies>

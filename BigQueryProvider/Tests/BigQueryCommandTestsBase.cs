@@ -13,12 +13,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         const string commandTextWithFilter = "SELECT * FROM [testdata." + TestingInfrastructureHelper.Natality2TableName + "] WHERE {0} LIMIT 10";
         const string filterByString = "state = @state";
         const string filterByBool = "mother_married = @mother_married";
-        const string filterByInteger = "year = @year";
-        const string filterBySingle = "weight_pounds = @weight_pounds";
-        const string stringParameterName = "state";
-        const string boolParameterName = "mother_married";
-        const string singleParameterName = "weight_pounds";
-        const string integerParameterName = "year";
         const string injectedViaSingleQuotesValue = "CA' or 1=1--";
         const string injectedViaDoubleQuotesValue = @"CA"" or 1=1--";
         const string injectedViaBackSlashesValue = @"CA\' or 1=1--";
@@ -131,12 +125,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Theory]
-        [InlineData(filterByString, stringParameterName, normalValue, true)]
-        [InlineData(filterByString, "@" + stringParameterName, normalValue, true)]
-        [InlineData(filterByString, stringParameterName, injectedViaSingleQuotesValue, false)]
-        [InlineData(filterByString, stringParameterName, injectedViaDoubleQuotesValue, false)]
-        [InlineData(filterByString, stringParameterName, injectedViaBackSlashesValue, false)]
-        [InlineData(filterByBool, boolParameterName, trueValue, true)]
+        [InlineData(filterByString, "state", normalValue, true)]
+        [InlineData(filterByString, "@state", normalValue, true)]
+        [InlineData(filterByString, "state", injectedViaSingleQuotesValue, false)]
+        [InlineData(filterByString, "state", injectedViaDoubleQuotesValue, false)]
+        [InlineData(filterByString, "state", injectedViaBackSlashesValue, false)]
+        [InlineData(filterByBool, "mother_married", trueValue, true)]
         public void RunCommandWithParameterTest(string filterString, string parameterName, object parameterValue, bool exceptedReadResult) {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
@@ -158,20 +152,13 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Assert.Throws<ArgumentException>(() => dbCommand.ExecuteReader(CommandBehavior.Default));
         }
 
-        [Theory]
-        [InlineData(filterByString, stringParameterName, DbType.String)]
-        [InlineData(filterByBool, boolParameterName, DbType.Boolean)]
-        [InlineData(filterBySingle, singleParameterName, DbType.Single)]
-        [InlineData(filterByInteger, integerParameterName, DbType.Int64)]
-        public void NullParameterValueTest(string filterString, string parameterName, DbType dbType) {
+        [Fact]
+        //If this test is red -> BigQuery supports "*column_name* = null"
+        public void ColumnEqualNullTest() {
             using(var dbCommand = connection.CreateCommand()) {
-                var param = dbCommand.CreateParameter();
-                dbCommand.CommandText = string.Format(commandTextWithFilter, filterString);
-                param.ParameterName = parameterName;
-                param.Value = null;
-                param.DbType = dbType;
-                dbCommand.Parameters.Add(param);
-                dbCommand.ExecuteReader(CommandBehavior.Default);
+                dbCommand.CommandText = "SELECT * FROM testdata.natality2 WHERE mother_married = null";
+                var reader = dbCommand.ExecuteReader(CommandBehavior.Default);
+                Assert.False(reader.HasRows);
             }
         }
 

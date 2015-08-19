@@ -130,11 +130,9 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Fact]
         public void ValidationNullValueTest() {
-            var param = new BigQueryParameter(parameterName, DbType.String) {IsNullable = false};
+            var param = new BigQueryParameter() {ParameterName = parameterName};
             Assert.Null(param.Value);
             Assert.Throws<ArgumentException>(() => param.Validate());
-            param.IsNullable = true;
-            param.Validate();
             param.Value = intValue;
             param.Validate();
         }
@@ -159,6 +157,13 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void ValidateValueCanNotConvertTest() {
             var param = new BigQueryParameter(parameterName, DbType.DateTime) { Value = floatValue };
             Assert.Throws<ArgumentException>(() => param.Validate());
+        }
+
+        [Fact]
+        public void ValidateChangeIsnullableTest() {
+            var param = new BigQueryParameter(parameterName, DbType.String);
+            Assert.False(param.IsNullable);
+            Assert.Throws<NotSupportedException>(() => param.IsNullable = true);
         }
     }
 }

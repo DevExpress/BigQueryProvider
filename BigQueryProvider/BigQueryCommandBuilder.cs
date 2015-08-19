@@ -17,6 +17,22 @@ namespace DevExpress.DataAccess.BigQuery {
             DataAdapter = dataAdapter;
         }
 
+        public new BigQueryCommand GetDeleteCommand() {
+            return (BigQueryCommand)base.GetDeleteCommand();
+        }
+
+        public new BigQueryCommand GetDeleteCommand(bool useColumnsForParameterNames) {
+            return (BigQueryCommand)base.GetDeleteCommand(useColumnsForParameterNames);
+        }
+
+        public new BigQueryCommand GetInsertCommand() {
+            return (BigQueryCommand)base.GetInsertCommand();
+        }
+
+        public new BigQueryCommand GetInsertCommand(bool useColumnsForParameterNames) {
+            return (BigQueryCommand)base.GetInsertCommand(useColumnsForParameterNames);
+        }
+
         public override string QuoteIdentifier(string unquotedIdentifier) {
             unquotedIdentifier = unquotedIdentifier.Replace("\\", "\\\\").Replace("[", "\\[").Replace("]", "\\]");
             return string.Concat(QuotePrefix, unquotedIdentifier, QuoteSuffix);
@@ -34,22 +50,6 @@ namespace DevExpress.DataAccess.BigQuery {
                 unquotedIdentifier = quotedIdentifier;
             }
             return unquotedIdentifier;
-        }
-
-        public new BigQueryCommand GetDeleteCommand() {
-            return (BigQueryCommand)base.GetDeleteCommand();
-        }
-
-        public new BigQueryCommand GetDeleteCommand(bool useColumnsForParameterNames) {
-            return (BigQueryCommand)base.GetDeleteCommand(useColumnsForParameterNames);
-        }
-
-        public new BigQueryCommand GetInsertCommand() {
-            return (BigQueryCommand)base.GetInsertCommand();
-        }
-
-        public new BigQueryCommand GetInsertCommand(bool useColumnsForParameterNames) {
-            return (BigQueryCommand)base.GetInsertCommand(useColumnsForParameterNames);
         }
 
         protected override DataTable GetSchemaTable(DbCommand sourceCommand) {

@@ -33,7 +33,6 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             }
         }
 
-
         public Task StoreAsync<T>(string key, T value) {
             if(string.IsNullOrEmpty(key))
                 throw new ArgumentNullException("key");

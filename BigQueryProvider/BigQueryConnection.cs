@@ -21,83 +21,10 @@ namespace DevExpress.DataAccess.BigQuery {
         readonly DbConnectionStringBuilder connectionStringBuilder = new DbConnectionStringBuilder();
         bool disposed;
 
-        internal string ProjectId {
-            get {
-                return (string)connectionStringBuilder["ProjectId"];
-            }
-        }
-
-        string ServiceAccountEmail {
-            get {
-                return connectionStringBuilder.ContainsKey("ServiceAccountEmail") ? (string)connectionStringBuilder["ServiceAccountEmail"] : string.Empty;
-            }
-        }
-
-        string PrivateKeyFileName {
-            get {
-                return connectionStringBuilder.ContainsKey("PrivateKeyFileName") ? (string)connectionStringBuilder["PrivateKeyFileName"] : String.Empty;
-            }
-        }
-
-        internal string DataSetId {
-            get {
-                return (string)connectionStringBuilder["DataSetId"];
-            }
-
-            set {
-                if((string)connectionStringBuilder["DataSetId"] == value)
-                    return;
-                connectionStringBuilder["DataSetId"] = value;
-                ConnectionString = connectionStringBuilder.ConnectionString;
-            }
-        }
-
-        #region OAuth
-        internal string OAuthRefreshToken {
-            get {
-                return connectionStringBuilder.ContainsKey("OAuthRefreshToken") ? (string)connectionStringBuilder["OAuthRefreshToken"] : null;
-            }
-            set {
-                connectionStringBuilder["OAuthRefreshToken"] = value;
-                ConnectionString = connectionStringBuilder.ConnectionString;
-
-            }
-        }
-
-        internal string OAuthAccessToken {
-            get {
-                return connectionStringBuilder.ContainsKey("OAuthAccessToken") ? (string)connectionStringBuilder["OAuthAccessToken"] : null;
-            }
-            set {
-                connectionStringBuilder["OAuthAccessToken"] = value;
-                ConnectionString = connectionStringBuilder.ConnectionString;
-            }
-        }
-
-        internal string OAuthClientId {
-            get {
-                return (string)connectionStringBuilder["OAuthClientId"];
-            }
-        }
-
-        internal string OAuthClientSecret {
-            get {
-                return (string)connectionStringBuilder["OAuthClientSecret"];
-            }
-        }
-        #endregion
-
-        internal BigqueryService Service { get; private set; }
-
         public BigQueryConnection() { }
 
         public BigQueryConnection(string connectionString) {
             ConnectionString = connectionString;
-        }
-
-        protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) {
-            CheckDisposed();
-            throw new NotSupportedException();
         }
 
         public override void ChangeDatabase(string databaseName) {
@@ -141,89 +68,11 @@ namespace DevExpress.DataAccess.BigQuery {
             }
         }
 
-        void InitializeService() {
-            CheckDisposed();
-            state = ConnectionState.Connecting;
-            Service = CreateService().Result;
-            JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
-            listRequest.Execute();
-            state = ConnectionState.Open;
-        }
-
-        async Task InitializeServiceAsync() {
-            CheckDisposed();
-            state = ConnectionState.Connecting;
-            Service = await CreateService().ConfigureAwait(false);
-            JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
-            await listRequest.ExecuteAsync().ConfigureAwait(false);
-            state = ConnectionState.Open;
-        }
-
-        async Task<BigqueryService> CreateService() {
-            IConfigurableHttpClientInitializer credential;
-            if (string.IsNullOrEmpty(PrivateKeyFileName)) {
-                var dataStore = new DataStore(OAuthRefreshToken, OAuthAccessToken);
-
-                var clientSecrets = new ClientSecrets {
-                    ClientId = OAuthClientId,
-                    ClientSecret = OAuthClientSecret
-                };
-
-                credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(clientSecrets,
-                    new[] {BigqueryService.Scope.Bigquery},
-                    "user",
-                    CancellationToken.None,
-                    dataStore).ConfigureAwait(false);
-
-                OAuthRefreshToken = dataStore.RefreshToken;
-                OAuthAccessToken = dataStore.AccessToken;
-            }
-            else {
-                X509Certificate2 certificate = new X509Certificate2(PrivateKeyFileName, "notasecret", X509KeyStorageFlags.Exportable);
-                credential = new ServiceAccountCredential(new ServiceAccountCredential.Initializer(ServiceAccountEmail) {
-                        Scopes = new[] {BigqueryService.Scope.Bigquery}
-                    }.FromCertificate(certificate));
-            }
-            
-            return new BigqueryService(new BaseClientService.Initializer {
-                HttpClientInitializer = credential,
-                ApplicationName = applicationName
-            });
-        }
-
         public override void Close() {
             CheckDisposed();
             if(!IsOpened)
                 return;
             state = ConnectionState.Closed;
-        }
-
-        protected override void Dispose(bool disposing) {
-            if(disposed)
-                return;
-            if(disposing) {
-                if(Service != null) {
-                    Service.Dispose();
-                }
-            }
-            Close();
-            disposed = true;
-            base.Dispose(disposing);
-        }
-
-        bool IsOpened {
-            get { return state == ConnectionState.Open; }
-        }
-
-        void CheckOpen() {
-            if(!IsOpened)
-                throw new InvalidOperationException("connection is closed");
-        }
-
-        void CheckDisposed() {
-            if(disposed) {
-                throw new ObjectDisposedException(ToString());
-            }
         }
 
         public string[] GetTableNames() {
@@ -250,10 +99,6 @@ namespace DevExpress.DataAccess.BigQuery {
             return new BigQueryCommand { Connection = this };
         }
 
-        protected override DbCommand CreateDbCommand() {
-            return CreateCommand();
-        }
-
         public override string DataSource {
             get {
                 CheckOpen();
@@ -274,6 +119,158 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override ConnectionState State {
             get { return state; }
+        }
+
+        protected override DbCommand CreateDbCommand() {
+            return CreateCommand();
+        }
+
+        protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) {
+            CheckDisposed();
+            throw new NotSupportedException();
+        }
+
+        protected override void Dispose(bool disposing) {
+            if(disposed)
+                return;
+            if(disposing) {
+                if(Service != null) {
+                    Service.Dispose();
+                }
+            }
+            Close();
+            disposed = true;
+            base.Dispose(disposing);
+        }
+
+        internal BigqueryService Service { get; private set; }
+
+        internal string ProjectId {
+            get {
+                return (string)connectionStringBuilder["ProjectId"];
+            }
+        }
+
+        internal string DataSetId {
+            get {
+                return (string)connectionStringBuilder["DataSetId"];
+            }
+
+            set {
+                if((string)connectionStringBuilder["DataSetId"] == value)
+                    return;
+                connectionStringBuilder["DataSetId"] = value;
+                ConnectionString = connectionStringBuilder.ConnectionString;
+            }
+        }
+
+        string OAuthRefreshToken {
+            get {
+                return connectionStringBuilder.ContainsKey("OAuthRefreshToken") ? (string)connectionStringBuilder["OAuthRefreshToken"] : null;
+            }
+            set {
+                connectionStringBuilder["OAuthRefreshToken"] = value;
+                ConnectionString = connectionStringBuilder.ConnectionString;
+
+            }
+        }
+
+        string OAuthAccessToken {
+            get {
+                return connectionStringBuilder.ContainsKey("OAuthAccessToken") ? (string)connectionStringBuilder["OAuthAccessToken"] : null;
+            }
+            set {
+                connectionStringBuilder["OAuthAccessToken"] = value;
+                ConnectionString = connectionStringBuilder.ConnectionString;
+            }
+        }
+
+        string OAuthClientId {
+            get {
+                return (string)connectionStringBuilder["OAuthClientId"];
+            }
+        }
+
+        string OAuthClientSecret {
+            get {
+                return (string)connectionStringBuilder["OAuthClientSecret"];
+            }
+        }
+
+        string ServiceAccountEmail {
+            get {
+                return connectionStringBuilder.ContainsKey("ServiceAccountEmail") ? (string)connectionStringBuilder["ServiceAccountEmail"] : string.Empty;
+            }
+        }
+
+        string PrivateKeyFileName {
+            get {
+                return connectionStringBuilder.ContainsKey("PrivateKeyFileName") ? (string)connectionStringBuilder["PrivateKeyFileName"] : String.Empty;
+            }
+        }
+
+        bool IsOpened {
+            get { return state == ConnectionState.Open; }
+        }
+
+        void CheckOpen() {
+            if(!IsOpened)
+                throw new InvalidOperationException("connection is closed");
+        }
+
+        void CheckDisposed() {
+            if(disposed) {
+                throw new ObjectDisposedException(ToString());
+            }
+        }
+
+        void InitializeService() {
+            CheckDisposed();
+            state = ConnectionState.Connecting;
+            Service = CreateService().Result;
+            JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
+            listRequest.Execute();
+            state = ConnectionState.Open;
+        }
+
+        async Task InitializeServiceAsync() {
+            CheckDisposed();
+            state = ConnectionState.Connecting;
+            Service = await CreateService().ConfigureAwait(false);
+            JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
+            await listRequest.ExecuteAsync().ConfigureAwait(false);
+            state = ConnectionState.Open;
+        }
+
+        async Task<BigqueryService> CreateService() {
+            IConfigurableHttpClientInitializer credential;
+            if(string.IsNullOrEmpty(PrivateKeyFileName)) {
+                var dataStore = new DataStore(OAuthRefreshToken, OAuthAccessToken);
+
+                var clientSecrets = new ClientSecrets {
+                    ClientId = OAuthClientId,
+                    ClientSecret = OAuthClientSecret
+                };
+
+                credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(clientSecrets,
+                    new[] { BigqueryService.Scope.Bigquery },
+                    "user",
+                    CancellationToken.None,
+                    dataStore).ConfigureAwait(false);
+
+                OAuthRefreshToken = dataStore.RefreshToken;
+                OAuthAccessToken = dataStore.AccessToken;
+            } else {
+                X509Certificate2 certificate = new X509Certificate2(PrivateKeyFileName, "notasecret", X509KeyStorageFlags.Exportable);
+                credential = new ServiceAccountCredential(new ServiceAccountCredential.Initializer(ServiceAccountEmail) {
+                    Scopes = new[] { BigqueryService.Scope.Bigquery }
+                }.FromCertificate(certificate));
+            }
+
+            return new BigqueryService(new BaseClientService.Initializer {
+                HttpClientInitializer = credential,
+                ApplicationName = applicationName
+            });
         }
 
         object ICloneable.Clone() {

@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryCommand : DbCommand, ICloneable {
+        const int defaultTimeout = 30;
+
         readonly BigQueryParameterCollection bigQueryParameterCollection = new BigQueryParameterCollection();
         CommandType commandType;
         int commandTimeout;
-        const int DefaultTimeout = 30;
 
         public BigQueryCommand(BigQueryCommand command)
             : this(command.CommandText, command.Connection) {
@@ -32,14 +33,10 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public BigQueryCommand() : this(string.Empty) { }
 
-        public override void Prepare() {
-            throw new NotSupportedException();
-        }
-
         [DefaultValue("")]
         public override string CommandText { get; set; }
 
-        [DefaultValue(DefaultTimeout)]
+        [DefaultValue(defaultTimeout)]
         public override int CommandTimeout {
             get { return commandTimeout; }
             set {
@@ -60,23 +57,16 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override UpdateRowSource UpdatedRowSource {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
-        }
-
-        protected override DbConnection DbConnection {
-            get { return Connection; }
-            set { Connection = (BigQueryConnection)value; }
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
         }
 
         [DefaultValue(null)]
         public new BigQueryConnection Connection { get; set; }
 
-        protected override DbParameterCollection DbParameterCollection {
-            get { return bigQueryParameterCollection; }
+        public override void Prepare() {
+            throw new NotSupportedException();
         }
-
-        protected override DbTransaction DbTransaction { get; set; }
 
         public override bool DesignTimeVisible {
             get { return false; }
@@ -85,33 +75,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override void Cancel() { }
 
-        protected override DbParameter CreateDbParameter() {
-            return new BigQueryParameter();
-        }
-
-        protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken) {
-            cancellationToken.ThrowIfCancellationRequested();
-            cancellationToken.Register(Cancel);
-            var reader = new BigQueryDataReader(behavior, this, Connection.Service);
-            await reader.InitializeAsync().ConfigureAwait(false);
-            return reader;
-        }
-
-        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) {
-            var task = ExecuteDbDataReaderAsync(behavior, CancellationToken.None);
-            try {
-                return task.Result;
-            }
-            catch (AggregateException e) {
-                throw e.Flatten().InnerException;
-            }
-        }
-
-        public async override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken) {
-            return await ExecuteNonQueryInternalAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        async Task<int> ExecuteNonQueryInternalAsync(CancellationToken cancellationToken) {
+        public override async Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken).ConfigureAwait(false)) {
@@ -130,10 +94,6 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override async Task<object> ExecuteScalarAsync(CancellationToken cancellationToken) {
-            return await ExecuteScalarInternalAsync(cancellationToken).ConfigureAwait(false);
-        }
-
-        async Task<object> ExecuteScalarInternalAsync(CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             object result = null;
@@ -153,6 +113,39 @@ namespace DevExpress.DataAccess.BigQuery {
                         result = dbDataReader.GetValue(0);
             }
             return result;
+        }
+
+        protected override DbConnection DbConnection {
+            get { return Connection; }
+            set { Connection = (BigQueryConnection)value; }
+        }
+
+        protected override DbParameterCollection DbParameterCollection {
+            get { return bigQueryParameterCollection; }
+        }
+
+        protected override DbTransaction DbTransaction { get; set; }
+
+        protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
+            cancellationToken.Register(Cancel);
+            var reader = new BigQueryDataReader(behavior, this, Connection.Service);
+            await reader.InitializeAsync().ConfigureAwait(false);
+            return reader;
+        }
+
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) {
+            var task = ExecuteDbDataReaderAsync(behavior, CancellationToken.None);
+            try {
+                return task.Result;
+            }
+            catch(AggregateException e) {
+                throw e.Flatten().InnerException;
+            }
+        }
+
+        protected override DbParameter CreateDbParameter() {
+            return new BigQueryParameter();
         }
 
         object ICloneable.Clone() {

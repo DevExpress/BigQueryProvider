@@ -1,6 +1,7 @@
 ﻿#if DEBUGTEST
 using System;
 using System.Data;
+using DevExpress.DataAccess.BigQuery.Native;
 using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {

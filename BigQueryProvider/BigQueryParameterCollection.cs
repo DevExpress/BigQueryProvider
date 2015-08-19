@@ -44,84 +44,6 @@ namespace DevExpress.DataAccess.BigQuery {
             return Add(new BigQueryParameter(parameterName, dbType));
         }
 
-        void RangeCheck(int index) {
-            if(index < 0 || Count <= index)
-                throw new IndexOutOfRangeException();
-        }
-
-        int CheckName(string parameterName) {
-            int index = IndexOf(parameterName);
-            if(index < 0)
-                throw new ArgumentException("Wrong parameter name");
-            return index;
-        }
-
-        void ValidateParameter(int index, DbParameter value) {
-            if(value == null)
-                throw new NullReferenceException("parameter");
-            if(index == IndexOf(value))
-                return;
-            if(!string.IsNullOrEmpty(value.ParameterName))
-                return;
-            string parameterName;
-            index = 1;
-            do {
-                parameterName = "Parameters" + index.ToString(CultureInfo.CurrentCulture);
-                index++;
-            }
-            while(IndexOf(parameterName) != -1);
-
-            value.ParameterName = parameterName;
-        }
-
-        protected override DbParameter GetParameter(int index) {
-            RangeCheck(index);
-            return innerList[index];
-        }
-
-        protected override DbParameter GetParameter(string parameterName) {
-            int index = IndexOf(parameterName);
-            if(index < 0)
-                throw new IndexOutOfRangeException();
-            return innerList[index];
-        }
-
-        protected override void SetParameter(int index, DbParameter value) {
-            ValidateType(value);
-            RangeCheck(index);
-            Replace(index, value);
-        }
-
-        protected override void SetParameter(string parameterName, DbParameter value) {
-            int index = IndexOf(parameterName);
-            if(index < 0)
-                throw new ArgumentException("Wrong parameter name");
-            Replace(index, value);
-        }
-       
-        void Replace(int index, DbParameter value) {
-            ValidateType(value);
-            ValidateParameter(index, value);
-            innerList[index] = (BigQueryParameter)value;
-        }
-
-        public void Validate() {
-            CheckDuplicateNames();
-            foreach(var parameter in innerList) {
-                parameter.Validate();
-            }
-        }
-
-        void CheckDuplicateNames() {
-            HashSet<string> set = new HashSet<string>();
-            foreach(var bigQueryParameter in innerList) {
-                if(set.Contains(bigQueryParameter.ParameterName)) {
-                    throw new DuplicateNameException("Parameter collection contains duplicate parameters with name '" + bigQueryParameter.ParameterName + "'");
-                }
-                set.Add(bigQueryParameter.ParameterName);
-            }
-        }
-
         public override int IndexOf(string parameterName) {
             BigQueryParameter value = innerList.FirstOrDefault(p => p.ParameterName == parameterName);
             return IndexOf(value);
@@ -162,10 +84,6 @@ namespace DevExpress.DataAccess.BigQuery {
             RemoveIndex(CheckName(parameterName));
         }
 
-        void RemoveIndex(int index) {
-            innerList.RemoveAt(index);
-        }
-
         public override int Add(object parameter) {
             if(parameter == null)
                 throw new ArgumentNullException("parameter");
@@ -197,6 +115,88 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override void AddRange(Array values) {
             innerList.AddRange(values.OfType<BigQueryParameter>().ToArray());
+        }
+
+        internal void Validate() {
+            CheckDuplicateNames();
+            foreach(var parameter in innerList) {
+                parameter.Validate();
+            }
+        }
+
+        protected override DbParameter GetParameter(int index) {
+            RangeCheck(index);
+            return innerList[index];
+        }
+
+        protected override DbParameter GetParameter(string parameterName) {
+            int index = IndexOf(parameterName);
+            if(index < 0)
+                throw new IndexOutOfRangeException();
+            return innerList[index];
+        }
+
+        protected override void SetParameter(int index, DbParameter value) {
+            ValidateType(value);
+            RangeCheck(index);
+            Replace(index, value);
+        }
+
+        protected override void SetParameter(string parameterName, DbParameter value) {
+            int index = IndexOf(parameterName);
+            if(index < 0)
+                throw new ArgumentException("Wrong parameter name");
+            Replace(index, value);
+        }
+
+        void RemoveIndex(int index) {
+            innerList.RemoveAt(index);
+        }
+
+        void RangeCheck(int index) {
+            if(index < 0 || Count <= index)
+                throw new IndexOutOfRangeException();
+        }
+
+        int CheckName(string parameterName) {
+            int index = IndexOf(parameterName);
+            if(index < 0)
+                throw new ArgumentException("Wrong parameter name");
+            return index;
+        }
+
+        void ValidateParameter(int index, DbParameter value) {
+            if(value == null)
+                throw new NullReferenceException("parameter");
+            if(index == IndexOf(value))
+                return;
+            if(!string.IsNullOrEmpty(value.ParameterName))
+                return;
+            string parameterName;
+            index = 1;
+            do {
+                parameterName = "Parameters" + index.ToString(CultureInfo.CurrentCulture);
+                index++;
+            }
+            while(IndexOf(parameterName) != -1);
+
+            value.ParameterName = parameterName;
+        }
+
+        void Replace(int index, DbParameter value) {
+            ValidateType(value);
+            ValidateParameter(index, value);
+            innerList[index] = (BigQueryParameter)value;
+        }
+
+        void CheckDuplicateNames() {
+            HashSet<string> set = new HashSet<string>();
+            foreach(var bigQueryParameter in innerList) {
+                if(set.Contains(bigQueryParameter.ParameterName)) {
+                    throw new DuplicateNameException("Parameter collection contains duplicate parameters with name '" + bigQueryParameter.ParameterName + "'");
+                }
+                set.Add(bigQueryParameter.ParameterName);
+            }
         }
     }
 }

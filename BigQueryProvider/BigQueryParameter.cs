@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
+using DevExpress.DataAccess.BigQuery.Native;
 
 namespace DevExpress.DataAccess.BigQuery {
     public sealed class BigQueryParameter : DbParameter, ICloneable {
@@ -107,6 +108,16 @@ namespace DevExpress.DataAccess.BigQuery {
             set;
         }
 
+        public override void ResetDbType() {
+            dbType = null;
+            value = null;
+            ParameterName = null;
+            IsNullable = true;
+            SourceColumn = null;
+            SourceVersion = DataRowVersion.Current;
+            Direction = ParameterDirection.Input;
+        }
+
         internal void Validate() {
             if(string.IsNullOrEmpty(ParameterName))
                 throw new ArgumentException("Parameter's name is empty");
@@ -120,16 +131,6 @@ namespace DevExpress.DataAccess.BigQuery {
             catch(Exception) {
                 throw new ArgumentException("Can't convert Value " + Value + " to DbType " + DbType);
             }
-        }
-
-        public override void ResetDbType() {
-            dbType = null;
-            value = null;
-            ParameterName = null;
-            IsNullable = true;
-            SourceColumn = null;
-            SourceVersion = DataRowVersion.Current;
-            Direction = ParameterDirection.Input;
         }
 
         object ICloneable.Clone() {

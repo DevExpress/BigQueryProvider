@@ -129,6 +129,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void ValidateBadParameterTest() {
             var collection = new BigQueryParameterCollection();
+            param0.IsNullable = false;
             collection.Add(param0);
             Assert.Throws<ArgumentException>(() => collection.Validate());
         }

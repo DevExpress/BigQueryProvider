@@ -130,9 +130,11 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Fact]
         public void ValidationNullValueTest() {
-            var param = new BigQueryParameter {ParameterName = parameterName};
+            var param = new BigQueryParameter(parameterName, DbType.String) {IsNullable = false};
             Assert.Null(param.Value);
             Assert.Throws<ArgumentException>(() => param.Validate());
+            param.IsNullable = true;
+            param.Validate();
             param.Value = intValue;
             param.Validate();
         }

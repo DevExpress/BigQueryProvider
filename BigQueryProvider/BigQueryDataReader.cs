@@ -77,6 +77,8 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         static string PrepareParameterValue(object value, BigQueryDbType bqDbType) {
+            if(value == null)
+                return bqDbType == BigQueryDbType.String ? "'null'" : "null";
             string format = bqDbType == BigQueryDbType.Timestamp ? 
                 "TIMESTAMP('{0:u}')" : bqDbType == BigQueryDbType.String ? 
                 "'{0}'" : "{0}";

@@ -129,11 +129,11 @@ namespace DevExpress.DataAccess.BigQuery {
         public override void ResetDbType() {
             dbType = null;
             value = null;
+            direction = ParameterDirection.Input;
             ParameterName = null;
             IsNullable = true;
             SourceColumn = null;
             SourceVersion = DataRowVersion.Current;
-            Direction = ParameterDirection.Input;
         }
 
         object ICloneable.Clone() {

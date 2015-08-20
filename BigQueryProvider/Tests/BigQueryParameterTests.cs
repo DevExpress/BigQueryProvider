@@ -65,6 +65,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 (param.IsNullable == clone.IsNullable) &&
                 (param.SourceColumnNullMapping == clone.SourceColumnNullMapping) &&
                 (param.Direction == clone.Direction) &&
+                (param.IsNullable == clone.IsNullable) &&
                 (param.Size == clone.Size) &&
                 (param.SourceColumn == clone.SourceColumn) &&
                 (param.SourceVersion == clone.SourceVersion);
@@ -163,7 +164,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void ValidateChangeIsnullableTest() {
             var param = new BigQueryParameter(parameterName, DbType.String);
             Assert.False(param.IsNullable);
-            Assert.Throws<NotSupportedException>(() => param.IsNullable = true);
+            param.IsNullable = false;
+            Assert.Throws<ArgumentOutOfRangeException>(() => param.IsNullable = true);
         }
     }
 }

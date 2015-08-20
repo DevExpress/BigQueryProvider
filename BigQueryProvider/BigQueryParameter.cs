@@ -79,7 +79,7 @@ namespace DevExpress.DataAccess.BigQuery {
             get { return false; }
             set {
                 if(value)
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException("IsNullable property is not supported");
             }
         }
 

@@ -34,7 +34,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         static DateTime UnixTimeStampToDateTime(object timestamp) {
-            return UnixTimeStampToDateTime(double.Parse(timestamp.ToString()));
+            return UnixTimeStampToDateTime(double.Parse(timestamp.ToString(), CultureInfo.InvariantCulture));
         }
 
         static DateTime UnixTimeStampToDateTime(double unixTimeStamp) {

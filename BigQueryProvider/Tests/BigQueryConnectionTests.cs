@@ -74,10 +74,20 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void GetTableNamesTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
-                var tableNames = connection.GetTableNames();
+                string[] tableNames = connection.GetTableNames();
                 Assert.Equal(2, tableNames.Length);
                 Assert.Equal("natality", tableNames[0]);
                 Assert.Equal("natality2", tableNames[1]);
+            }
+        }
+
+        [Fact]
+        public void GetViewNamesTest() {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
+                connection.Open();
+                string[] tableNames = connection.GetViewNames();
+                Assert.Equal(1, tableNames.Length);
+                Assert.Equal("natalityview", tableNames[0]);
             }
         }
 

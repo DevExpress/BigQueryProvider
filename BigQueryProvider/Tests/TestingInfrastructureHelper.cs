@@ -12,12 +12,13 @@ using Xunit;
 namespace DevExpress.DataAccess.BigQuery.Tests {
     public class TestingInfrastructureHelper : IDisposable {
         public TestingInfrastructureHelper() {
-            connection = new BigQueryConnection(ConnectionStringHelper.P12ConnectionString);
+            connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString);
             connection.Open();
         }
 
         public const string NatalityTableName = "natality";
         public const string Natality2TableName = "natality2";
+        public const string NatalityViewName = "natalityview";
 
         BigQueryConnection connection;
 
@@ -25,6 +26,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void CreateDBTables() {
             CreateNatalityTable();
             CreateNatality2Table();
+            CreateNatalityView();
         }
 
         void CreateDatasetIfRequired() {
@@ -180,6 +182,25 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             return new TableSchema {
                 Fields = new List<TableFieldSchema> { state, source_year, year, weight_pounds, mother_married }
             };
+        }
+
+        [Fact(Skip = "Explicit")]
+        void CreateNatalityView() {
+            CreateDatasetIfRequired();
+
+            Table table = new Table {
+                TableReference = new TableReference {
+                    DatasetId = connection.DataSetId,
+                    ProjectId = connection.ProjectId,
+                    TableId = NatalityViewName
+                },
+                View = new ViewDefinition {
+                    Query = string.Format(@"SELECT [natality2.year] [year], [natality2.weight_pounds] [weight], [natality2.state] [state]
+                                            FROM [{0}.natality2] [natality2]", connection.DataSetId)
+                }
+            };
+
+            InsertTable(table);
         }
 
         public void Dispose() {

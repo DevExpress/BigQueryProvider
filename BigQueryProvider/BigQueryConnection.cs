@@ -89,16 +89,23 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public string[] GetTableNames() {
+            return GetDataOblectNames("TABLE");
+        }
+
+        public string[] GetViewNames() {
+            return GetDataOblectNames("VIEW");
+        }
+
+        string[] GetDataOblectNames(string type) {
             CheckDisposed();
             CheckOpen();
             TableList tableList;
             try {
                 tableList = Service.Tables.List(ProjectId, DataSetId).Execute();
-            }
-            catch(GoogleApiException e) {
+            } catch(GoogleApiException e) {
                 throw e.Wrap();
             }
-            return tableList.Tables.Select(t => t.Id.Split('.')[1]).ToArray();
+            return tableList.Tables.Where(t => t.Type == type).Select(t => t.TableReference.TableId).ToArray();
         }
 
         public override string ConnectionString {

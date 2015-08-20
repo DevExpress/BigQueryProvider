@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using DevExpress.DataAccess.BigQuery.Native;
 
 namespace DevExpress.DataAccess.BigQuery {
@@ -132,7 +133,7 @@ namespace DevExpress.DataAccess.BigQuery {
             if(BigQueryDbType == BigQueryDbType.Unknown)
                 throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
             try {
-                Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType));
+                Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType), CultureInfo.InvariantCulture);
             }
             catch(Exception) {
                 throw new ArgumentException("Can't convert Value " + Value + " to DbType " + DbType);

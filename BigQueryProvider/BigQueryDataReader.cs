@@ -364,7 +364,7 @@ namespace DevExpress.DataAccess.BigQuery {
             Type conversionType = BigQueryTypeConverter.ToType(schema.Fields[ordinal].Type);
             if(conversionType == typeof(DateTime))
                 return UnixTimeStampToDateTime(value);
-            return Convert.ChangeType(value, conversionType);
+            return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
         }
 
         void DisposeCheck() {

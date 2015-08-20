@@ -65,6 +65,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 (param.IsNullable == clone.IsNullable) &&
                 (param.SourceColumnNullMapping == clone.SourceColumnNullMapping) &&
                 (param.Direction == clone.Direction) &&
+                (param.IsNullable == clone.IsNullable) &&
                 (param.Size == clone.Size) &&
                 (param.SourceColumn == clone.SourceColumn) &&
                 (param.SourceVersion == clone.SourceVersion);
@@ -133,6 +134,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             var param = new BigQueryParameter {ParameterName = parameterName};
             Assert.Null(param.Value);
             Assert.Throws<ArgumentException>(() => param.Validate());
+            param.Value = DBNull.Value;
+            Assert.Throws<ArgumentException>(() => param.Validate());
             param.Value = intValue;
             param.Validate();
         }
@@ -157,6 +160,14 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void ValidateValueCanNotConvertTest() {
             var param = new BigQueryParameter(parameterName, DbType.DateTime) { Value = floatValue };
             Assert.Throws<ArgumentException>(() => param.Validate());
+        }
+
+        [Fact]
+        public void ValidateChangeIsnullableTest() {
+            var param = new BigQueryParameter(parameterName, DbType.String);
+            Assert.False(param.IsNullable);
+            param.IsNullable = false;
+            Assert.Throws<ArgumentOutOfRangeException>(() => param.IsNullable = true);
         }
     }
 }

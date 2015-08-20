@@ -76,8 +76,11 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override bool IsNullable {
-            get;
-            set;
+            get { return false; }
+            set {
+                if(value)
+                    throw new ArgumentOutOfRangeException("value", value, "Nullable parameters are not supported");
+            }
         }
 
         public override string ParameterName {
@@ -117,7 +120,6 @@ namespace DevExpress.DataAccess.BigQuery {
             value = null;
             direction = ParameterDirection.Input;
             ParameterName = null;
-            IsNullable = true;
             SourceColumn = null;
             SourceVersion = DataRowVersion.Current;
         }
@@ -125,8 +127,8 @@ namespace DevExpress.DataAccess.BigQuery {
         internal void Validate() {
             if(string.IsNullOrEmpty(ParameterName))
                 throw new ArgumentException("Parameter's name is empty");
-            if(Value == null)
-                throw new ArgumentException("Parameter's value is not initialized");
+            if(Value == null || Value == DBNull.Value)
+                throw new ArgumentException("Null parameter's values is not supported");
             if(BigQueryDbType == BigQueryDbType.Unknown)
                 throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
             try {
@@ -144,9 +146,9 @@ namespace DevExpress.DataAccess.BigQuery {
         public BigQueryParameter Clone() {
             BigQueryParameter parameter = new BigQueryParameter(ParameterName, Value) {
                 Direction = Direction,
+                IsNullable = IsNullable,
                 DbType = DbType,
                 BigQueryDbType = BigQueryDbType,
-                IsNullable =  IsNullable,
                 SourceColumnNullMapping = SourceColumnNullMapping,
                 Size = Size,
                 SourceColumn = SourceColumn,

@@ -18,8 +18,8 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         static string PrepareParameterValue(object value, BigQueryDbType bqDbType) {
-            string format = bqDbType == BigQueryDbType.Timestamp ? 
-                "TIMESTAMP('{0:u}')" : bqDbType == BigQueryDbType.String ? 
+            string format = bqDbType == BigQueryDbType.Timestamp ?
+                "TIMESTAMP('{0:u}')" : bqDbType == BigQueryDbType.String ?
                 "'{0}'" : "{0}";
             return string.Format(CultureInfo.InvariantCulture, format, EscapeValue(value));
         }

@@ -154,7 +154,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
-        public void ColumnEqualNullTest() {
+        public void FilterByNullTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 dbCommand.CommandText = string.Format(commandTextWithFilter, filterByNull);
                 var reader = dbCommand.ExecuteReader(CommandBehavior.Default);

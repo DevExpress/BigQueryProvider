@@ -13,6 +13,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         const string commandTextWithFilter = "SELECT * FROM [testdata." + TestingInfrastructureHelper.Natality2TableName + "] WHERE {0} LIMIT 10";
         const string filterByString = "state = @state";
         const string filterByBool = "mother_married = @mother_married";
+        const string filterByNull = "mother_married = null";
         const string injectedViaSingleQuotesValue = "CA' or 1=1--";
         const string injectedViaDoubleQuotesValue = @"CA"" or 1=1--";
         const string injectedViaBackSlashesValue = @"CA\' or 1=1--";
@@ -155,7 +156,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void ColumnEqualNullTest() {
             using(var dbCommand = connection.CreateCommand()) {
-                dbCommand.CommandText = "SELECT * FROM testdata.natality2 WHERE mother_married = null";
+                dbCommand.CommandText = string.Format(commandTextWithFilter, filterByNull);
                 var reader = dbCommand.ExecuteReader(CommandBehavior.Default);
                 Assert.False(reader.HasRows, "Fix issue #119");
             }

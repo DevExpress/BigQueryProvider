@@ -77,7 +77,10 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override bool IsNullable {
             get { return false; }
-            set { throw new NotSupportedException(); }
+            set {
+                if(value)
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         public override string ParameterName {
@@ -143,6 +146,7 @@ namespace DevExpress.DataAccess.BigQuery {
         public BigQueryParameter Clone() {
             BigQueryParameter parameter = new BigQueryParameter(ParameterName, Value) {
                 Direction = Direction,
+                IsNullable = IsNullable,
                 DbType = DbType,
                 BigQueryDbType = BigQueryDbType,
                 SourceColumnNullMapping = SourceColumnNullMapping,

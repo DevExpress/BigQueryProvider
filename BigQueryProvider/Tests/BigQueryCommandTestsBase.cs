@@ -153,12 +153,11 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
-        //If this test is red -> BigQuery supports "*column_name* = null"
         public void ColumnEqualNullTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 dbCommand.CommandText = "SELECT * FROM testdata.natality2 WHERE mother_married = null";
                 var reader = dbCommand.ExecuteReader(CommandBehavior.Default);
-                Assert.False(reader.HasRows);
+                Assert.False(reader.HasRows, "If this test is red it means that IS NULL and *column_name*=null is equivalent queries. We should to update IsNullable property.");
             }
         }
 

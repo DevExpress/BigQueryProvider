@@ -134,6 +134,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             var param = new BigQueryParameter {ParameterName = parameterName};
             Assert.Null(param.Value);
             Assert.Throws<ArgumentException>(() => param.Validate());
+            param.Value = DBNull.Value;
+            Assert.Throws<ArgumentException>(() => param.Validate());
             param.Value = intValue;
             param.Validate();
         }

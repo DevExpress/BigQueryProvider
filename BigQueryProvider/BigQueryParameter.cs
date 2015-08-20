@@ -127,8 +127,8 @@ namespace DevExpress.DataAccess.BigQuery {
         internal void Validate() {
             if(string.IsNullOrEmpty(ParameterName))
                 throw new ArgumentException("Parameter's name is empty");
-            if(Value == null)
-                throw new ArgumentException("Parameter's value is not initialized");
+            if(Value == null || Value == DBNull.Value)
+                throw new ArgumentException("Null parameter's values is not supported");
             if(BigQueryDbType == BigQueryDbType.Unknown)
                 throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
             try {

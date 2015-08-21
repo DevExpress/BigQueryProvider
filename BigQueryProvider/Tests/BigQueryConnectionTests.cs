@@ -76,8 +76,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 connection.Open();
                 string[] tableNames = connection.GetTableNames();
                 Assert.Equal(2, tableNames.Length);
-                Assert.Equal("natality", tableNames[0]);
-                Assert.Equal("natality2", tableNames[1]);
+                Assert.Equal(TestingInfrastructureHelper.NatalityTableName, tableNames[0]);
+                Assert.Equal(TestingInfrastructureHelper.Natality2TableName, tableNames[1]);
             }
         }
 
@@ -87,7 +87,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 connection.Open();
                 string[] tableNames = connection.GetViewNames();
                 Assert.Equal(1, tableNames.Length);
-                Assert.Equal("natalityview", tableNames[0]);
+                Assert.Equal(TestingInfrastructureHelper.NatalityViewName, tableNames[0]);
             }
         }
 

@@ -195,8 +195,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                     TableId = NatalityViewName
                 },
                 View = new ViewDefinition {
-                    Query = string.Format(@"SELECT [natality2.year] [year], [natality2.weight_pounds] [weight], [natality2.state] [state]
-                                            FROM [{0}.natality2] [natality2]", connection.DataSetId)
+                    Query = string.Format(@"SELECT [{1}.year] [year], [{1}.weight_pounds] [weight], [{1}.state] [state]
+                                            FROM [{0}.{1}] [{1}]", this.connection.DataSetId, Natality2TableName)
                 }
             };
 

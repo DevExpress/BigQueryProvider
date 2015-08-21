@@ -12,7 +12,7 @@ using Xunit;
 namespace DevExpress.DataAccess.BigQuery.Tests {
     public class TestingInfrastructureHelper : IDisposable {
         public TestingInfrastructureHelper() {
-            connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString);
+            connection = new BigQueryConnection(ConnectionStringHelper.P12ConnectionString);
             connection.Open();
         }
 

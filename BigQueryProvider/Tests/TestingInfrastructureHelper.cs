@@ -18,6 +18,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         public const string NatalityTableName = "natality";
         public const string Natality2TableName = "natality2";
+        public const string NatalityViewName = "natalityview";
 
         BigQueryConnection connection;
 
@@ -25,6 +26,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void CreateDBTables() {
             CreateNatalityTable();
             CreateNatality2Table();
+            CreateNatalityView();
         }
 
         void CreateDatasetIfRequired() {
@@ -180,6 +182,25 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             return new TableSchema {
                 Fields = new List<TableFieldSchema> { state, source_year, year, weight_pounds, mother_married }
             };
+        }
+
+        [Fact(Skip = "Explicit")]
+        void CreateNatalityView() {
+            CreateDatasetIfRequired();
+
+            Table table = new Table {
+                TableReference = new TableReference {
+                    DatasetId = connection.DataSetId,
+                    ProjectId = connection.ProjectId,
+                    TableId = NatalityViewName
+                },
+                View = new ViewDefinition {
+                    Query = string.Format(@"SELECT [{1}.year] [year], [{1}.weight_pounds] [weight], [{1}.state] [state]
+                                            FROM [{0}.{1}] [{1}]", this.connection.DataSetId, Natality2TableName)
+                }
+            };
+
+            InsertTable(table);
         }
 
         public void Dispose() {

@@ -13,6 +13,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         const string commandTextWithFilter = "SELECT * FROM [testdata." + TestingInfrastructureHelper.Natality2TableName + "] WHERE {0} LIMIT 10";
         const string filterByString = "state = @state";
         const string filterByBool = "mother_married = @mother_married";
+        const string filterByNull = "mother_married = null";
         const string injectedViaSingleQuotesValue = "CA' or 1=1--";
         const string injectedViaDoubleQuotesValue = @"CA"" or 1=1--";
         const string injectedViaBackSlashesValue = @"CA\' or 1=1--";
@@ -109,6 +110,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void CommandSchemaBehaviorTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var dbDataReader = dbCommand.ExecuteReader(CommandBehavior.SchemaOnly);
+                dbDataReader.NextResult();
                 DataTable schemaTable = dbDataReader.GetSchemaTable();
                 Assert.True(DataTableComparer.Equals(natalitySchemaTable, schemaTable));
             }
@@ -153,11 +155,11 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
-        public void ColumnEqualNullTest() {
+        public void FilterByNullTest() {
             using(var dbCommand = connection.CreateCommand()) {
-                dbCommand.CommandText = "SELECT * FROM testdata.natality2 WHERE mother_married = null";
+                dbCommand.CommandText = string.Format(commandTextWithFilter, filterByNull);
                 var reader = dbCommand.ExecuteReader(CommandBehavior.Default);
-                Assert.False(reader.HasRows, "If this test is red it means that IS NULL and *column_name*=null is equivalent queries. We should to update IsNullable property.");
+                Assert.False(reader.HasRows, "Fix issue #119");
             }
         }
 

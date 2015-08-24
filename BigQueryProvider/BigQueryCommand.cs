@@ -79,7 +79,7 @@ namespace DevExpress.DataAccess.BigQuery {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken).ConfigureAwait(false)) {
-                while(await dbDataReader.NextResultAsync())
+                while(await dbDataReader.NextResultAsync(cancellationToken))
                     ;
                 return dbDataReader.RecordsAffected;
             }
@@ -98,7 +98,7 @@ namespace DevExpress.DataAccess.BigQuery {
             cancellationToken.Register(Cancel);
             object result = null;
             using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken).ConfigureAwait(false)) {
-                if(await dbDataReader.ReadAsync().ConfigureAwait(false))
+                if(await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false))
                     if(dbDataReader.FieldCount > 0)
                         result = dbDataReader.GetValue(0);
             }
@@ -130,7 +130,7 @@ namespace DevExpress.DataAccess.BigQuery {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             var reader = new BigQueryDataReader(behavior, this, Connection.Service);
-            await reader.InitializeAsync().ConfigureAwait(false);
+            await reader.InitializeAsync(cancellationToken).ConfigureAwait(false);
             return reader;
         }
 

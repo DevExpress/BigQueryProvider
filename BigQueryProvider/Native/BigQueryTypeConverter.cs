@@ -36,11 +36,20 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             new Tuple<string, Type>("BOOLEAN", typeof(bool)),
             new Tuple<string, Type>("TIMESTAMP", typeof(DateTime)),
             new Tuple<string, Type>("RECORD", typeof(object))
-        }; 
+        };
 
-        public static BigQueryDbType ToBigQueryDbType(DbType type) {
-            var typesTuple = DbTypeToBigQueryDbTypePairs.FirstOrDefault(i => i.Item1 == type);
-            return typesTuple == null ? BigQueryDbType.Unknown : typesTuple.Item2;
+        static T GetFirstBy<T, T1>(this List<Tuple<T, T1>> list, T1 item2ToSearch, T @default) {
+            var tuple = list.FirstOrDefault(li => li.Item2.Equals(item2ToSearch));
+            return tuple == null ? @default : tuple.Item1;
+        }
+
+        static T1 GetSecondBy<T, T1>(this List<Tuple<T, T1>> list, T item1ToSearch, T1 @default) {
+            var tuple = list.FirstOrDefault(li => li.Item1.Equals(item1ToSearch));
+            return tuple == null ? @default : tuple.Item2;
+        }
+
+        public static BigQueryDbType ToBigQueryDbType(DbType dbType) {
+            return GetSecondBy(DbTypeToBigQueryDbTypePairs, dbType, BigQueryDbType.Unknown);
         }
 
         public static BigQueryDbType ToBigQueryDbType(Type type) {
@@ -48,32 +57,27 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public static BigQueryDbType ToBigQueryDbType(string stringType) {
-            var type = ToType(stringType);
-            return type == null ? BigQueryDbType.Unknown : ToBigQueryDbType(type);
+            return ToBigQueryDbType(ToType(stringType));
         }
 
-        public static DbType ToDbType(BigQueryDbType type) {
-            var typesTuple = DbTypeToBigQueryDbTypePairs.FirstOrDefault(i => i.Item2 == type);
-            return typesTuple == null ? DbType.Object : typesTuple.Item1;
+        public static DbType ToDbType(BigQueryDbType bqDbType) {
+            return GetFirstBy(DbTypeToBigQueryDbTypePairs, bqDbType, DbType.Object);
         }
 
         public static DbType ToDbType(Type type) {
-            var typesTuple = TypeToDbTypePairs.FirstOrDefault(i => i.Item1 == type);
-            return typesTuple == null ? DbType.Object : typesTuple.Item2;
+            return GetSecondBy(TypeToDbTypePairs, type, DbType.Object);
         }
 
-        public static Type ToType(BigQueryDbType type) {
-            return ToType(ToDbType(type));
+        public static Type ToType(BigQueryDbType bqDbType) {
+            return ToType(ToDbType(bqDbType));
         }
 
-        public static Type ToType(string type) {
-            var typesTuple = StringToTypePairs.FirstOrDefault(i => i.Item1 == type);
-            return typesTuple == null ? null : typesTuple.Item2;
+        public static Type ToType(string stringType) {
+            return GetSecondBy(StringToTypePairs, stringType, null);
         }
 
-        public static Type ToType(DbType type) {
-            var typesTuple = TypeToDbTypePairs.FirstOrDefault(i => i.Item2 == type);
-            return typesTuple == null ? null : typesTuple.Item1;
+        public static Type ToType(DbType dbType) {
+            return GetFirstBy(TypeToDbTypePairs, dbType, null);
         }
 
         public static object GetDefaultValueFor(DbType dbType) {

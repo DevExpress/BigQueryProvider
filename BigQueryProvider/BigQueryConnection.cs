@@ -89,14 +89,14 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public string[] GetTableNames() {
-            return GetDataOblectNames("TABLE");
+            return GetDataObjectNames("TABLE");
         }
 
         public string[] GetViewNames() {
-            return GetDataOblectNames("VIEW");
+            return GetDataObjectNames("VIEW");
         }
 
-        string[] GetDataOblectNames(string type) {
+        string[] GetDataObjectNames(string type) {
             CheckDisposed();
             CheckOpen();
             TableList tableList;

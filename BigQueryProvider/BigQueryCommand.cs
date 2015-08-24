@@ -86,10 +86,12 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override int ExecuteNonQuery() {
-            using(DbDataReader dbDataReader = ExecuteDbDataReader(CommandBehavior.Default)) {
-                while(dbDataReader.NextResult())
-                    ;
-                return dbDataReader.RecordsAffected;
+            var task = ExecuteNonQueryAsync();
+            try {
+                return task.Result;
+            }
+            catch(AggregateException e) {
+                throw e.Flatten().InnerException;
             }
         }
 
@@ -106,13 +108,13 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override object ExecuteScalar() {
-            object result = null;
-            using(DbDataReader dbDataReader = ExecuteDbDataReader(CommandBehavior.Default)) {
-                if(dbDataReader.Read())
-                    if(dbDataReader.FieldCount > 0)
-                        result = dbDataReader.GetValue(0);
+            var task = ExecuteScalarAsync(CancellationToken.None);
+            try {
+                return task.Result;
             }
-            return result;
+            catch(AggregateException e) {
+                throw e.Flatten().InnerException;
+            }
         }
 
         protected override DbConnection DbConnection {

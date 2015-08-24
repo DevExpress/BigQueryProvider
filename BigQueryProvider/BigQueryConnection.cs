@@ -47,7 +47,10 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override void Open() {
-            try { OpenAsync().Wait(); }
+            var task = OpenAsync();
+            try {
+                task.Wait();
+            }
             catch(AggregateException e) {
                 throw e.Flatten().InnerException;
             }

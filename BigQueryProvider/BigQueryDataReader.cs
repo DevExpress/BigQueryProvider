@@ -43,7 +43,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         static DateTime UnixTimeStampToDateTime(object timestamp) {
-            return UnixTimeStampToDateTime(double.Parse(timestamp.ToString()));
+            return UnixTimeStampToDateTime(double.Parse(timestamp.ToString(), CultureInfo.InvariantCulture));
         }
 
         static DateTime UnixTimeStampToDateTime(double unixTimeStamp) {
@@ -308,16 +308,16 @@ namespace DevExpress.DataAccess.BigQuery {
             return enumerator;
         }
 
-        internal async Task InitializeAsync() {
+        internal async Task InitializeAsync(CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
             try {
                 if(behavior == CommandBehavior.SchemaOnly) {
-                    TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync().ConfigureAwait(false);
+                    TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync(cancellationToken).ConfigureAwait(false);
                     tables = tableList.Tables.GetEnumerator();
-                    tables.MoveNext();
                 } else {
                     ((BigQueryParameterCollection)bigQueryCommand.Parameters).Validate();
                     JobsResource.QueryRequest request = CreateRequest();
-                    QueryResponse queryResponse = await request.ExecuteAsync().ConfigureAwait(false);
+                    QueryResponse queryResponse = await request.ExecuteAsync(cancellationToken).ConfigureAwait(false);
                     ProcessQueryResponse(queryResponse);
                 }
             }
@@ -373,7 +373,7 @@ namespace DevExpress.DataAccess.BigQuery {
             Type conversionType = BigQueryTypeConverter.ToType(schema.Fields[ordinal].Type);
             if(conversionType == typeof(DateTime))
                 return UnixTimeStampToDateTime(value);
-            return Convert.ChangeType(value, conversionType);
+            return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
         }
 
         void DisposeCheck() {

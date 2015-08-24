@@ -145,7 +145,7 @@ namespace DevExpress.DataAccess.BigQuery {
             if(Size > maxStringSize)
                 throw new ArgumentException("Exceeded the maximum permissible length of the value in " +  maxStringSize);
             try {
-                Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType));
+                Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType), CultureInfo.InvariantCulture);
             }
             catch(Exception) {
                 throw new ArgumentException("Can't convert Value " + Value + " to DbType " + DbType);

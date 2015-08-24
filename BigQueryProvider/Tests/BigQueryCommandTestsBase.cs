@@ -110,6 +110,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void CommandSchemaBehaviorTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var dbDataReader = dbCommand.ExecuteReader(CommandBehavior.SchemaOnly);
+                dbDataReader.NextResult();
                 DataTable schemaTable = dbDataReader.GetSchemaTable();
                 Assert.True(DataTableComparer.Equals(natalitySchemaTable, schemaTable));
             }

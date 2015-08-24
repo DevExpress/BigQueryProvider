@@ -79,7 +79,7 @@ namespace DevExpress.DataAccess.BigQuery {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken).ConfigureAwait(false)) {
-                while(await dbDataReader.NextResultAsync(cancellationToken))
+                while(await dbDataReader.NextResultAsync(cancellationToken).ConfigureAwait(false))
                     ;
                 return dbDataReader.RecordsAffected;
             }

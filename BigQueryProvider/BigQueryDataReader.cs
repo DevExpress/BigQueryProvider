@@ -13,6 +13,7 @@ using Google.Apis.Bigquery.v2.Data;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryDataReader : DbDataReader {
+        #region Static
         static string PrepareCommandText(BigQueryCommand command) {
             return command.CommandType == CommandType.TableDirect ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) : command.CommandText;
         }
@@ -21,12 +22,12 @@ namespace DevExpress.DataAccess.BigQuery {
             var isString = parameter.BigQueryDbType == BigQueryDbType.String;
             var isTimestamp = parameter.BigQueryDbType == BigQueryDbType.Timestamp;
             if(isString)
-                return string.Format("'{0}'", EscapeValue(CroppStringValueBySize(parameter)));
+                return string.Format("'{0}'", EscapeValue(TrimStringValueBySize(parameter)));
             string format = isTimestamp ? "TIMESTAMP('{0:u}')" : "{0}";
             return string.Format(CultureInfo.InvariantCulture, format, parameter.Value);
         }
 
-        static string CroppStringValueBySize(BigQueryParameter parameter) {
+        static string TrimStringValueBySize(BigQueryParameter parameter) {
             var value = string.Format(CultureInfo.InvariantCulture, "{0}", parameter.Value);
             return parameter.Size < value.Length
                 ? value.Remove(parameter.Size)
@@ -51,6 +52,7 @@ namespace DevExpress.DataAccess.BigQuery {
             dtDateTime = dtDateTime.AddSeconds(unixTimeStamp);
             return dtDateTime;
         }
+        #endregion
 
         const char parameterPrefix = '@';
 

@@ -11,7 +11,7 @@ namespace DevExpress.DataAccess.BigQuery {
         DbType? dbType;
         object value;
         ParameterDirection direction;
-        int size;
+        int? size;
 
         public BigQueryParameter() {
             ResetDbType();
@@ -115,15 +115,17 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override int Size {
             get {
-                if(size != 0)
-                    return size;
-                if(DbType == DbType.String) {
-                    var stringValue = string.Format(CultureInfo.InvariantCulture, "{0}", value);
-                    return stringValue.Length;
-                }
-                return 0;
+                if(size.HasValue)
+                    return size.Value;
+                if(DbType != DbType.String) return 0;
+                var stringValue = string.Format(CultureInfo.InvariantCulture, "{0}", value);
+                return stringValue.Length;
             }
-            set { size = value; }
+            set {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("value", value, "The value can not be less than 0");
+                size = value;
+            }
         }
 
         public override void ResetDbType() {
@@ -143,7 +145,7 @@ namespace DevExpress.DataAccess.BigQuery {
             if(BigQueryDbType == BigQueryDbType.Unknown)
                 throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
             if(Size > maxStringSize)
-                throw new ArgumentException("Exceeded the maximum permissible length of the value in " +  maxStringSize);
+                throw new ArgumentException("Value's length in " + Size + " greater than max length in " +  maxStringSize);
             try {
                 Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType), CultureInfo.InvariantCulture);
             }

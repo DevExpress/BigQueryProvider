@@ -65,10 +65,6 @@ namespace DevExpress.DataAccess.BigQuery {
             Dispose();
         }
 
-        public override Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken) {
-            return Task.Run(() => GetFieldValue<T>(ordinal), cancellationToken);
-        }
-
         public override T GetFieldValue<T>(int ordinal) {
             object value = GetValue(ordinal);
             return ChangeValueType<T>(value, ordinal);
@@ -99,20 +95,12 @@ namespace DevExpress.DataAccess.BigQuery {
             return dataTable;
         }
 
-        public override Task<bool> NextResultAsync(CancellationToken cancellationToken) {
-            return Task.Run(() => NextResult(), cancellationToken);
-        }
-
         public override bool NextResult() {
             DisposeCheck();
             if(behavior == CommandBehavior.SchemaOnly) {
                 return tables.MoveNext();
             }
             return false;
-        }
-
-        public override Task<bool> ReadAsync(CancellationToken cancellationToken) {
-            return Task.Run(() => Read(), cancellationToken);
         }
 
         public override bool Read() {
@@ -211,10 +199,6 @@ namespace DevExpress.DataAccess.BigQuery {
                 values[i] = ChangeValueType(GetValue(i), i);
             }
             return values.Length;
-        }
-
-        public override Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken) {
-            return Task.Run(() => IsDBNull(ordinal), cancellationToken);
         }
 
         public override bool IsDBNull(int ordinal) {

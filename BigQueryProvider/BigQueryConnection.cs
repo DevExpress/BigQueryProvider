@@ -29,16 +29,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override void ChangeDatabase(string databaseName) {
             CheckDisposed();
-            if(IsOpened)
-                Close();
             DataSetId = databaseName;
-            try {
-                InitializeService();
-            }
-            catch(GoogleApiException e) {
-                state = ConnectionState.Broken;
-                throw e.Wrap();
-            }
         }
 
         public async override Task OpenAsync(CancellationToken cancellationToken) {
@@ -56,15 +47,12 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override void Open() {
-            CheckDisposed();
-            if(IsOpened)
-                throw new InvalidOperationException("Connection allready open");
+            var task = OpenAsync();
             try {
-                InitializeService();
+                task.Wait();
             }
-            catch(GoogleApiException e) {
-                state = ConnectionState.Broken;
-                throw e.Wrap();
+            catch(AggregateException e) {
+                throw e.Flatten().InnerException;
             }
         }
 
@@ -242,15 +230,6 @@ namespace DevExpress.DataAccess.BigQuery {
             if(disposed) {
                 throw new ObjectDisposedException(ToString());
             }
-        }
-
-        void InitializeService() {
-            CheckDisposed();
-            state = ConnectionState.Connecting;
-            Service = CreateServiceAsync(CancellationToken.None).Result;
-            JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
-            listRequest.Execute();
-            state = ConnectionState.Open;
         }
 
         async Task InitializeServiceAsync(CancellationToken cancellationToken) {

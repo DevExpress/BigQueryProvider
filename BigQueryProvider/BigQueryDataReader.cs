@@ -299,15 +299,16 @@ namespace DevExpress.DataAccess.BigQuery {
             return enumerator;
         }
 
-        internal async Task InitializeAsync() {
+        internal async Task InitializeAsync(CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
             try {
                 if(behavior == CommandBehavior.SchemaOnly) {
-                    TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync().ConfigureAwait(false);
+                    TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync(cancellationToken).ConfigureAwait(false);
                     tables = tableList.Tables.GetEnumerator();
                 } else {
                     ((BigQueryParameterCollection)bigQueryCommand.Parameters).Validate();
                     JobsResource.QueryRequest request = CreateRequest();
-                    QueryResponse queryResponse = await request.ExecuteAsync().ConfigureAwait(false);
+                    QueryResponse queryResponse = await request.ExecuteAsync(cancellationToken).ConfigureAwait(false);
                     ProcessQueryResponse(queryResponse);
                 }
             }

@@ -17,11 +17,20 @@ namespace DevExpress.DataAccess.BigQuery {
             return command.CommandType == CommandType.TableDirect ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) : command.CommandText;
         }
 
-        static string PrepareParameterValue(object value, BigQueryDbType bqDbType) {
-            string format = bqDbType == BigQueryDbType.Timestamp ? 
-                "TIMESTAMP('{0:u}')" : bqDbType == BigQueryDbType.String ? 
-                "'{0}'" : "{0}";
-            return string.Format(CultureInfo.InvariantCulture, format, EscapeValue(value));
+        static string PrepareParameterValue(BigQueryParameter parameter) {
+            var isString = parameter.BigQueryDbType == BigQueryDbType.String;
+            var isTimestamp = parameter.BigQueryDbType == BigQueryDbType.Timestamp;
+            if(isString)
+                return string.Format("'{0}'", EscapeValue(CroppStringValueBySize(parameter)));
+            string format = isTimestamp ? "TIMESTAMP('{0:u}')" : "{0}";
+            return string.Format(CultureInfo.InvariantCulture, format, parameter.Value);
+        }
+
+        static string CroppStringValueBySize(BigQueryParameter parameter) {
+            var value = string.Format(CultureInfo.InvariantCulture, "{0}", parameter.Value);
+            return parameter.Size < value.Length
+                ? value.Remove(parameter.Size)
+                : value;
         }
 
         static object EscapeValue(object value) {
@@ -332,7 +341,7 @@ namespace DevExpress.DataAccess.BigQuery {
         JobsResource.QueryRequest CreateRequest() {
             BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
             foreach(BigQueryParameter parameter in collection) {
-                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter.Value, parameter.BigQueryDbType));
+                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter));
             }
             QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue };
             JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);

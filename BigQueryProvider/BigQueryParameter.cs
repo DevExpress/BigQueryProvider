@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using DevExpress.DataAccess.BigQuery.Native;
 
 namespace DevExpress.DataAccess.BigQuery {
     public sealed class BigQueryParameter : DbParameter, ICloneable {
+        const int maxStringSize = 2097152;
         BigQueryDbType? bigQueryDbType;
         DbType? dbType;
         object value;
         ParameterDirection direction;
+        int size;
 
         public BigQueryParameter() {
             ResetDbType();
@@ -111,8 +114,16 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override int Size {
-            get;
-            set;
+            get {
+                if(size != 0)
+                    return size;
+                if(DbType == DbType.String) {
+                    var stringValue = string.Format(CultureInfo.InvariantCulture, "{0}", value);
+                    return stringValue.Length;
+                }
+                return 0;
+            }
+            set { size = value; }
         }
 
         public override void ResetDbType() {
@@ -131,6 +142,8 @@ namespace DevExpress.DataAccess.BigQuery {
                 throw new ArgumentException("Parameter's value is not initialized");
             if(BigQueryDbType == BigQueryDbType.Unknown)
                 throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
+            if(Size > maxStringSize)
+                throw new ArgumentException("Exceeded the maximum permissible length of the value in " +  maxStringSize);
             try {
                 Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType));
             }

@@ -1,6 +1,8 @@
 ﻿#if DEBUGTEST
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {
@@ -9,6 +11,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         const string stringValue = "Foo";
         const int intValue = 1;
         const float floatValue = 1.1f;
+        const int maxStringSize = 2097152;
+        const int rangeValue = 400000;
 
         [Fact]
         public void ConstructorTest() {
@@ -166,6 +170,24 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Assert.False(param.IsNullable);
             param.IsNullable = false;
             Assert.Throws<ArgumentOutOfRangeException>(() => param.IsNullable = true);
+        }
+
+        [Fact]
+        public void ValidateSizeTest() {
+            var param = new BigQueryParameter(parameterName, DbType.String);
+            IEnumerable<int> str = Enumerable.Range(0, rangeValue);
+            var value = string.Join("", str).Remove(maxStringSize + 1);
+
+            param.Value = value;
+            Assert.Equal(maxStringSize + 1, param.Size);
+            Assert.Throws<ArgumentException>(() => param.Validate());
+
+            param.Value = value.Remove(maxStringSize);
+            param.Validate();
+
+            param.DbType = DbType.Int64;
+            param.Value = 1;
+            Assert.Equal(0, param.Size);
         }
     }
 }

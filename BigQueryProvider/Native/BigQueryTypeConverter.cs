@@ -49,7 +49,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public static BigQueryDbType ToBigQueryDbType(DbType dbType) {
-            return GetSecondBy(DbTypeToBigQueryDbTypePairs, dbType, BigQueryDbType.Unknown);
+            return DbTypeToBigQueryDbTypePairs.GetSecondBy(dbType, BigQueryDbType.Unknown);
         }
 
         public static BigQueryDbType ToBigQueryDbType(Type type) {
@@ -61,11 +61,11 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public static DbType ToDbType(BigQueryDbType bqDbType) {
-            return GetFirstBy(DbTypeToBigQueryDbTypePairs, bqDbType, DbType.Object);
+            return DbTypeToBigQueryDbTypePairs.GetFirstBy(bqDbType, DbType.Object);
         }
 
         public static DbType ToDbType(Type type) {
-            return GetSecondBy(TypeToDbTypePairs, type, DbType.Object);
+            return TypeToDbTypePairs.GetSecondBy(type, DbType.Object);
         }
 
         public static Type ToType(BigQueryDbType bqDbType) {
@@ -73,11 +73,11 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public static Type ToType(string stringType) {
-            return GetSecondBy(StringToTypePairs, stringType, null);
+            return StringToTypePairs.GetSecondBy(stringType, null);
         }
 
         public static Type ToType(DbType dbType) {
-            return GetFirstBy(TypeToDbTypePairs, dbType, null);
+            return TypeToDbTypePairs.GetFirstBy(dbType, null);
         }
 
         public static object GetDefaultValueFor(DbType dbType) {

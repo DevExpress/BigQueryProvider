@@ -22,13 +22,13 @@ namespace DevExpress.DataAccess.BigQuery {
             var isString = parameter.BigQueryDbType == BigQueryDbType.String;
             var isTimestamp = parameter.BigQueryDbType == BigQueryDbType.Timestamp;
             if(isString)
-                return string.Format("'{0}'", EscapeValue(TrimStringValueBySize(parameter)));
+                return BigQueryTypeConverter.ToStringWithInvariantCulture(EscapeValue(TrimStringValueBySize(parameter)), "'{0}'");
             string format = isTimestamp ? "TIMESTAMP('{0:u}')" : "{0}";
-            return string.Format(CultureInfo.InvariantCulture, format, parameter.Value);
+            return BigQueryTypeConverter.ToStringWithInvariantCulture(parameter.Value, format);
         }
 
         static string TrimStringValueBySize(BigQueryParameter parameter) {
-            var value = string.Format(CultureInfo.InvariantCulture, "{0}", parameter.Value);
+            var value = BigQueryTypeConverter.ToStringWithInvariantCulture(parameter.Value, "{0}");
             return parameter.Size < value.Length
                 ? value.Remove(parameter.Size)
                 : value;

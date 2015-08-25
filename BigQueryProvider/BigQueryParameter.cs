@@ -22,10 +22,12 @@ using DevExpress.DataAccess.BigQuery.Native;
 
 namespace DevExpress.DataAccess.BigQuery {
     public sealed class BigQueryParameter : DbParameter, ICloneable {
+        const int maxStringSize = 2097152;
         BigQueryDbType? bigQueryDbType;
         DbType? dbType;
         object value;
         ParameterDirection direction;
+        int? size;
 
         public BigQueryParameter() {
             ResetDbType();
@@ -128,8 +130,18 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override int Size {
-            get;
-            set;
+            get {
+                if(size.HasValue)
+                    return size.Value;
+                if(DbType != DbType.String) return 0;
+                var invariantString = value.ToInvariantString();
+                return invariantString.Length;
+            }
+            set {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("value", value, "The value can not be less than 0");
+                size = value;
+            }
         }
 
         public override void ResetDbType() {
@@ -148,6 +160,8 @@ namespace DevExpress.DataAccess.BigQuery {
                 throw new ArgumentException("Null parameter's values is not supported");
             if(BigQueryDbType == BigQueryDbType.Unknown)
                 throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
+            if(Size > maxStringSize)
+                throw new ArgumentException("Value's length in " + Size + " greater than max length in " +  maxStringSize);
             try {
                 Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType), CultureInfo.InvariantCulture);
             }

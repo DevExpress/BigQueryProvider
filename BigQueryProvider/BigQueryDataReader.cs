@@ -29,22 +29,29 @@ using Google.Apis.Bigquery.v2.Data;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryDataReader : DbDataReader {
+        #region static
         static string PrepareCommandText(BigQueryCommand command) {
-            return command.CommandType == CommandType.TableDirect ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) : command.CommandText;
+            return command.CommandType == CommandType.TableDirect 
+                ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) 
+                : command.CommandText;
         }
 
-        static string PrepareParameterValue(object value, BigQueryDbType bqDbType) {
-            string format = bqDbType == BigQueryDbType.Timestamp ?
-                "TIMESTAMP('{0:u}')" : bqDbType == BigQueryDbType.String ?
-                "'{0}'" : "{0}";
-            return string.Format(CultureInfo.InvariantCulture, format, EscapeValue(value));
+        static string PrepareParameterValue(BigQueryParameter parameter) {
+            if(parameter.BigQueryDbType == BigQueryDbType.String) {
+                var invariantString = parameter.Value.ToInvariantString();
+                var trimmedString = invariantString.Substring(0, parameter.Size);
+                var escapedString = EscapeString(trimmedString);
+                return string.Format("'{0}'", escapedString);
+            }
+            string format = parameter.BigQueryDbType == BigQueryDbType.Timestamp 
+                ? "TIMESTAMP('{0:u}')" 
+                : "{0}";
+            return parameter.Value.ToInvariantString(format);
         }
 
-        static object EscapeValue(object value) {
-            var valueAsString = value as string;
-            if(valueAsString == null)
-                return value;
-            return valueAsString.Replace(@"\", @"\\")
+        static string EscapeString(string invariantString) {
+            return invariantString
+                .Replace(@"\", @"\\")
                 .Replace("'", @"\'")
                 .Replace("\"", @"""");
         }
@@ -58,6 +65,7 @@ namespace DevExpress.DataAccess.BigQuery {
             dtDateTime = dtDateTime.AddSeconds(unixTimeStamp);
             return dtDateTime;
         }
+        #endregion
 
         const char parameterPrefix = '@';
 
@@ -332,7 +340,7 @@ namespace DevExpress.DataAccess.BigQuery {
         JobsResource.QueryRequest CreateRequest() {
             BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
             foreach(BigQueryParameter parameter in collection) {
-                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter.Value, parameter.BigQueryDbType));
+                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter));
             }
             QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue };
             JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);

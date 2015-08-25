@@ -122,6 +122,22 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
+        public void SizeTest() {
+            var param = new BigQueryParameter(parameterName, DbType.Int64);
+            param.Value = 1;
+            Assert.Equal(0, param.Size);
+
+            param.Value = stringValue;
+            Assert.Equal(0, param.Size);
+            param.DbType = DbType.String;
+            Assert.Equal(stringValue.Length, param.Size);
+
+            var size = 42;
+            param.Size = size;
+            Assert.Equal(size, param.Size);
+        }
+
+        [Fact]
         public void ValidationEmptyNameTest() {
             var param = new BigQueryParameter {
                 Value = intValue,
@@ -177,19 +193,14 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void ValidateSizeTest() {
             var param = new BigQueryParameter(parameterName, DbType.String);
-            IEnumerable<int> str = Enumerable.Range(0, rangeValue);
-            var value = string.Join("", str).Remove(maxStringSize + 1);
+            var longString = new string('*', maxStringSize + 1);
 
-            param.Value = value;
-            Assert.Equal(maxStringSize + 1, param.Size);
+            param.Value = longString;
+            Assert.Equal(longString.Length, param.Size);
             Assert.Throws<ArgumentException>(() => param.Validate());
 
-            param.Value = value.Remove(maxStringSize);
+            param.Value = longString.Substring(0, maxStringSize);
             param.Validate();
-
-            param.DbType = DbType.Int64;
-            param.Value = 1;
-            Assert.Equal(0, param.Size);
         }
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlTypes;
-using System.Globalization;
 using System.Linq;
 
 namespace DevExpress.DataAccess.BigQuery.Native {
@@ -82,10 +81,6 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             if(type == typeof(DateTime))
                 return SqlDateTime.MinValue;
             return type == null ? null : (type.IsValueType ? Activator.CreateInstance(type) : null);
-        }
-
-        public static string ToStringWithInvariantCulture(object value, string format) {
-            return string.Format(CultureInfo.InvariantCulture, format, value);
         }
     }
 }

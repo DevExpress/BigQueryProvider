@@ -13,32 +13,29 @@ using Google.Apis.Bigquery.v2.Data;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryDataReader : DbDataReader {
-        #region Static
+        #region static
         static string PrepareCommandText(BigQueryCommand command) {
-            return command.CommandType == CommandType.TableDirect ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) : command.CommandText;
+            return command.CommandType == CommandType.TableDirect 
+                ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) 
+                : command.CommandText;
         }
 
         static string PrepareParameterValue(BigQueryParameter parameter) {
-            var isString = parameter.BigQueryDbType == BigQueryDbType.String;
-            var isTimestamp = parameter.BigQueryDbType == BigQueryDbType.Timestamp;
-            if(isString)
-                return BigQueryTypeConverter.ToStringWithInvariantCulture(EscapeValue(TrimStringValueBySize(parameter)), "'{0}'");
-            string format = isTimestamp ? "TIMESTAMP('{0:u}')" : "{0}";
-            return BigQueryTypeConverter.ToStringWithInvariantCulture(parameter.Value, format);
+            if(parameter.BigQueryDbType == BigQueryDbType.String) {
+                var invariantString = parameter.Value.ToInvariantString();
+                var trimmedString = invariantString.Substring(0, parameter.Size);
+                var escapedString = EscapeString(trimmedString);
+                return string.Format("'{0}'", escapedString);
+            }
+            string format = parameter.BigQueryDbType == BigQueryDbType.Timestamp 
+                ? "TIMESTAMP('{0:u}')" 
+                : "{0}";
+            return parameter.Value.ToInvariantString(format);
         }
 
-        static string TrimStringValueBySize(BigQueryParameter parameter) {
-            var value = BigQueryTypeConverter.ToStringWithInvariantCulture(parameter.Value, "{0}");
-            return parameter.Size < value.Length
-                ? value.Remove(parameter.Size)
-                : value;
-        }
-
-        static object EscapeValue(object value) {
-            var valueAsString = value as string;
-            if(valueAsString == null)
-                return value;
-            return valueAsString.Replace(@"\", @"\\")
+        static string EscapeString(string invariantString) {
+            return invariantString
+                .Replace(@"\", @"\\")
                 .Replace("'", @"\'")
                 .Replace("\"", @"""");
         }

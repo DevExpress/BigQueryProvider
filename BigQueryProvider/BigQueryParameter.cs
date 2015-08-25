@@ -118,8 +118,8 @@ namespace DevExpress.DataAccess.BigQuery {
                 if(size.HasValue)
                     return size.Value;
                 if(DbType != DbType.String) return 0;
-                var stringValue = BigQueryTypeConverter.ToStringWithInvariantCulture(value, "{0}");
-                return stringValue.Length;
+                var invariantString = value.ToInvariantString();
+                return invariantString.Length;
             }
             set {
                 if (value < 0)

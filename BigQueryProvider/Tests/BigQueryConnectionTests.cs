@@ -1,4 +1,20 @@
-﻿#if DEBUGTEST
+/*
+   Copyright 2015 Developer Express Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+#if DEBUGTEST
 using System;
 using System.Data;
 using Xunit;
@@ -74,10 +90,20 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void GetTableNamesTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
-                var tableNames = connection.GetTableNames();
+                string[] tableNames = connection.GetTableNames();
                 Assert.Equal(2, tableNames.Length);
-                Assert.Equal("natality", tableNames[0]);
-                Assert.Equal("natality2", tableNames[1]);
+                Assert.Equal(TestingInfrastructureHelper.NatalityTableName, tableNames[0]);
+                Assert.Equal(TestingInfrastructureHelper.Natality2TableName, tableNames[1]);
+            }
+        }
+
+        [Fact]
+        public void GetViewNamesTest() {
+            using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
+                connection.Open();
+                string[] tableNames = connection.GetViewNames();
+                Assert.Equal(1, tableNames.Length);
+                Assert.Equal(TestingInfrastructureHelper.NatalityViewName, tableNames[0]);
             }
         }
 

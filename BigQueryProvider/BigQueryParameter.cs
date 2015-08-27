@@ -1,14 +1,33 @@
-﻿using System;
+/*
+   Copyright 2015 Developer Express Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+using System;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using DevExpress.DataAccess.BigQuery.Native;
 
 namespace DevExpress.DataAccess.BigQuery {
     public sealed class BigQueryParameter : DbParameter, ICloneable {
+        const int maxStringSize = 2097152;
         BigQueryDbType? bigQueryDbType;
         DbType? dbType;
         object value;
         ParameterDirection direction;
+        int? size;
 
         public BigQueryParameter() {
             ResetDbType();
@@ -76,8 +95,11 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override bool IsNullable {
-            get;
-            set;
+            get { return false; }
+            set {
+                if(value)
+                    throw new ArgumentOutOfRangeException("value", value, "Nullable parameters are not supported");
+            }
         }
 
         public override string ParameterName {
@@ -108,8 +130,18 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override int Size {
-            get;
-            set;
+            get {
+                if(size.HasValue)
+                    return size.Value;
+                if(DbType != DbType.String) return 0;
+                var invariantString = value.ToInvariantString();
+                return invariantString.Length;
+            }
+            set {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("value", value, "The value can not be less than 0");
+                size = value;
+            }
         }
 
         public override void ResetDbType() {
@@ -117,7 +149,6 @@ namespace DevExpress.DataAccess.BigQuery {
             value = null;
             direction = ParameterDirection.Input;
             ParameterName = null;
-            IsNullable = true;
             SourceColumn = null;
             SourceVersion = DataRowVersion.Current;
         }
@@ -125,12 +156,14 @@ namespace DevExpress.DataAccess.BigQuery {
         internal void Validate() {
             if(string.IsNullOrEmpty(ParameterName))
                 throw new ArgumentException("Parameter's name is empty");
-            if(Value == null)
-                throw new ArgumentException("Parameter's value is not initialized");
+            if(Value == null || Value == DBNull.Value)
+                throw new ArgumentException("Null parameter's values is not supported");
             if(BigQueryDbType == BigQueryDbType.Unknown)
                 throw new NotSupportedException("Unsupported type for BigQuery: " + DbType);
+            if(Size > maxStringSize)
+                throw new ArgumentException("Value's length in " + Size + " greater than max length in " +  maxStringSize);
             try {
-                Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType));
+                Convert.ChangeType(Value, BigQueryTypeConverter.ToType(DbType), CultureInfo.InvariantCulture);
             }
             catch(Exception) {
                 throw new ArgumentException("Can't convert Value " + Value + " to DbType " + DbType);
@@ -144,9 +177,9 @@ namespace DevExpress.DataAccess.BigQuery {
         public BigQueryParameter Clone() {
             BigQueryParameter parameter = new BigQueryParameter(ParameterName, Value) {
                 Direction = Direction,
+                IsNullable = IsNullable,
                 DbType = DbType,
                 BigQueryDbType = BigQueryDbType,
-                IsNullable =  IsNullable,
                 SourceColumnNullMapping = SourceColumnNullMapping,
                 Size = Size,
                 SourceColumn = SourceColumn,

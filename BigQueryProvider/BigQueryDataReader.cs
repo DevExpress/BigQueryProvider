@@ -1,4 +1,20 @@
-﻿using System;
+/*
+   Copyright 2015 Developer Express Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
@@ -13,28 +29,35 @@ using Google.Apis.Bigquery.v2.Data;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryDataReader : DbDataReader {
+        #region static
         static string PrepareCommandText(BigQueryCommand command) {
-            return command.CommandType == CommandType.TableDirect ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) : command.CommandText;
+            return command.CommandType == CommandType.TableDirect 
+                ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) 
+                : command.CommandText;
         }
 
-        static string PrepareParameterValue(object value, BigQueryDbType bqDbType) {
-            string format = bqDbType == BigQueryDbType.Timestamp ?
-                "TIMESTAMP('{0:u}')" : bqDbType == BigQueryDbType.String ?
-                "'{0}'" : "{0}";
-            return string.Format(CultureInfo.InvariantCulture, format, EscapeValue(value));
+        static string PrepareParameterValue(BigQueryParameter parameter) {
+            if(parameter.BigQueryDbType == BigQueryDbType.String) {
+                var invariantString = parameter.Value.ToInvariantString();
+                var trimmedString = invariantString.Substring(0, parameter.Size);
+                var escapedString = EscapeString(trimmedString);
+                return string.Format("'{0}'", escapedString);
+            }
+            string format = parameter.BigQueryDbType == BigQueryDbType.Timestamp 
+                ? "TIMESTAMP('{0:u}')" 
+                : "{0}";
+            return parameter.Value.ToInvariantString(format);
         }
 
-        static object EscapeValue(object value) {
-            var valueAsString = value as string;
-            if(valueAsString == null)
-                return value;
-            return valueAsString.Replace(@"\", @"\\")
+        static string EscapeString(string invariantString) {
+            return invariantString
+                .Replace(@"\", @"\\")
                 .Replace("'", @"\'")
                 .Replace("\"", @"""");
         }
 
         static DateTime UnixTimeStampToDateTime(object timestamp) {
-            return UnixTimeStampToDateTime(double.Parse(timestamp.ToString()));
+            return UnixTimeStampToDateTime(double.Parse(timestamp.ToString(), CultureInfo.InvariantCulture));
         }
 
         static DateTime UnixTimeStampToDateTime(double unixTimeStamp) {
@@ -42,6 +65,7 @@ namespace DevExpress.DataAccess.BigQuery {
             dtDateTime = dtDateTime.AddSeconds(unixTimeStamp);
             return dtDateTime;
         }
+        #endregion
 
         const char parameterPrefix = '@';
 
@@ -63,10 +87,6 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override void Close() {
             Dispose();
-        }
-
-        public override Task<T> GetFieldValueAsync<T>(int ordinal, CancellationToken cancellationToken) {
-            return Task.Run(() => GetFieldValue<T>(ordinal), cancellationToken);
         }
 
         public override T GetFieldValue<T>(int ordinal) {
@@ -99,20 +119,12 @@ namespace DevExpress.DataAccess.BigQuery {
             return dataTable;
         }
 
-        public override Task<bool> NextResultAsync(CancellationToken cancellationToken) {
-            return Task.Run(() => NextResult(), cancellationToken);
-        }
-
         public override bool NextResult() {
             DisposeCheck();
             if(behavior == CommandBehavior.SchemaOnly) {
                 return tables.MoveNext();
             }
             return false;
-        }
-
-        public override Task<bool> ReadAsync(CancellationToken cancellationToken) {
-            return Task.Run(() => Read(), cancellationToken);
         }
 
         public override bool Read() {
@@ -213,10 +225,6 @@ namespace DevExpress.DataAccess.BigQuery {
             return values.Length;
         }
 
-        public override Task<bool> IsDBNullAsync(int ordinal, CancellationToken cancellationToken) {
-            return Task.Run(() => IsDBNull(ordinal), cancellationToken);
-        }
-
         public override bool IsDBNull(int ordinal) {
             DisposeCheck();
             RangeCheck(ordinal);
@@ -299,16 +307,16 @@ namespace DevExpress.DataAccess.BigQuery {
             return enumerator;
         }
 
-        internal async Task InitializeAsync() {
+        internal async Task InitializeAsync(CancellationToken cancellationToken) {
+            cancellationToken.ThrowIfCancellationRequested();
             try {
                 if(behavior == CommandBehavior.SchemaOnly) {
-                    TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync().ConfigureAwait(false);
+                    TableList tableList = await bigQueryService.Tables.List(bigQueryCommand.Connection.ProjectId, bigQueryCommand.Connection.DataSetId).ExecuteAsync(cancellationToken).ConfigureAwait(false);
                     tables = tableList.Tables.GetEnumerator();
-                    tables.MoveNext();
                 } else {
                     ((BigQueryParameterCollection)bigQueryCommand.Parameters).Validate();
                     JobsResource.QueryRequest request = CreateRequest();
-                    QueryResponse queryResponse = await request.ExecuteAsync().ConfigureAwait(false);
+                    QueryResponse queryResponse = await request.ExecuteAsync(cancellationToken).ConfigureAwait(false);
                     ProcessQueryResponse(queryResponse);
                 }
             }
@@ -332,7 +340,7 @@ namespace DevExpress.DataAccess.BigQuery {
         JobsResource.QueryRequest CreateRequest() {
             BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
             foreach(BigQueryParameter parameter in collection) {
-                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter.Value, parameter.BigQueryDbType));
+                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter));
             }
             QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue };
             JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
@@ -364,7 +372,7 @@ namespace DevExpress.DataAccess.BigQuery {
             Type conversionType = BigQueryTypeConverter.ToType(schema.Fields[ordinal].Type);
             if(conversionType == typeof(DateTime))
                 return UnixTimeStampToDateTime(value);
-            return Convert.ChangeType(value, conversionType);
+            return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
         }
 
         void DisposeCheck() {

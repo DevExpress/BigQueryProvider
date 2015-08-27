@@ -1,4 +1,20 @@
-﻿using System;
+/*
+   Copyright 2015 Developer Express Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+using System;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
@@ -29,25 +45,16 @@ namespace DevExpress.DataAccess.BigQuery {
 
         public override void ChangeDatabase(string databaseName) {
             CheckDisposed();
-            if(IsOpened)
-                Close();
             DataSetId = databaseName;
-            try {
-                InitializeService();
-            }
-            catch(GoogleApiException e) {
-                state = ConnectionState.Broken;
-                throw e.Wrap();
-            }
         }
 
         public async override Task OpenAsync(CancellationToken cancellationToken) {
-            cancellationToken.ThrowIfCancellationRequested();
             CheckDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             if(IsOpened)
                 throw new InvalidOperationException("Connection allready open");
             try {
-                await InitializeServiceAsync().ConfigureAwait(false);
+                await InitializeServiceAsync(cancellationToken).ConfigureAwait(false);
             }
             catch(GoogleApiException e) {
                 state = ConnectionState.Broken;
@@ -56,15 +63,12 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override void Open() {
-            CheckDisposed();
-            if(IsOpened)
-                throw new InvalidOperationException("Connection allready open");
+            var task = OpenAsync();
             try {
-                InitializeService();
+                task.Wait();
             }
-            catch(GoogleApiException e) {
-                state = ConnectionState.Broken;
-                throw e.Wrap();
+            catch(AggregateException e) {
+                throw e.Flatten().InnerException;
             }
         }
 
@@ -89,16 +93,23 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public string[] GetTableNames() {
+            return GetDataObjectNames("TABLE");
+        }
+
+        public string[] GetViewNames() {
+            return GetDataObjectNames("VIEW");
+        }
+
+        string[] GetDataObjectNames(string type) {
             CheckDisposed();
             CheckOpen();
             TableList tableList;
             try {
                 tableList = Service.Tables.List(ProjectId, DataSetId).Execute();
-            }
-            catch(GoogleApiException e) {
+            } catch(GoogleApiException e) {
                 throw e.Wrap();
             }
-            return tableList.Tables.Select(t => t.Id.Split('.')[1]).ToArray();
+            return tableList.Tables.Where(t => t.Type == type).Select(t => t.TableReference.TableId).ToArray();
         }
 
         public override string ConnectionString {
@@ -237,26 +248,19 @@ namespace DevExpress.DataAccess.BigQuery {
             }
         }
 
-        void InitializeService() {
+        async Task InitializeServiceAsync(CancellationToken cancellationToken) {
             CheckDisposed();
+            cancellationToken.ThrowIfCancellationRequested();
             state = ConnectionState.Connecting;
-            Service = CreateServiceAsync().Result;
+            Service = await CreateServiceAsync(cancellationToken).ConfigureAwait(false);
             JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
-            listRequest.Execute();
+            await listRequest.ExecuteAsync(cancellationToken).ConfigureAwait(false);
             state = ConnectionState.Open;
         }
 
-        async Task InitializeServiceAsync() {
-            CheckDisposed();
-            state = ConnectionState.Connecting;
-            Service = await CreateServiceAsync().ConfigureAwait(false);
-            JobsResource.ListRequest listRequest = Service.Jobs.List(ProjectId);
-            await listRequest.ExecuteAsync().ConfigureAwait(false);
-            state = ConnectionState.Open;
-        }
-
-        async Task<BigqueryService> CreateServiceAsync() {
+        async Task<BigqueryService> CreateServiceAsync(CancellationToken cancellationToken) {
             IConfigurableHttpClientInitializer credential;
+            cancellationToken.ThrowIfCancellationRequested();
             if(string.IsNullOrEmpty(PrivateKeyFileName)) {
                 var dataStore = new DataStore(OAuthRefreshToken, OAuthAccessToken);
 
@@ -268,7 +272,7 @@ namespace DevExpress.DataAccess.BigQuery {
                 credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(clientSecrets,
                     new[] { BigqueryService.Scope.Bigquery },
                     "user",
-                    CancellationToken.None,
+                    cancellationToken,
                     dataStore).ConfigureAwait(false);
 
                 OAuthRefreshToken = dataStore.RefreshToken;

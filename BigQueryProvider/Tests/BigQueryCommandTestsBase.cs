@@ -1,4 +1,20 @@
-﻿#if DEBUGTEST
+/*
+   Copyright 2015 Developer Express Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+#if DEBUGTEST
 using System;
 using System.Data;
 using System.Data.Common;
@@ -13,6 +29,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         const string commandTextWithFilter = "SELECT * FROM [testdata." + TestingInfrastructureHelper.Natality2TableName + "] WHERE {0} LIMIT 10";
         const string filterByString = "state = @state";
         const string filterByBool = "mother_married = @mother_married";
+        const string filterByNull = "mother_married = null";
         const string injectedViaSingleQuotesValue = "CA' or 1=1--";
         const string injectedViaDoubleQuotesValue = @"CA"" or 1=1--";
         const string injectedViaBackSlashesValue = @"CA\' or 1=1--";
@@ -109,6 +126,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void CommandSchemaBehaviorTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 var dbDataReader = dbCommand.ExecuteReader(CommandBehavior.SchemaOnly);
+                dbDataReader.NextResult();
                 DataTable schemaTable = dbDataReader.GetSchemaTable();
                 Assert.True(DataTableComparer.Equals(natalitySchemaTable, schemaTable));
             }
@@ -150,6 +168,15 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             param.Value = "testValue";
             dbCommand.Parameters.Add(param);
             Assert.Throws<ArgumentException>(() => dbCommand.ExecuteReader(CommandBehavior.Default));
+        }
+
+        [Fact]
+        public void FilterByNullTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText = string.Format(commandTextWithFilter, filterByNull);
+                var reader = dbCommand.ExecuteReader(CommandBehavior.Default);
+                Assert.False(reader.HasRows, "Fix issue #119");
+            }
         }
 
         public void Dispose() {

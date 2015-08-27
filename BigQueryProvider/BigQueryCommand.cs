@@ -1,4 +1,20 @@
-﻿using System;
+/*
+   Copyright 2015 Developer Express Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+using System;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
@@ -79,17 +95,19 @@ namespace DevExpress.DataAccess.BigQuery {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken).ConfigureAwait(false)) {
-                while(await dbDataReader.NextResultAsync())
+                while(await dbDataReader.NextResultAsync(cancellationToken).ConfigureAwait(false))
                     ;
                 return dbDataReader.RecordsAffected;
             }
         }
 
         public override int ExecuteNonQuery() {
-            using(DbDataReader dbDataReader = ExecuteDbDataReader(CommandBehavior.Default)) {
-                while(dbDataReader.NextResult())
-                    ;
-                return dbDataReader.RecordsAffected;
+            var task = ExecuteNonQueryAsync();
+            try {
+                return task.Result;
+            }
+            catch(AggregateException e) {
+                throw e.Flatten().InnerException;
             }
         }
 
@@ -98,7 +116,7 @@ namespace DevExpress.DataAccess.BigQuery {
             cancellationToken.Register(Cancel);
             object result = null;
             using(DbDataReader dbDataReader = await ExecuteDbDataReaderAsync(CommandBehavior.Default, cancellationToken).ConfigureAwait(false)) {
-                if(await dbDataReader.ReadAsync().ConfigureAwait(false))
+                if(await dbDataReader.ReadAsync(cancellationToken).ConfigureAwait(false))
                     if(dbDataReader.FieldCount > 0)
                         result = dbDataReader.GetValue(0);
             }
@@ -106,13 +124,13 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override object ExecuteScalar() {
-            object result = null;
-            using(DbDataReader dbDataReader = ExecuteDbDataReader(CommandBehavior.Default)) {
-                if(dbDataReader.Read())
-                    if(dbDataReader.FieldCount > 0)
-                        result = dbDataReader.GetValue(0);
+            var task = ExecuteScalarAsync(CancellationToken.None);
+            try {
+                return task.Result;
             }
-            return result;
+            catch(AggregateException e) {
+                throw e.Flatten().InnerException;
+            }
         }
 
         protected override DbConnection DbConnection {
@@ -130,7 +148,7 @@ namespace DevExpress.DataAccess.BigQuery {
             cancellationToken.ThrowIfCancellationRequested();
             cancellationToken.Register(Cancel);
             var reader = new BigQueryDataReader(behavior, this, Connection.Service);
-            await reader.InitializeAsync().ConfigureAwait(false);
+            await reader.InitializeAsync(cancellationToken).ConfigureAwait(false);
             return reader;
         }
 

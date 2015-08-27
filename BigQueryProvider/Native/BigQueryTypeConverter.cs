@@ -38,18 +38,21 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             new Tuple<string, Type>("RECORD", typeof(object))
         };
 
-        static T GetFirstBy<T, T1>(this List<Tuple<T, T1>> list, T1 item2ToSearch, T @default) {
-            var tuple = list.FirstOrDefault(li => li.Item2.Equals(item2ToSearch));
-            return tuple == null ? @default : tuple.Item1;
+        static object GetFirst<T, T1>(Tuple<T, T1> tuple) {
+            return tuple.Item1;
         }
 
-        static T1 GetSecondBy<T, T1>(this List<Tuple<T, T1>> list, T item1ToSearch, T1 @default) {
-            var tuple = list.FirstOrDefault(li => li.Item1.Equals(item1ToSearch));
-            return tuple == null ? @default : tuple.Item2;
+        static object GetSecond<T, T1>(Tuple<T, T1> tuple) {
+            return tuple.Item2;
+        }
+
+        static object GetItem<T, T1>(this List<Tuple<T, T1>> list, object item2ToSearch, Func<Tuple<T, T1>, object> selectFunc) {
+            var tuple = list.FirstOrDefault(i => i.Item1.Equals(item2ToSearch) || i.Item2.Equals(item2ToSearch));
+            return tuple == null ? null : selectFunc(tuple);
         }
 
         public static BigQueryDbType ToBigQueryDbType(DbType dbType) {
-            return DbTypeToBigQueryDbTypePairs.GetSecondBy(dbType, BigQueryDbType.Unknown);
+            return (BigQueryDbType) (DbTypeToBigQueryDbTypePairs.GetItem(dbType, GetSecond) ?? BigQueryDbType.Unknown);
         }
 
         public static BigQueryDbType ToBigQueryDbType(Type type) {
@@ -61,11 +64,11 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public static DbType ToDbType(BigQueryDbType bqDbType) {
-            return DbTypeToBigQueryDbTypePairs.GetFirstBy(bqDbType, DbType.Object);
+            return (DbType) (DbTypeToBigQueryDbTypePairs.GetItem(bqDbType, GetFirst) ?? DbType.Object);
         }
 
         public static DbType ToDbType(Type type) {
-            return TypeToDbTypePairs.GetSecondBy(type, DbType.Object);
+            return (DbType) (TypeToDbTypePairs.GetItem(type, GetSecond) ?? DbType.Object);
         }
 
         public static Type ToType(BigQueryDbType bqDbType) {
@@ -73,11 +76,11 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public static Type ToType(string stringType) {
-            return StringToTypePairs.GetSecondBy(stringType, null);
+            return (Type) (StringToTypePairs.GetItem(stringType, GetSecond) ?? null);
         }
 
         public static Type ToType(DbType dbType) {
-            return TypeToDbTypePairs.GetFirstBy(dbType, null);
+            return (Type) (TypeToDbTypePairs.GetItem(dbType, GetFirst) ?? null);
         }
 
         public static object GetDefaultValueFor(DbType dbType) {

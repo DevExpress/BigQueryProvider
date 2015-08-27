@@ -39,7 +39,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         };
 
         public static BigQueryDbType ToBigQueryDbType(DbType dbType) {
-            return (BigQueryDbType) (DbTypeToBigQueryDbTypePairs.GetItem(dbType, GetSecond) ?? BigQueryDbType.Unknown);
+            return (BigQueryDbType) (DbTypeToBigQueryDbTypePairs.GetItem(GetSecond, dbType) ?? BigQueryDbType.Unknown);
         }
 
         public static BigQueryDbType ToBigQueryDbType(Type type) {
@@ -51,11 +51,11 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public static DbType ToDbType(BigQueryDbType bqDbType) {
-            return (DbType) (DbTypeToBigQueryDbTypePairs.GetItem(bqDbType, GetFirst) ?? DbType.Object);
+            return (DbType) (DbTypeToBigQueryDbTypePairs.GetItem(GetFirst, bqDbType) ?? DbType.Object);
         }
 
         public static DbType ToDbType(Type type) {
-            return (DbType) (TypeToDbTypePairs.GetItem(type, GetSecond) ?? DbType.Object);
+            return (DbType) (TypeToDbTypePairs.GetItem(GetSecond, type) ?? DbType.Object);
         }
 
         public static Type ToType(BigQueryDbType bqDbType) {
@@ -63,11 +63,11 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public static Type ToType(string stringType) {
-            return (Type) (StringToTypePairs.GetItem(stringType, GetSecond) ?? null);
+            return (Type) (StringToTypePairs.GetItem(GetSecond, stringType) ?? null);
         }
 
         public static Type ToType(DbType dbType) {
-            return (Type) (TypeToDbTypePairs.GetItem(dbType, GetFirst) ?? null);
+            return (Type) (TypeToDbTypePairs.GetItem(GetFirst, dbType) ?? null);
         }
 
         public static object GetDefaultValueFor(DbType dbType) {
@@ -77,9 +77,9 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             return type == null ? null : (type.IsValueType ? Activator.CreateInstance(type) : null);
         }
 
-        static object GetItem<T, T1>(this List<Tuple<T, T1>> list, object item2ToSearch, Func<Tuple<T, T1>, object> selectFunc) {
-            var tuple = list.FirstOrDefault(i => i.Item1.Equals(item2ToSearch) || i.Item2.Equals(item2ToSearch));
-            return tuple == null ? null : selectFunc(tuple);
+        static object GetItem<T, T1>(this List<Tuple<T, T1>> list, Func<Tuple<T, T1>, object> selector, object itemToSearch) {
+            var tuple = list.FirstOrDefault(i => i.Item1.Equals(itemToSearch) || i.Item2.Equals(itemToSearch));
+            return tuple == null ? null : selector(tuple);
         }
 
         static object GetFirst<T, T1>(Tuple<T, T1> tuple) {
@@ -89,6 +89,5 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         static object GetSecond<T, T1>(Tuple<T, T1> tuple) {
             return tuple.Item2;
         }
-
     }
 }

@@ -77,16 +77,16 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             return type == null ? null : (type.IsValueType ? Activator.CreateInstance(type) : null);
         }
 
-        static object GetItem<T, T1>(this List<Tuple<T, T1>> list, Func<Tuple<T, T1>, object> selector, object itemToSearch) {
+        static object GetItem<T1, T2>(this List<Tuple<T1, T2>> list, Func<Tuple<T1, T2>, object> selector, object itemToSearch) {
             var tuple = list.FirstOrDefault(i => i.Item1.Equals(itemToSearch) || i.Item2.Equals(itemToSearch));
             return tuple == null ? null : selector(tuple);
         }
 
-        static object GetFirst<T, T1>(Tuple<T, T1> tuple) {
+        static object GetFirst<T1, T2>(Tuple<T1, T2> tuple) {
             return tuple.Item1;
         }
 
-        static object GetSecond<T, T1>(Tuple<T, T1> tuple) {
+        static object GetSecond<T1, T2>(Tuple<T1, T2> tuple) {
             return tuple.Item2;
         }
     }

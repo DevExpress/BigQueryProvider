@@ -22,8 +22,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Theory]
         [InlineData(typeof(string), BigQueryDbType.String, typeof(string))]
         [InlineData(typeof(bool), BigQueryDbType.Boolean, typeof(bool))]
-        [InlineData(typeof(Int64), BigQueryDbType.Integer, typeof(Int64))]
-        [InlineData(typeof(Single), BigQueryDbType.Float, typeof(Single))]
+        [InlineData(typeof(long), BigQueryDbType.Integer, typeof(long))]
+        [InlineData(typeof(float), BigQueryDbType.Float, typeof(float))]
         [InlineData(typeof(DateTime), BigQueryDbType.Timestamp, typeof(DateTime))]
         [InlineData(typeof(double), BigQueryDbType.Unknown, typeof(object))]
         [InlineData(typeof(object), BigQueryDbType.Unknown, typeof(object))]
@@ -36,8 +36,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [InlineData(typeof(string), DbType.String, typeof(string))]
         [InlineData(typeof(char), DbType.String, typeof(string))]
         [InlineData(typeof(bool), DbType.Boolean, typeof(bool))]
-        [InlineData(typeof(Int64), DbType.Int64, typeof(Int64))]
-        [InlineData(typeof(Single), DbType.Single, typeof(Single))]
+        [InlineData(typeof(long), DbType.Int64, typeof(long))]
+        [InlineData(typeof(float), DbType.Single, typeof(float))]
         [InlineData(typeof(DateTime), DbType.DateTime, typeof(DateTime))]
         [InlineData(typeof(double), DbType.Object, typeof(object))]
         [InlineData(typeof(object), DbType.Object, typeof(object))]
@@ -48,9 +48,9 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Theory]
         [InlineData(default(long), DbType.Int64)]
-        [InlineData(default(Single), DbType.Single)]
+        [InlineData(default(float), DbType.Single)]
         [InlineData(default(bool), DbType.Boolean)]
-        [InlineData(default(String), DbType.String)]
+        [InlineData(default(string), DbType.String)]
         [InlineData(default(object), DbType.Object)]
         public void DefaultValueTest(object defaultValueFromSystem, DbType dbType) {
             Assert.Equal(defaultValueFromSystem, BigQueryTypeConverter.GetDefaultValueFor(dbType));
@@ -59,10 +59,10 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Theory]
         [InlineData("STRING", typeof(string), BigQueryDbType.String)]
         [InlineData("INTEGER", typeof(long), BigQueryDbType.Integer)]
-        [InlineData("FLOAT", typeof(Single), BigQueryDbType.Float)]
+        [InlineData("FLOAT", typeof(float), BigQueryDbType.Float)]
         [InlineData("BOOLEAN", typeof(bool), BigQueryDbType.Boolean)]
         [InlineData("TIMESTAMP", typeof(DateTime), BigQueryDbType.Timestamp)]
-        [InlineData("RECORD", typeof(object), BigQueryDbType.Unknown)] //until Record is not implemented
+        [InlineData("RECORD", typeof(object), BigQueryDbType.Unknown)]
         [InlineData("Foo", null, BigQueryDbType.Unknown)]
         [InlineData("123", null, BigQueryDbType.Unknown)]
         public void StringConvertTest(string stringType, Type systemType, BigQueryDbType bigQueryType) {

@@ -38,19 +38,6 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             new Tuple<string, Type>("RECORD", typeof(object))
         };
 
-        static object GetItem<T, T1>(this List<Tuple<T, T1>> list, object item2ToSearch, Func<Tuple<T, T1>, object> selectFunc) {
-            var tuple = list.FirstOrDefault(i => i.Item1.Equals(item2ToSearch) || i.Item2.Equals(item2ToSearch));
-            return tuple == null ? null : selectFunc(tuple);
-        }
-
-        static object GetFirst<T, T1>(Tuple<T, T1> tuple) {
-            return tuple.Item1;
-        }
-
-        static object GetSecond<T, T1>(Tuple<T, T1> tuple) {
-            return tuple.Item2;
-        }
-
         public static BigQueryDbType ToBigQueryDbType(DbType dbType) {
             return (BigQueryDbType) (DbTypeToBigQueryDbTypePairs.GetItem(dbType, GetSecond) ?? BigQueryDbType.Unknown);
         }
@@ -89,5 +76,19 @@ namespace DevExpress.DataAccess.BigQuery.Native {
                 return SqlDateTime.MinValue;
             return type == null ? null : (type.IsValueType ? Activator.CreateInstance(type) : null);
         }
+
+        static object GetItem<T, T1>(this List<Tuple<T, T1>> list, object item2ToSearch, Func<Tuple<T, T1>, object> selectFunc) {
+            var tuple = list.FirstOrDefault(i => i.Item1.Equals(item2ToSearch) || i.Item2.Equals(item2ToSearch));
+            return tuple == null ? null : selectFunc(tuple);
+        }
+
+        static object GetFirst<T, T1>(Tuple<T, T1> tuple) {
+            return tuple.Item1;
+        }
+
+        static object GetSecond<T, T1>(Tuple<T, T1> tuple) {
+            return tuple.Item2;
+        }
+
     }
 }

@@ -108,18 +108,18 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override string SourceColumn {
-            get;
-            set;
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
         }
 
         public override DataRowVersion SourceVersion {
-            get;
-            set;
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
         }
 
         public override bool SourceColumnNullMapping {
-            get;
-            set;
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
         }
 
         public override object Value {

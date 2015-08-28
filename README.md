@@ -9,6 +9,8 @@
 <a href="https://www.nuget.org/packages/DevExpress.DataAccess.BigQuery">
 <img src="https://img.shields.io/nuget/v/DevExpress.DataAccess.BigQuery.svg?style=flat"/>
 </a>
+<a href="http://www.issuestats.com/github/DevExpress/BigQueryProvider"><img src="http://www.issuestats.com/github/DevExpress/BigQueryProvider/badge/pr" /></a>
+<a href="http://www.issuestats.com/github/DevExpress/BigQueryProvider"><img src="http://www.issuestats.com/github/DevExpress/BigQueryProvider/badge/issue" /></a>
 
 BigQueryProvider is a .NET data provider for Google <a href="https://cloud.google.com/bigquery/">BigQuery</a>. It allows you to connect and interact with Google BigQuery database using .NET. 
 

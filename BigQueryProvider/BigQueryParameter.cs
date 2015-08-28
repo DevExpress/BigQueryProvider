@@ -149,8 +149,6 @@ namespace DevExpress.DataAccess.BigQuery {
             value = null;
             direction = ParameterDirection.Input;
             ParameterName = null;
-            SourceColumn = null;
-            SourceVersion = DataRowVersion.Current;
         }
 
         internal void Validate() {
@@ -180,10 +178,7 @@ namespace DevExpress.DataAccess.BigQuery {
                 IsNullable = IsNullable,
                 DbType = DbType,
                 BigQueryDbType = BigQueryDbType,
-                SourceColumnNullMapping = SourceColumnNullMapping,
                 Size = Size,
-                SourceColumn = SourceColumn,
-                SourceVersion = SourceVersion,
             };
             return parameter;
         }

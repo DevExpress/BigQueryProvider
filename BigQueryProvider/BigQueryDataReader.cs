@@ -57,6 +57,8 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         static DateTime UnixTimeStampToDateTime(object timestamp) {
+            if(timestamp is DateTime)
+                return (DateTime)timestamp;
             return UnixTimeStampToDateTime(double.Parse(timestamp.ToString(), CultureInfo.InvariantCulture));
         }
 

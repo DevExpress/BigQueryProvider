@@ -40,12 +40,12 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7.Tests {
     }
 
     public class OrderDetail {
-        public int OrderDetailID { get; set; }
-        public int OrderID { get; set; }
+        public long OrderDetailID { get; set; }
+        public long OrderID { get; set; }
         public DateTime OrderDate { get; set; }
-        public int OrderQty { get; set; }
+        public long OrderQty { get; set; }
         public decimal UnitPrice { get; set; }
-        public int ProductID { get; set; }
+        public long ProductID { get; set; }
 
         public virtual Product Product { get; set; }
         public virtual OrderHeader Header { get; set; }
@@ -56,9 +56,9 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7.Tests {
             Details = new HashSet<OrderDetail>();
         }
 
-        public int OrderID { get; set; }
+        public long OrderID { get; set; }
         public DateTime OrderDate { get; set; }
-        public int Status { get; set; }
+        public long Status { get; set; }
         public string Description { get; set; }
 
         public virtual ICollection<OrderDetail> Details { get; private set; }
@@ -69,7 +69,7 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7.Tests {
             Details = new HashSet<OrderDetail>();
         }
 
-        public int ProductID { get; set; }
+        public long ProductID { get; set; }
         public string ProductName { get; set; }
         public decimal ListPrice { get; set; }
         public DateTime SellStartDate { get; set; }

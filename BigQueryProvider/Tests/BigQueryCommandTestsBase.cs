@@ -91,9 +91,9 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 Assert.NotNull(dbDataReader);
                 dbDataReader.Read();
                 Type fieldType = dbDataReader.GetFieldType(1);
-                Assert.Equal(typeof(int), fieldType);
+                Assert.Equal(typeof(long), fieldType);
                 object value = dbDataReader.GetValue(1);
-                Assert.IsType<int>(value);
+                Assert.IsType<long>(value);
             }
         }
 

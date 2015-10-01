@@ -299,7 +299,8 @@ namespace DevExpress.DataAccess.BigQuery {
         public override object GetValue(int ordinal) {
             DisposeCheck();
             RangeCheck(ordinal);
-            return enumerator.Current.F[ordinal].V;
+            var value = enumerator.Current.F[ordinal].V;
+            return ChangeValueType(value, ordinal);
         }
 
         public override IEnumerator GetEnumerator() {

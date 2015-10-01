@@ -11,7 +11,7 @@ using Microsoft.Data.Entity.Utilities;
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Data.Entity {
     public static class BigQueryDbContextOptionsExtensions {
-        public static BigQueryContextOptionsBuilder BigQuery([NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] string connectionString) {
+        public static BigQueryContextOptionsBuilder UseBigQuery([NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] string connectionString) {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotEmpty(connectionString, nameof(connectionString));
 
@@ -22,7 +22,7 @@ namespace Microsoft.Data.Entity {
             return new BigQueryContextOptionsBuilder(optionsBuilder);
         }
 
-        public static BigQueryContextOptionsBuilder BigQuery([NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] DbConnection connection) {
+        public static BigQueryContextOptionsBuilder UseBigQuery([NotNull] this DbContextOptionsBuilder optionsBuilder, [NotNull] DbConnection connection) {
             Check.NotNull(optionsBuilder, nameof(optionsBuilder));
             Check.NotNull(connection, nameof(connection));
 

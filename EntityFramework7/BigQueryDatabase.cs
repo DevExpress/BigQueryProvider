@@ -29,6 +29,8 @@ using Microsoft.Framework.Logging;
 
 namespace DevExpress.DataAccess.BigQuery.EntityFarmework7 {
     public class BigQueryDatabase : RelationalDatabase {
+        BigQueryDatabaseConnection connection;
+
         public BigQueryDatabase(
             [NotNull] IModel model,
             [NotNull] IEntityKeyFactorySource entityKeyFactorySource,
@@ -59,6 +61,7 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7 {
                 compositeMemberTranslator,
                 typeMapper,
                 relationalExtensions) {
+            this.connection = connection;
         }
 
         protected override RelationalQueryCompilationContext CreateQueryCompilationContext(
@@ -86,7 +89,8 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7 {
                 compositeMemberTranslator,
                 ValueBufferFactoryFactory,
                 TypeMapper,
-                RelationalExtensions);
+                RelationalExtensions,
+                this.connection);
         }
     }
 }

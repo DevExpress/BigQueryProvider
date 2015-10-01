@@ -15,6 +15,8 @@ using Microsoft.Framework.Logging;
 
 namespace DevExpress.DataAccess.BigQuery.EntityFarmework7.Query {
     public class BigQueryQueryCompilationContext : RelationalQueryCompilationContext {
+        BigQueryDatabaseConnection connection;
+
         public BigQueryQueryCompilationContext(
             [NotNull] IModel model,
             [NotNull] ILogger logger,
@@ -28,7 +30,8 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7.Query {
             [NotNull] IMemberTranslator compositeMemberTranslator,
             [NotNull] IRelationalValueBufferFactoryFactory valueBufferFactoryFactory,
             [NotNull] IRelationalTypeMapper typeMapper,
-            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions)
+            [NotNull] IRelationalMetadataExtensionProvider relationalExtensions,
+            [NotNull] BigQueryDatabaseConnection connection)
             : base(
                 model,
                 logger,
@@ -43,10 +46,11 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7.Query {
                 valueBufferFactoryFactory,
                 typeMapper,
                 relationalExtensions) {
+            this.connection = connection;
         }
 
         public override ISqlQueryGenerator CreateSqlQueryGenerator(SelectExpression selectExpression) {
-            return new BigQueryQuerySqlGenerator(Check.NotNull(selectExpression, nameof(selectExpression)), TypeMapper);
+            return new BigQueryQuerySqlGenerator(Check.NotNull(selectExpression, nameof(selectExpression)), TypeMapper, connection);
         }
     }
 }

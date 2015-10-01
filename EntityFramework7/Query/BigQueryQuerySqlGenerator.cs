@@ -12,20 +12,38 @@ using Microsoft.Data.Entity.Utilities;
 
 namespace DevExpress.DataAccess.BigQuery.EntityFarmework7.Query {
     public class BigQueryQuerySqlGenerator : DefaultQuerySqlGenerator {
-        protected override string ConcatOperator => "||";
-        protected override string TrueLiteral => "TRUE";
-        protected override string FalseLiteral => "FALSE";
-        protected override string TypedTrueLiteral => "TRUE::bool";
-        protected override string TypedFalseLiteral => "FALSE::bool";
+        readonly BigQueryDatabaseConnection connection;
 
-        protected override string DelimitIdentifier(string identifier) {
-            return "\"" + identifier.Replace("\"", "\"\"") + "\"";
+        public BigQueryQuerySqlGenerator([NotNull] SelectExpression selectExpression, [NotNull]IRelationalTypeMapper typeMapper, [NotNull]BigQueryDatabaseConnection connection) :
+            base(selectExpression, typeMapper) {
+            this.connection = connection;
         }
 
-        public BigQueryQuerySqlGenerator(
-            [NotNull] SelectExpression selectExpression,
-            [NotNull] IRelationalTypeMapper typeMapper)
-            : base(selectExpression, typeMapper) {
+        protected override string ConcatOperator { get { return "||"; } }
+
+        protected override string TrueLiteral { get { return "TRUE"; } }
+
+        protected override string FalseLiteral { get { return "FALSE"; } }
+
+        protected override string TypedTrueLiteral { get { return "TRUE::bool"; } }
+
+        protected override string TypedFalseLiteral { get { return "FALSE::bool"; } }
+
+        protected override string DelimitIdentifier(string identifier) {
+            return string.Format("[{0}]", identifier);
+        }
+
+        public override Expression VisitTable(TableExpression tableExpression) {
+            Sql.Append(DelimitIdentifier(string.Format("{0}.{1}", connection.DbConnection.Database, tableExpression.Table)));
+            Sql.Append(" ");
+            Sql.Append(string.IsNullOrWhiteSpace(tableExpression.Alias) ? DelimitIdentifier(tableExpression.Table) : DelimitIdentifier(tableExpression.Alias));
+            return tableExpression;
+        }
+
+        public override Expression VisitColumn(ColumnExpression columnExpression) {
+            string tableAlias = string.IsNullOrWhiteSpace(columnExpression.TableAlias) ? this.connection.DbConnection.Database : columnExpression.TableAlias;
+            Sql.Append(DelimitIdentifier(string.Format("{0}.{1}", tableAlias, columnExpression.Name)));
+            return columnExpression;
         }
 
         protected override void GenerateTop([NotNull] SelectExpression selectExpression) {

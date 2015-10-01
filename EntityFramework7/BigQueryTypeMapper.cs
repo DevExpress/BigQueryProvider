@@ -14,18 +14,18 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7
     // TODO: Implementation is copied from Npgsql...
     public class BigQueryTypeMapper : RelationalTypeMapper
     {
-        readonly RelationalTypeMapping typeMappingTinyint     = new RelationalTypeMapping("smallint", DbType.Byte);
-        readonly RelationalTypeMapping typeMappingSmallint    = new RelationalTypeMapping("smallint", DbType.Int16);
-        readonly RelationalTypeMapping typeMappingInt         = new RelationalTypeMapping("int", DbType.Int32);
-        readonly RelationalTypeMapping typeMappingBigint      = new RelationalTypeMapping("bigint", DbType.Int64);
-        readonly RelationalTypeMapping typeMappingReal        = new RelationalTypeMapping("real", DbType.Single);
-        readonly RelationalTypeMapping typeMappingDouble      = new RelationalTypeMapping("double precision", DbType.Double);
-        readonly RelationalTypeMapping typeMappingDecimal     = new RelationalTypeMapping("numeric", DbType.Decimal);
+        readonly RelationalTypeMapping typeMappingTinyint     = new RelationalTypeMapping("integer", DbType.Byte);
+        readonly RelationalTypeMapping typeMappingSmallint    = new RelationalTypeMapping("integer", DbType.Int16);
+        readonly RelationalTypeMapping typeMappingInt         = new RelationalTypeMapping("integer", DbType.Int32);
+        readonly RelationalTypeMapping typeMappingBigint      = new RelationalTypeMapping("integer", DbType.Int64);
+        readonly RelationalTypeMapping typeMappingReal        = new RelationalTypeMapping("float", DbType.Single);
+        readonly RelationalTypeMapping typeMappingDouble      = new RelationalTypeMapping("float", DbType.Double);
+        readonly RelationalTypeMapping typeMappingDecimal     = new RelationalTypeMapping("float", DbType.Decimal);
 
         // TODO: Look at the SqlServerMaxLengthMapping optimization, it may be relevant for us too
         readonly RelationalTypeMapping typeMappingText        = new RelationalTypeMapping("text", DbType.String);
         // TODO: The other text types, char
-        readonly RelationalTypeMapping typeMappingByteArray       = new RelationalTypeMapping("bytea", DbType.Binary);
+        readonly RelationalTypeMapping typeMappingByteArray   = new RelationalTypeMapping("bytea", DbType.Binary);
 
         readonly RelationalTypeMapping typeMappingTimestamp   = new RelationalTypeMapping("timestamp", DbType.DateTime);
         readonly RelationalTypeMapping typeMappingTimestamptz = new RelationalTypeMapping("timestamptz", DbType.DateTimeOffset);
@@ -47,15 +47,12 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7
             this.simpleNameMappings
                 = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
                 {
-                    { "smallint",         this.typeMappingSmallint    },
-                    { "integer",          this.typeMappingInt         },
-                    { "bigint",           this.typeMappingBigint      },
-                    { "real",             this.typeMappingReal        },
-                    { "double precision", this.typeMappingDouble      },
+                    { "integer",          this.typeMappingBigint      },
+                    { "float",            this.typeMappingDouble      },
                     { "decimal",          this.typeMappingDecimal     },
                     { "numeric",          this.typeMappingDecimal     },
                     { "text",             this.typeMappingText        },
-                    { "bytea",            this.typeMappingByteArray       },
+                    { "bytea",            this.typeMappingByteArray   },
                     { "timestamp",        this.typeMappingTimestamp   },
                     { "timestamptz",      this.typeMappingTimestamptz },
                     { "date",             this.typeMappingDate        },

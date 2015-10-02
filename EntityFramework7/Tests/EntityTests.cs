@@ -44,7 +44,7 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7.Tests {
         public long OrderID { get; set; }
         public DateTime OrderDate { get; set; }
         public long OrderQty { get; set; }
-        public decimal UnitPrice { get; set; }
+        public float UnitPrice { get; set; }
         public long ProductID { get; set; }
 
         public virtual Product Product { get; set; }
@@ -71,7 +71,7 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7.Tests {
 
         public long ProductID { get; set; }
         public string ProductName { get; set; }
-        public decimal ListPrice { get; set; }
+        public float ListPrice { get; set; }
         public DateTime SellStartDate { get; set; }
         public DateTime? SellEndDate { get; set; }
 
@@ -82,6 +82,10 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7.Tests {
         [Fact]
         public void EntityTest() {
             TestDataEntities context = new TestDataEntities();
+            List<Product> products = context.Products.ToList();
+            Assert.Equal(13, products.Count);
+            List<OrderDetail> details = context.OrderDetails.ToList();
+            Assert.Equal(41, details.Count);
             List<OrderHeader> orders = context.OrderHeaders.ToList();
             Assert.Equal(13, orders.Count);
         }

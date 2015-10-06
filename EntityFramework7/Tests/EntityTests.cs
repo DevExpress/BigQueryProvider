@@ -3,18 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Data.Entity;
 using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.EntityFarmework7.Tests {
     public class EntityTests {
         [Fact]
-        public void EntityTest() {
+        public void EntityTestSelectAllLists() {
             TestDataEntities context = new TestDataEntities();
             List<Product> products = context.Products.ToList();
             Assert.Equal(13, products.Count);
             List<OrderDetail> details = context.OrderDetails.ToList();
             Assert.Equal(41, details.Count);
             List<OrderHeader> orders = context.OrderHeaders.ToList();
+            Assert.Equal(13, orders.Count);
+        }
+
+        [Fact]
+        public void EntityTestEagerLoading() {
+            TestDataEntities context = new TestDataEntities();
+            List<OrderHeader> orders = context.OrderHeaders.Include(d => d.Details).ThenInclude(p => p.Product).ToList();
             Assert.Equal(13, orders.Count);
         }
 

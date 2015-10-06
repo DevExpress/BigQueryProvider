@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Query.Expressions;
@@ -55,6 +56,13 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7.Query {
                 Sql.AppendLine().Append("LIMIT ").Append(selectExpression.Limit);
             if(selectExpression.Offset != null)
                 throw new NotSupportedException();
+        }
+
+        public override Expression VisitSelect(SelectExpression selectExpression) {
+            //TODO: No DISTINCT in BigQuery. Try to use GroupBy instead
+            if(selectExpression.IsDistinct)
+                selectExpression.IsDistinct = false;
+            return base.VisitSelect(selectExpression);
         }
     }
 }

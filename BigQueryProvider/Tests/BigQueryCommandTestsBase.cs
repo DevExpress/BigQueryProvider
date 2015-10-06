@@ -98,6 +98,26 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
+        public void ExecuteReaderTest_GetValueT() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText = "natality2";
+                dbCommand.CommandType = CommandType.TableDirect;
+                DbDataReader dbDataReader = dbCommand.ExecuteReader();
+                Assert.NotNull(dbDataReader);
+                dbDataReader.Read();
+                Type fieldType = dbDataReader.GetFieldType(1);
+                Assert.Equal(typeof(long), fieldType);
+                Exception ex = null;
+                try {
+                    dbDataReader.GetFieldValue<int>(1);
+                } catch(Exception e) {
+                    ex = e;
+                }
+                Assert.Null(ex);
+            }
+        }
+
+        [Fact]
         public async void ExecuteReaderTest_TypeTableDirect_Async() {
             using (var dbCommand = connection.CreateCommand()) {
                 dbCommand.CommandText = "natality";

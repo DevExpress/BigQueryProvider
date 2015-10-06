@@ -366,7 +366,11 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         T ChangeValueType<T>(object value, int ordinal) {
-            return (T)ChangeValueType(value, ordinal);
+            object changed = ChangeValueType(value, ordinal);
+            if(changed is T)
+                return (T)ChangeValueType(value, ordinal);
+            Type type = typeof(T);
+            return (T)Convert.ChangeType(changed, type);
         }
 
         object ChangeValueType(object value, int ordinal) {

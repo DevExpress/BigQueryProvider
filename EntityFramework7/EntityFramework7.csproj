@@ -208,6 +208,10 @@
     <Compile Include="Query\BigQueryQuerySqlGenerator.cs" />
     <Compile Include="Strings.Designer.cs" />
     <Compile Include="Tests\EntityTests.cs" />
+    <Compile Include="Tests\OrderDetail.cs" />
+    <Compile Include="Tests\OrderHeader.cs" />
+    <Compile Include="Tests\Product.cs" />
+    <Compile Include="Tests\TestDataEntities.cs" />
     <Compile Include="Update\BigQueryModificationCommandBatch.cs" />
     <Compile Include="Update\BigQueryModificationCommandBatchFactory.cs" />
     <Compile Include="Utilities\AsyncEnumerableExtensions.cs" />

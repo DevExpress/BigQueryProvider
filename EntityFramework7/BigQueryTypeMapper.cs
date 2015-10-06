@@ -8,90 +8,81 @@ using System.Data;
 using Microsoft.Data.Entity;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
+using Microsoft.Data.Entity.Utilities;
 
 namespace DevExpress.DataAccess.BigQuery.EntityFarmework7
 {
     // TODO: Implementation is copied from Npgsql...
     public class BigQueryTypeMapper : RelationalTypeMapper
     {
-        readonly RelationalTypeMapping typeMappingTinyint     = new RelationalTypeMapping("integer", DbType.Byte);
-        readonly RelationalTypeMapping typeMappingSmallint    = new RelationalTypeMapping("integer", DbType.Int16);
-        readonly RelationalTypeMapping typeMappingInt         = new RelationalTypeMapping("integer", DbType.Int32);
-        readonly RelationalTypeMapping typeMappingBigint      = new RelationalTypeMapping("integer", DbType.Int64);
-        readonly RelationalTypeMapping typeMappingReal        = new RelationalTypeMapping("float", DbType.Single);
-        readonly RelationalTypeMapping typeMappingDouble      = new RelationalTypeMapping("float", DbType.Double);
-        readonly RelationalTypeMapping typeMappingDecimal     = new RelationalTypeMapping("float", DbType.Decimal);
-
-        // TODO: Look at the SqlServerMaxLengthMapping optimization, it may be relevant for us too
-        readonly RelationalTypeMapping typeMappingText        = new RelationalTypeMapping("text", DbType.String);
-        // TODO: The other text types, char
-        readonly RelationalTypeMapping typeMappingByteArray   = new RelationalTypeMapping("bytea", DbType.Binary);
-
+        readonly RelationalTypeMapping typeMappingString      = new RelationalTypeMapping("string");
+        readonly RelationalTypeMapping typeMappingInteger     = new RelationalTypeMapping("integer");
+        readonly RelationalTypeMapping typeMappingFloat       = new RelationalTypeMapping("float");
+        readonly RelationalTypeMapping typeMappingBoolean     = new RelationalTypeMapping("bool", DbType.Boolean);
         readonly RelationalTypeMapping typeMappingTimestamp   = new RelationalTypeMapping("timestamp", DbType.DateTime);
-        readonly RelationalTypeMapping typeMappingTimestamptz = new RelationalTypeMapping("timestamptz", DbType.DateTimeOffset);
-        readonly RelationalTypeMapping typeMappingDate        = new RelationalTypeMapping("date", DbType.Date);
-        readonly RelationalTypeMapping typeMappingTime        = new RelationalTypeMapping("time", DbType.Time);
-        // TODO: DbType?
-        readonly RelationalTypeMapping typeMappingTimetz      = new RelationalTypeMapping("timetz");
-        readonly RelationalTypeMapping typeMappingInterval    = new RelationalTypeMapping("interval");
-
-        readonly RelationalTypeMapping typeMappingUuid        = new RelationalTypeMapping("uuid", DbType.Guid);
-        readonly RelationalTypeMapping typeMappingBit         = new RelationalTypeMapping("bit");
-        readonly RelationalTypeMapping typeMappingBool        = new RelationalTypeMapping("bool", DbType.Boolean);
+        // TODO: RECORD
 
         private readonly Dictionary<string, RelationalTypeMapping> simpleNameMappings;
         private readonly Dictionary<Type, RelationalTypeMapping> simpleMappings;
 
-        public BigQueryTypeMapper()
-        {
-            this.simpleNameMappings
-                = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase)
-                {
-                    { "integer",          this.typeMappingBigint      },
-                    { "float",            this.typeMappingDouble      },
-                    { "decimal",          this.typeMappingDecimal     },
-                    { "numeric",          this.typeMappingDecimal     },
-                    { "text",             this.typeMappingText        },
-                    { "bytea",            this.typeMappingByteArray   },
-                    { "timestamp",        this.typeMappingTimestamp   },
-                    { "timestamptz",      this.typeMappingTimestamptz },
-                    { "date",             this.typeMappingDate        },
-                    { "time",             this.typeMappingTime        },
-                    { "timetz",           this.typeMappingTimetz      },
-                    { "interval",         this.typeMappingInterval    },
-                    { "uuid",             this.typeMappingUuid        },
-                    { "bit",              this.typeMappingBit         },
-                    { "bool",             this.typeMappingBool        },
-                };
+        public BigQueryTypeMapper() {
+            this.simpleNameMappings = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase);
+            this.simpleMappings = new Dictionary<Type, RelationalTypeMapping> {
+                {typeof(byte), this.typeMappingInteger},
+                {typeof(short), this.typeMappingInteger},
+                {typeof(int), this.typeMappingInteger},
+                {typeof(long), this.typeMappingInteger},
+                {typeof(float), this.typeMappingFloat},
+                {typeof(double), this.typeMappingFloat},
+                {typeof(decimal), this.typeMappingFloat},
+                {typeof(string), this.typeMappingString},
+                {typeof(byte[]), this.typeMappingString},
+                {typeof(DateTime), this.typeMappingTimestamp},
+                {typeof(DateTimeOffset), this.typeMappingTimestamp},
+                {typeof(TimeSpan), this.typeMappingTimestamp},
+                {typeof(bool), this.typeMappingBoolean},
 
-            this.simpleMappings
-                = new Dictionary<Type, RelationalTypeMapping>
-                {
-                    { typeof(byte),           this.typeMappingTinyint     },
-                    { typeof(short),          this.typeMappingSmallint    },
-                    { typeof(int),            this.typeMappingInt         },
-                    { typeof(long),           this.typeMappingBigint      },
-                    { typeof(float),          this.typeMappingReal        },
-                    { typeof(double),         this.typeMappingDouble      },
-                    { typeof(decimal),        this.typeMappingDecimal     },
-                    { typeof(string),         this.typeMappingText        },
-                    { typeof(byte[]),         this.typeMappingByteArray       },
-                    { typeof(DateTime),       this.typeMappingTimestamp   },
-                    { typeof(DateTimeOffset), this.typeMappingTimestamptz },
-                    { typeof(TimeSpan),       this.typeMappingTime        },
-                    { typeof(Guid),           this.typeMappingUuid        },
-                    { typeof(BitArray),       this.typeMappingBit         },
-                    { typeof(bool),           this.typeMappingBool        },
-
-                    //{ typeof(char), _int },
-                    //{ typeof(sbyte), new RelationalTypeMapping("smallint") },
-                    //{ typeof(ushort), new RelationalTypeMapping("int") },
-                    //{ typeof(uint), new RelationalTypeMapping("bigint") },
-                    //{ typeof(ulong), new RelationalTypeMapping("numeric(20, 0)") },
-                };
+                //{ typeof(Guid),           this.typeMappingUuid        },
+                //{ typeof(BitArray),       this.typeMappingBit         },
+                //{ typeof(char), _int },
+                //{ typeof(sbyte), new RelationalTypeMapping("smallint") },
+                //{ typeof(ushort), new RelationalTypeMapping("int") },
+                //{ typeof(uint), new RelationalTypeMapping("bigint") },
+                //{ typeof(ulong), new RelationalTypeMapping("numeric(20, 0)") },
+            };
         }
 
-        protected override string GetColumnType(IProperty property) => property.BigQuery().ColumnType;
+        protected override string GetColumnType(IProperty property) {
+            return property.BigQuery().ColumnType;
+        }
+
+        public override RelationalTypeMapping GetDefaultMapping(Type clrType) {
+            Check.NotNull(clrType, nameof(clrType));
+            if(clrType == typeof(decimal)) {
+                return this.typeMappingFloat;
+            }
+            return base.GetDefaultMapping(clrType);
+        }
+
+        protected override RelationalTypeMapping GetCustomMapping(IProperty property) {
+            RelationalTypeMapping relationalTypeMapping = base.GetCustomMapping(property);
+            return relationalTypeMapping;
+        }
+
+        public override RelationalTypeMapping MapPropertyType(IProperty property) {
+            RelationalTypeMapping relationalTypeMapping = base.MapPropertyType(property);
+            return relationalTypeMapping;
+        }
+
+        protected override RelationalTypeMapping MapString(IProperty property, int maxBoundedLength, Func<int, RelationalTypeMapping> boundedMapping, RelationalTypeMapping unboundedMapping, RelationalTypeMapping defaultMapping, RelationalTypeMapping keyMapping = null) {
+            RelationalTypeMapping relationalTypeMapping = base.MapString(property, maxBoundedLength, boundedMapping, unboundedMapping, defaultMapping, keyMapping);
+            return relationalTypeMapping;
+        }
+
+        protected override RelationalTypeMapping MapByteArray(IProperty property, int maxBoundedLength, Func<int, RelationalTypeMapping> boundedMapping, RelationalTypeMapping unboundedMapping, RelationalTypeMapping defaultMapping, RelationalTypeMapping keyMapping = null, RelationalTypeMapping rowVersionMapping = null) {
+            RelationalTypeMapping relationalTypeMapping = base.MapByteArray(property, maxBoundedLength, boundedMapping, unboundedMapping, defaultMapping, keyMapping, rowVersionMapping);
+            return relationalTypeMapping;
+        }
 
         protected override IReadOnlyDictionary<Type, RelationalTypeMapping> SimpleMappings { get { return this.simpleMappings; } }
 

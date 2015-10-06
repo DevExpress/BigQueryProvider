@@ -222,7 +222,7 @@ namespace DevExpress.DataAccess.BigQuery {
         public override int GetValues(object[] values) {
             DisposeCheck();
             for(int i = 0; i < fieldsCount; i++) {
-                values[i] = ChangeValueType(GetValue(i), i);
+                values[i] = GetValue(i);
             }
             return values.Length;
         }

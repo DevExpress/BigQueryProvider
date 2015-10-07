@@ -6,12 +6,9 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using Google.Apis.Bigquery.v2;
 using Google.Apis.Bigquery.v2.Data;
 using JetBrains.Annotations;
-using Microsoft.Data.Entity.Infrastructure;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Migrations;
 using Microsoft.Data.Entity.Migrations.Operations;
@@ -33,6 +30,8 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7 {
         readonly IMigrationsSqlGenerator sqlGenerator;
         readonly ISqlStatementExecutor statementExecutor;
 
+        BigQueryConnection Connection { get { return (BigQueryConnection)this.databaseConnection.DbConnection; } }
+
         public BigQueryDatabaseCreator(
             [NotNull] BigQueryDatabaseConnection connection,
             [NotNull] IMigrationsModelDiffer modelDiffer,
@@ -52,13 +51,12 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7 {
         }
 
         public override void Create() {
-            BigQueryConnection connection = (BigQueryConnection)this.databaseConnection.DbConnection;
-            connection.Open();
+            Connection.Open();
             try {
-                BigqueryService service = GetService(connection);
+                BigqueryService service = GetService(Connection);
                 if(service == null)
                     throw new Exception("Service not found");
-                DbConnectionStringBuilder builder = new DbConnectionStringBuilder {ConnectionString = connection.ConnectionString};
+                DbConnectionStringBuilder builder = new DbConnectionStringBuilder {ConnectionString = Connection.ConnectionString};
                 string projectId = (string)builder["ProjectId"];
                 string databaseName = (string)builder["DatasetId"];
                 DatasetList dataSetList = service.Datasets.List(projectId).Execute();
@@ -69,23 +67,47 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7 {
                 };
                 service.Datasets.Insert(dataSet, projectId).Execute();
             } finally {
-                connection.Close();
+                Connection.Close();
             }
         }
 
-        //public override async Task CreateAsync(CancellationToken cancellationToken = default(CancellationToken)) {
-        //    using(BigQueryDatabaseConnection masterConnection = this.databaseConnection.CreateMasterConnection()) {
-        //        await this.statementExecutor.ExecuteNonQueryAsync(masterConnection, null, CreateCreateOperations(), cancellationToken);
-        //        ClearPool();
-        //    }
-        //}
-
         public override void CreateTables() {
-            this.statementExecutor.ExecuteNonQuery(this.databaseConnection, this.databaseConnection.DbTransaction, CreateSchemaCommands());
-        }
+            DbConnectionStringBuilder builder = new DbConnectionStringBuilder { ConnectionString = Connection.ConnectionString };
+            string projectId = (string)builder["ProjectId"];
+            string databaseName = (string)builder["DatasetId"];
+            IReadOnlyList<MigrationOperation> operations = modelDiffer.GetDifferences(null, Model);
+            foreach(MigrationOperation migrationOperation in operations) {
+                CreateTableOperation createTableOperation = migrationOperation as CreateTableOperation;
+                if(createTableOperation != null) {
+                    List<TableFieldSchema> tableSchema = createTableOperation.Columns.Select(c => new TableFieldSchema {
+                        Name = c.Name,
+                        Type = c.ColumnType
+                    }).ToList(); //TODO: Review column types and Mode = "REQUIRED" for not nullable fields
+                    Table table = new Table {
+                        Schema = new TableSchema { Fields = tableSchema },
+                        TableReference = new TableReference {
+                            ProjectId = projectId,
+                            DatasetId = databaseName,
+                            TableId = createTableOperation.Name
+                        }
+                    };
+                    Connection.Open();
+                    try {
+                        BigqueryService service = GetService(Connection);
+                        if(service == null)
+                            throw new Exception("Service not found");
+                        TableList tableList = service.Tables.List(projectId, databaseName).Execute();
+                        if(tableList.Tables != null && tableList.Tables.Any(t => t.TableReference.TableId == table.TableReference.TableId))
+                            service.Tables.Delete(projectId, databaseName, table.TableReference.TableId).Execute();
+                        service.Tables.Insert(table, projectId, databaseName).Execute();
+                    } finally {
+                        Connection.Close();
+                    }
 
-        public override async Task CreateTablesAsync(CancellationToken cancellationToken = default(CancellationToken)) {
-            await this.statementExecutor.ExecuteNonQueryAsync(this.databaseConnection, this.databaseConnection.DbTransaction, CreateSchemaCommands(), cancellationToken);
+                }
+                //TODO: Implement other operations if possible
+                throw new NotImplementedException();
+            }
         }
 
         public override bool HasTables() {
@@ -99,68 +121,27 @@ namespace DevExpress.DataAccess.BigQuery.EntityFarmework7 {
                 this.databaseConnection.Close();
                 return true;
             } catch(BigQueryException e) {
-                if(IsDoesNotExist(e)) {
-                    return false;
-                }
-
-                throw;
-            }
-        }
-
-        public override async Task<bool> ExistsAsync(CancellationToken cancellationToken = default(CancellationToken)) {
-            try {
-                await this.databaseConnection.OpenAsync(cancellationToken);
-                this.databaseConnection.Close();
-                return true;
-            } catch(BigQueryException e) {
-                if(IsDoesNotExist(e)) {
-                    return false;
-                }
-                throw;
+                return false;
             }
         }
 
         public override void Delete() {
-            //using(BigQueryDatabaseConnection masterConnection = this.databaseConnection.CreateMasterConnection()) {
-            //    this.statementExecutor.ExecuteNonQuery(masterConnection, null, CreateDropCommands());
-            //}
-        }
-
-        //public override async Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken)) {
-        //    using(BigQueryDatabaseConnection masterConnection = this.databaseConnection.CreateMasterConnection()) {
-        //        await this.statementExecutor.ExecuteNonQueryAsync(masterConnection, null, CreateDropCommands(), cancellationToken);
-        //    }
-        //}
-
-        private IEnumerable<SqlBatch> CreateSchemaCommands() {
-            return this.sqlGenerator.Generate(this.modelDiffer.GetDifferences(null, Model), Model);
-        }
-
-        private string CreateHasTablesCommand() {
-            return @"
-                 SELECT CASE WHEN COUNT(*) = 0 THEN 0 ELSE 1 END
-                 FROM information_schema.tables
-                 WHERE table_type = 'BASE TABLE' AND table_schema NOT IN ('pg_catalog', 'information_schema')
-               ";
-        }
-
-        private IEnumerable<SqlBatch> CreateCreateOperations() {
-            return this.sqlGenerator.Generate(new[] {new CreateDatabaseOperation {Name = this.databaseConnection.DbConnection.Database}});
-        }
-
-        static bool IsDoesNotExist(BigQueryException exception) {
-            return exception.Message == "Database does not exist";
-        }
-
-        IEnumerable<SqlBatch> CreateDropCommands() {
-            MigrationOperation[] operations = new MigrationOperation[] {
-                // TODO Check DbConnection.Database always gives us what we want
-                // Issue #775
-                new DropDatabaseOperation {Name = this.databaseConnection.DbConnection.Database}
-            };
-
-            var masterCommands = this.sqlGenerator.Generate(operations);
-            return masterCommands;
+            BigQueryConnection connection = (BigQueryConnection)this.databaseConnection.DbConnection;
+            connection.Open();
+            try {
+                BigqueryService service = GetService(connection);
+                if(service == null)
+                    throw new Exception("Service not found");
+                DbConnectionStringBuilder builder = new DbConnectionStringBuilder { ConnectionString = connection.ConnectionString };
+                string projectId = (string)builder["ProjectId"];
+                string databaseName = (string)builder["DatasetId"];
+                DatasetList dataSetList = service.Datasets.List(projectId).Execute();
+                if(dataSetList.Datasets == null || dataSetList.Datasets.Any(d => d.DatasetReference.DatasetId == databaseName))
+                    throw new Exception("Dataset not found");
+                service.Datasets.Delete(projectId, databaseName).Execute();
+            } finally {
+                connection.Close();
+            }
         }
     }
 }

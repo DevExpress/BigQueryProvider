@@ -10,20 +10,17 @@ using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Storage;
 using Microsoft.Data.Entity.Utilities;
 
-namespace DevExpress.DataAccess.BigQuery.EntityFarmework7
-{
-    // TODO: Implementation is copied from Npgsql...
-    public class BigQueryTypeMapper : RelationalTypeMapper
-    {
-        readonly RelationalTypeMapping mappingString = new RelationalTypeMapping("string", DbType.String); 
-         readonly RelationalTypeMapping mappingInteger = new RelationalTypeMapping("integer", DbType.Int64); 
-         readonly RelationalTypeMapping mappingFloat = new RelationalTypeMapping("float", DbType.Single); 
-         readonly RelationalTypeMapping mappingBoolean = new RelationalTypeMapping("boolean", DbType.Boolean); 
-         readonly RelationalTypeMapping mappingTimestamp = new RelationalTypeMapping("timestamp", DbType.DateTime);
+namespace DevExpress.DataAccess.BigQuery.EntityFarmework7 {
+    public class BigQueryTypeMapper : RelationalTypeMapper {
+        readonly RelationalTypeMapping mappingString = new RelationalTypeMapping("string", DbType.String);
+        readonly RelationalTypeMapping mappingInteger = new RelationalTypeMapping("integer", DbType.Int64);
+        readonly RelationalTypeMapping mappingFloat = new RelationalTypeMapping("float", DbType.Single);
+        readonly RelationalTypeMapping mappingBoolean = new RelationalTypeMapping("boolean", DbType.Boolean);
+        readonly RelationalTypeMapping mappingTimestamp = new RelationalTypeMapping("timestamp", DbType.DateTime);
         readonly RelationalTypeMapping mappingRecord = new RelationalTypeMapping("record", DbType.Object);
 
-        private readonly Dictionary<string, RelationalTypeMapping> simpleNameMappings;
-        private readonly Dictionary<Type, RelationalTypeMapping> simpleMappings;
+        readonly Dictionary<string, RelationalTypeMapping> simpleNameMappings;
+        readonly Dictionary<Type, RelationalTypeMapping> simpleMappings;
 
         public BigQueryTypeMapper() {
             this.simpleNameMappings = new Dictionary<string, RelationalTypeMapping>(StringComparer.OrdinalIgnoreCase) {

@@ -43,19 +43,9 @@ namespace DevExpress.DataAccess.BigQuery {
             DbType = dbType;
         }
 
-        public BigQueryParameter(string parameterName, DbType dbType, string sourceColumn)
-            : this(parameterName, dbType) {
-            SourceColumn = sourceColumn;
-        }
-
         public BigQueryParameter(string parameterName, BigQueryDbType bigQueryDbType) : this() {
             ParameterName = parameterName;
             BigQueryDbType = bigQueryDbType;
-        }
-
-        public BigQueryParameter(string parameterName, BigQueryDbType bigQueryDbType, string sourceColumn)
-            : this(parameterName, bigQueryDbType) {
-            SourceColumn = sourceColumn;
         }
 
         public BigQueryDbType BigQueryDbType {
@@ -108,18 +98,18 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         public override string SourceColumn {
-            get;
-            set;
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
         }
 
         public override DataRowVersion SourceVersion {
-            get;
-            set;
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
         }
 
         public override bool SourceColumnNullMapping {
-            get;
-            set;
+            get { throw new NotSupportedException(); }
+            set { throw new NotSupportedException(); }
         }
 
         public override object Value {
@@ -149,8 +139,6 @@ namespace DevExpress.DataAccess.BigQuery {
             value = null;
             direction = ParameterDirection.Input;
             ParameterName = null;
-            SourceColumn = null;
-            SourceVersion = DataRowVersion.Current;
         }
 
         internal void Validate() {
@@ -180,10 +168,7 @@ namespace DevExpress.DataAccess.BigQuery {
                 IsNullable = IsNullable,
                 DbType = DbType,
                 BigQueryDbType = BigQueryDbType,
-                SourceColumnNullMapping = SourceColumnNullMapping,
                 Size = Size,
-                SourceColumn = SourceColumn,
-                SourceVersion = SourceVersion,
             };
             return parameter;
         }

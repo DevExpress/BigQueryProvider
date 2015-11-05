@@ -37,18 +37,34 @@ namespace DevExpress.DataAccess.BigQuery {
         readonly DbConnectionStringBuilder connectionStringBuilder = new DbConnectionStringBuilder();
         bool disposed;
 
+        /// <summary>
+        /// Initializes a new instance of the BigQueryConnection class with default settings.
+        /// </summary>
         public BigQueryConnection() { }
 
+        /// <summary>
+        /// Initializes a new instance of the BigQueryConnection class with the specified connection string.
+        /// </summary>
+        /// <param name="connectionString">A System.String specifying a connection string.</param>
         public BigQueryConnection(string connectionString) {
             ConnectionString = connectionString;
         }
 
+        /// <summary>
+        /// Changes the database for the current connection.
+        /// </summary>
+        /// <param name="databaseName">A System.String value specifying the database name.</param>
         public override void ChangeDatabase(string databaseName) {
             CheckDisposed();
             DataSetId = databaseName;
         }
 
-        public async override Task OpenAsync(CancellationToken cancellationToken) {
+        /// <summary>
+        /// Asynchronously opens a data connection.
+        /// </summary>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel opening a data connection.</param>
+        /// <returns>A System.Threading.Tasks.Task, specifying an asynchronous operation.</returns>
+        public override async Task OpenAsync(CancellationToken cancellationToken) {
             CheckDisposed();
             cancellationToken.ThrowIfCancellationRequested();
             if(IsOpened)
@@ -62,6 +78,9 @@ namespace DevExpress.DataAccess.BigQuery {
             }
         }
 
+        /// <summary>
+        /// Opens a data connection.
+        /// </summary>
         public override void Open() {
             var task = OpenAsync();
             try {
@@ -72,6 +91,9 @@ namespace DevExpress.DataAccess.BigQuery {
             }
         }
 
+        /// <summary>
+        /// Closes the current data connection.
+        /// </summary>
         public override void Close() {
             CheckDisposed();
             if(!IsOpened)
@@ -79,6 +101,10 @@ namespace DevExpress.DataAccess.BigQuery {
             state = ConnectionState.Closed;
         }
 
+        /// <summary>
+        /// Returns a list of datasets available in the current Google Cloud Platform project.
+        /// </summary>
+        /// <returns>an array of System.String values containing names of available datasets.</returns>
         public string[] GetDataSetNames() {
             CheckDisposed();
             CheckOpen();
@@ -92,10 +118,18 @@ namespace DevExpress.DataAccess.BigQuery {
             return dataSets.Datasets.Select(d => d.DatasetReference.DatasetId).ToArray();
         }
 
+        /// <summary>
+        /// Returns a list of tables available in the current BigQuery dataset.
+        /// </summary>
+        /// <returns>an array of System.String values containing names of available data tables.</returns>
         public string[] GetTableNames() {
             return GetDataObjectNames("TABLE");
         }
 
+        /// <summary>
+        /// Returns a list of views available in the current BigQuery dataset.
+        /// </summary>
+        /// <returns>an array of System.String values containing names of available data views.</returns>
         public string[] GetViewNames() {
             return GetDataObjectNames("VIEW");
         }
@@ -112,17 +146,33 @@ namespace DevExpress.DataAccess.BigQuery {
             return tableList.Tables.Where(t => t.Type == type).Select(t => t.TableReference.TableId).ToArray();
         }
 
+        /// <summary>
+        /// Specifies the connection string used to establish the current data connection.
+        /// </summary>
+        /// <value>
+        /// a System.String value specifying a connection string.
+        /// </value>
         public override string ConnectionString {
             get { return connectionStringBuilder.ConnectionString; }
             set { connectionStringBuilder.ConnectionString = value; }
         }
 
+        /// <summary>
+        /// Creates a new BigQuery command associated with the current data connection.
+        /// </summary>
+        /// <returns>a BigQueryCommand object.</returns>
         public new BigQueryCommand CreateCommand() {
             CheckDisposed();
             CheckOpen();
             return new BigQueryCommand { Connection = this };
         }
 
+        /// <summary>
+        /// Gets the name of a BigQueryproject to which to connect. 
+        /// </summary>
+        /// <value>
+        /// Gets the name of the BigQuery data source to which to connect.
+        /// </value>
         public override string DataSource {
             get {
                 CheckOpen();
@@ -130,6 +180,12 @@ namespace DevExpress.DataAccess.BigQuery {
             }
         }
 
+        /// <summary>
+        /// Gets the name of the current Big Query dataset.
+        /// </summary>
+        /// <value>
+        /// The name of the current dataset.
+        /// </value>
         public override string Database {
             get {
                 CheckOpen();
@@ -137,10 +193,22 @@ namespace DevExpress.DataAccess.BigQuery {
             }
         }
 
+        /// <summary>
+        /// Gets a string containing the version of a database server to which the client is connected. This implementation always throws NotSupportedException.
+        /// </summary>
+        /// <value>
+        /// A string containing the version of database server. 
+        /// </value>
         public override string ServerVersion {
             get { throw new NotSupportedException(); }
         }
 
+        /// <summary>
+        /// Gets the state of the current data connection.
+        /// </summary>
+        /// <value>
+        /// A ConnectionState enumeration value.
+        /// </value>
         public override ConnectionState State {
             get { return state; }
         }

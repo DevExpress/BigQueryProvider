@@ -19,8 +19,17 @@ using Google;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryException : DbException {
+        /// <summary>
+        /// Initializes a new instance of the BigQueryExcpetion class with the specified message.
+        /// </summary>
+        /// <param name="message">The message describing the current exception.</param>
         public BigQueryException(string message) : base(message) { }
 
+        /// <summary>
+        /// Initializes a new instance of the BigQueryExcpetion class with the specified settings.
+        /// </summary>
+        /// <param name="message">The message describing the current exception.</param>
+        /// <param name="innerException">A GoogleApiException object representing.</param>
         public BigQueryException(string message, GoogleApiException innerException) : base(message, innerException) { }
     }
 }

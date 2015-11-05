@@ -19,41 +19,84 @@ using System.Data.Common;
 
 namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryCommandBuilder : DbCommandBuilder {
-        public new BigQueryDataAdapter DataAdapter {
-            get { return (BigQueryDataAdapter)base.DataAdapter; }
-            set { DataAdapter = value; }
-        }
-
+        /// <summary>
+        /// Initializes a new instance of the BigQueryCommandBuilder class with default settings.
+        /// </summary>
         public BigQueryCommandBuilder() {
             QuotePrefix = "[";
             QuoteSuffix = "]";
         }
 
+        /// <summary>
+        /// Initializes a new instance of the BigQueryCommandBuilder class with the specified data adapter.
+        /// </summary>
+        /// <param name="dataAdapter">A BigQueryDataAdapter for which to generate commands.</param>
         public BigQueryCommandBuilder(BigQueryDataAdapter dataAdapter) {
             DataAdapter = dataAdapter;
         }
 
+        /// <summary>
+        /// Specifies a BigQuery data adapter for which commands are generated.
+        /// </summary>
+        /// <value>
+        /// A BigQueryDataAdapter object.
+        /// </value>
+        public new BigQueryDataAdapter DataAdapter {
+            get { return (BigQueryDataAdapter)base.DataAdapter; }
+            set { DataAdapter = value; }
+        }
+
+        /// <summary>
+        /// Returns a command that deletes records from a data source.
+        /// </summary>
+        /// <returns>An automatically generated BigQuery command used to delete rows from a BigQuery data table.</returns>
         public new BigQueryCommand GetDeleteCommand() {
             return (BigQueryCommand)base.GetDeleteCommand();
         }
 
+        //TODO: XmlDoc
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="useColumnsForParameterNames"></param>
+        /// <returns>An automatically generated BigQuery command used to delete rows from a BigQuery data table.</returns>
         public new BigQueryCommand GetDeleteCommand(bool useColumnsForParameterNames) {
             return (BigQueryCommand)base.GetDeleteCommand(useColumnsForParameterNames);
         }
 
+        /// <summary>
+        /// Returns a command that inserts a record into a data source.
+        /// </summary>
+        /// <returns>An automatically generated BigQuery command used to insert rows into a BigQuery data table.</returns>
         public new BigQueryCommand GetInsertCommand() {
             return (BigQueryCommand)base.GetInsertCommand();
         }
 
+        //TODO: XmlDoc
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="useColumnsForParameterNames"></param>
+        /// <returns></returns>
         public new BigQueryCommand GetInsertCommand(bool useColumnsForParameterNames) {
             return (BigQueryCommand)base.GetInsertCommand(useColumnsForParameterNames);
         }
 
+        /// <summary>
+        /// Returns a properly quoted analog of the specified quoted identifier.
+        /// </summary>
+        /// <param name="unquotedIdentifier">a string containing an unquoted identifier. </param>
+        /// <returns>a string containing a properly quoted identifier.</returns>
         public override string QuoteIdentifier(string unquotedIdentifier) {
             unquotedIdentifier = unquotedIdentifier.Replace("\\", "\\\\").Replace("[", "\\[").Replace("]", "\\]");
             return string.Concat(QuotePrefix, unquotedIdentifier, QuoteSuffix);
         }
 
+        /// <summary>
+        /// Returns an unquoted analog of the specified quoted identifier.
+        /// </summary>
+        /// <param name="quotedIdentifier">a string containing an unquoted identifier.</param>
+        /// <returns>a string containing an identifier with quotes removed. </returns>
         public override string UnquoteIdentifier(string quotedIdentifier) {
             string unquotedIdentifier;
             if(string.IsNullOrEmpty(quotedIdentifier)) {

@@ -38,7 +38,7 @@ Install-Package DevExpress.DataAccess.BigQuery
 To be able to run these tests, you first need to provide the required testing infrastructure. To satisfy this requirement, do the following:
 
 1. Add a connection string for your BigQuery dataset to the application’s configuration file. It is recommended that you use a separate data set for testing purposes.
-2. Run the CreateDBTables explicit test available in the TestingInfrastructureHelper class using a test runner of your choice.   This test will populate the dataset with tables required to correctly run other unit tests supplied with the BigQueryProvider source code.
+2. Run the ```CreateDBTables``` explicit test available in the ```TestingInfrastructureHelper``` class using a test runner of your choice.   This test will populate the dataset with tables required to correctly run other unit tests supplied with the BigQueryProvider source code.
 
 # Connection String Parameters
   A connection string used to establish a connection to a BigQuery data source requires the following mandatory connection string parameters.

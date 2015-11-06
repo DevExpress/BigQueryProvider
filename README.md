@@ -65,7 +65,7 @@ OAuthClientId=myClientId;OAuthClientSecret=mySecret;OAuthRefreshToken=myRefreshT
         command.Connection = connection;
 
         // Retrieve all rows
-        ommand.CommandText = "SELECT myTable.myField 
+        command.CommandText = @"SELECT myTable.myField 
                               FROM myDataSet.myTable myTable";
         using (var reader = command.ExecuteReader()) {
             while (reader.Read()) {

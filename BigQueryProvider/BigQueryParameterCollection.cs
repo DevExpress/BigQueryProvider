@@ -24,6 +24,9 @@ using System.Linq;
 using System.Threading;
 
 namespace DevExpress.DataAccess.BigQuery {
+    /// <summary>
+    /// A collection of BigQueryParameter objects.
+    /// </summary>
     public class BigQueryParameterCollection : DbParameterCollection {
         static void ValidateType(object value) {
             if(!(value is BigQueryParameter))

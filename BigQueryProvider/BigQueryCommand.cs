@@ -22,6 +22,9 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace DevExpress.DataAccess.BigQuery {
+    /// <summary>
+    /// A SQL statement to be executed against a BigQuery data source.
+    /// </summary>
     public class BigQueryCommand : DbCommand, ICloneable {
         const int defaultTimeout = 30;
 

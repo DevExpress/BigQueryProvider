@@ -30,6 +30,9 @@ using Google.Apis.Http;
 using Google.Apis.Services;
 
 namespace DevExpress.DataAccess.BigQuery {
+    /// <summary>
+    /// Represents a connection to BigQuery.
+    /// </summary>
     public class BigQueryConnection : DbConnection, ICloneable {
         const string applicationName = "DevExpress.DataAccess.BigQuery ADO.NET Provider";
 

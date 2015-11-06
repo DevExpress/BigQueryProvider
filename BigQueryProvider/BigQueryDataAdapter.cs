@@ -32,6 +32,9 @@ namespace DevExpress.DataAccess.BigQuery {
     /// <param name="e">A BigQueryRowUpdatedEventArgs object containing event data.</param>
     public delegate void BigQueryRowUpdatedEventHandler(object sender, BigQueryRowUpdatedEventArgs e);
 
+    /// <summary>
+    /// Provides access to data connections and commands used to operate with a BigQuery data source.
+    /// </summary>
     public class BigQueryDataAdapter : DbDataAdapter {
         /// <summary>
         /// Initializes a new instance of the BigQueryDataAdapter class with default settings.
@@ -126,6 +129,9 @@ namespace DevExpress.DataAccess.BigQuery {
         }
     }
 
+    /// <summary>
+    /// Provides data for the RowUpdating event.
+    /// </summary>
     public class BigQueryRowUpdatingEventArgs : RowUpdatingEventArgs {
         /// <summary>
         ///  Initializes a new instance of the BigQueryRowUpdatingEventArgs class.
@@ -139,6 +145,9 @@ namespace DevExpress.DataAccess.BigQuery {
             : base(dataRow, command, statementType, tableMapping) { }
     }
 
+    /// <summary>
+    /// Provides data for the RowUpdated event.
+    /// </summary>
     public class BigQueryRowUpdatedEventArgs : RowUpdatedEventArgs {
         /// <summary>
         /// Initializes a new instance of the BigQueryRowUpdatedEventArgs class.

@@ -21,6 +21,9 @@ using System.Globalization;
 using DevExpress.DataAccess.BigQuery.Native;
 
 namespace DevExpress.DataAccess.BigQuery {
+    /// <summary>
+    /// A parameter to a BigQueryCommand.
+    /// </summary>
     public sealed class BigQueryParameter : DbParameter, ICloneable {
         const int maxStringSize = 2097152;
         BigQueryDbType? bigQueryDbType;

@@ -18,6 +18,9 @@ using System.Data;
 using System.Data.Common;
 
 namespace DevExpress.DataAccess.BigQuery {
+    /// <summary>
+    /// Automatically generates commands to be executed against a BigQuery data source.
+    /// </summary>
     public class BigQueryCommandBuilder : DbCommandBuilder {
         /// <summary>
         /// Initializes a new instance of the BigQueryCommandBuilder class with default settings.

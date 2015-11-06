@@ -18,6 +18,9 @@ using System.Data.Common;
 using Google;
 
 namespace DevExpress.DataAccess.BigQuery {
+    /// <summary>
+    /// The exception thrown when BigQuery returns a server-side warning or error.
+    /// </summary>
     public class BigQueryException : DbException {
         /// <summary>
         /// Initializes a new instance of the BigQueryExcpetion class with the specified message.

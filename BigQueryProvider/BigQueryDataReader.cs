@@ -28,6 +28,9 @@ using Google.Apis.Bigquery.v2;
 using Google.Apis.Bigquery.v2.Data;
 
 namespace DevExpress.DataAccess.BigQuery {
+    /// <summary>
+    /// Provides access to resulting data of command execution.
+    /// </summary>
     public class BigQueryDataReader : DbDataReader {
         #region static
         static string PrepareCommandText(BigQueryCommand command) {

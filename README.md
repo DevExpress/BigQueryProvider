@@ -58,7 +58,7 @@ Additionally, a connection string should contain parameters specifying the requi
 # Using BigQueryProvider
 A code sample below demonstrates how to use the BigQueryProvider to connect your application to a BigQuery dataset.
 ```C#
-using (var connection = new BigQueryConnection(@"ProjectID=myProject;
+using(var connection = new BigQueryConnection(@"ProjectID=myProject;
                                                 DataSetId=myDataSet;
                                                 OAuthClientId=myClientId;
                                                 OAuthClientSecret=mySecret;

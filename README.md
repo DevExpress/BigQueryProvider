@@ -15,7 +15,7 @@ BigQueryProvider
 
 # What is BigQueryProvider?
   The BigQueryProvider is an open-source ADO.NET data provider that you can use to connect your .NET application to Google BigQuery.
-  The BigQueryProvider is built upon the API provided by the **Google.Apis.Bigquery.v2** library and implements the full client-side functionality required to interact with BigQuery datasets.  It uses mechanisms common for all ADO.NET data providers and allows you to utilize the same data binding and data interaction approaches that you use when connecting to data via standard ADO.NET data providers including the capability to manage tables within a dataset, append and delete data entries, and retrieve data by executing queries written in the BigQuery’s SQL dialect.
+  The BigQueryProvider is built upon the API provided by the **Google.Apis.Bigquery.v2** library and implements the full client-side functionality required to interact with BigQuery datasets.  It uses mechanisms common for all ADO.NET data providers and allows you to utilize the same data binding approaches that you use when connecting to data via standard ADO.NET data providers
 
 # Requirements
   The BigQueryProvider requires the .NET Framework version 4.5 or higher. The **Google.Apis.Bigquery.v2** library and all its dependencies are required to build the BigQueryProvider from source and should be deployed with the final application.

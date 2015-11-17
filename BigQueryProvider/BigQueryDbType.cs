@@ -15,13 +15,37 @@
 */
 
 namespace DevExpress.DataAccess.BigQuery {
+    /// <summary>
+    /// Lists BigQuery data types. 
+    /// </summary>
     public enum BigQueryDbType {
+        /// <summary>
+        /// A Unicode character string.
+        /// </summary>
         String,
+        /// <summary>
+        /// A 64-bit integer.
+        /// </summary>
         Integer,
+        /// <summary>
+        /// A double-precision floating point format.
+        /// </summary>
         Float,
+        /// <summary>
+        /// A binary type contining a value of either true or false.
+        /// </summary>
         Boolean,
+        /// <summary>
+        /// A collection of fields.
+        /// </summary>
         Record,
+        /// <summary>
+        /// A type used to store either a UNIX timestamp or  a date/time string. A value is stored internally as a UNIX timestamp.
+        /// </summary>
         Timestamp,
+        /// <summary>
+        /// A type unsupported by BigQuery.
+        /// </summary>
         Unknown,
     }
 }

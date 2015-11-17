@@ -98,7 +98,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <summary>
         /// Returns the value of the specified column as a type. 
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">The type of a value to return.</typeparam>
         /// <param name="ordinal">The ordinal number of the required column.</param>
         /// <returns>The value of the specified column. </returns>
         public override T GetFieldValue<T>(int ordinal) {
@@ -205,7 +205,6 @@ namespace DevExpress.DataAccess.BigQuery {
             throw new NotSupportedException();
         }
 
-        //TODO: XmlDoc
         /// <summary>
         /// Reads bytes from the specified column into a buffer. This implementation always throws NotSupportedException.
         /// </summary>
@@ -214,7 +213,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <param name="buffer">A buffer to which to copy data. </param>
         /// <param name="bufferOffset">An offset in the buffer from which to start writing.</param>
         /// <param name="length">The maximum number of bytes to read.</param>
-        /// <returns></returns>
+        /// <returns>The number of bytes that has been read.</returns>
         public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) {
             throw new NotSupportedException();
         }
@@ -236,7 +235,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <param name="buffer">A buffer to which to copy data. </param>
         /// <param name="bufferOffset">An offset in the buffer from which to start writing.</param>
         /// <param name="length">The maximum number of characters to read.</param>
-        /// <returns></returns>
+        /// <returns>The number of characters that has been read.</returns>
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) {
             throw new NotSupportedException();
         }
@@ -361,12 +360,11 @@ namespace DevExpress.DataAccess.BigQuery {
             return values.Length;
         }
 
-        //TODO: XmlDoc
         /// <summary>
         /// Returns a value that indicates whether the content of the specified column is equal to System.Data.DbNull.
         /// </summary>
         /// <param name="ordinal">The ordinal number of a column.</param>
-        /// <returns></returns>
+        /// <returns>true, if the content of the specified column is equal to System.Data.DbNull; otherwise, false.</returns>
         public override bool IsDBNull(int ordinal) {
             DisposeCheck();
             RangeCheck(ordinal);
@@ -396,12 +394,11 @@ namespace DevExpress.DataAccess.BigQuery {
             }
         }
 
-        //TODO:XmlDoc
         /// <summary>
-        /// 
+        /// Gets the value of the specified column.
         /// </summary>
-        /// <param name="ordinal"></param>
-        /// <returns></returns>
+        /// <param name="ordinal">The ordinal number of a column.</param>
+        /// <returns>The value of the specified column.</returns>
         public override object this[int ordinal] {
             get {
                 DisposeCheck();
@@ -409,12 +406,11 @@ namespace DevExpress.DataAccess.BigQuery {
             }
         }
 
-        //TODO:XmlDoc
         /// <summary>
-        /// 
+        /// Gets the value of a column specified by its name.
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
+        /// <param name="name">The column name.</param>
+        /// <returns>The value of the specified column.</returns>
         public override object this[string name] {
             get {
                 DisposeCheck();

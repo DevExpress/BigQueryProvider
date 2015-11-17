@@ -54,12 +54,11 @@ namespace DevExpress.DataAccess.BigQuery {
         /// </value>
         public override bool IsSynchronized { get { return false; } }
 
-        //TODO:XmlDoc
         /// <summary>
         /// Gets an object that can be used to synchronize access to the BigQueryParameterCollection.
         /// </summary>
         /// <value>
-        /// 
+        /// An object used to synchronize access to the BigQueryParameterCollection.
         /// </value>
         public override object SyncRoot {
             get {
@@ -110,12 +109,11 @@ namespace DevExpress.DataAccess.BigQuery {
             return IndexOf(value);
         }
 
-        //TODO: XmlDoc
         /// <summary>
-        /// 
+        /// returns the index of the specified object.
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
+        /// <param name="value">an object to find.</param>
+        /// <returns>the index of the specified object.</returns>
         public override int IndexOf(object value) {
             if(value == null)
                 return -1;
@@ -180,7 +178,6 @@ namespace DevExpress.DataAccess.BigQuery {
             return Count - 1;
         }
 
-        //TODO: XmlDoc
         /// <summary>
         ///  Indicates whether or not the current collection contains the specified BigQueryParameter.
         /// </summary>

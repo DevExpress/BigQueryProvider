@@ -57,11 +57,10 @@ namespace DevExpress.DataAccess.BigQuery {
             return (BigQueryCommand)base.GetDeleteCommand();
         }
 
-        //TODO: XmlDoc
         /// <summary>
-        /// 
+        /// Returns a command that deletes records from a data source.
         /// </summary>
-        /// <param name="useColumnsForParameterNames"></param>
+        /// <param name="useColumnsForParameterNames">pecifies whether to generate parameter names based on column names.</param>
         /// <returns>An automatically generated BigQuery command used to delete rows from a BigQuery data table.</returns>
         public new BigQueryCommand GetDeleteCommand(bool useColumnsForParameterNames) {
             return (BigQueryCommand)base.GetDeleteCommand(useColumnsForParameterNames);
@@ -75,12 +74,11 @@ namespace DevExpress.DataAccess.BigQuery {
             return (BigQueryCommand)base.GetInsertCommand();
         }
 
-        //TODO: XmlDoc
         /// <summary>
-        /// 
+        /// Returns a command that inserts a record into a data source.
         /// </summary>
-        /// <param name="useColumnsForParameterNames"></param>
-        /// <returns></returns>
+        /// <param name="useColumnsForParameterNames">Specifies whether to generate parameter names based on column names.</param>
+        /// <returns>An automatically generated BigQuery command used to delete rows from a BigQuery data table.</returns>
         public new BigQueryCommand GetInsertCommand(bool useColumnsForParameterNames) {
             return (BigQueryCommand)base.GetInsertCommand(useColumnsForParameterNames);
         }

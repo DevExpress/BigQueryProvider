@@ -41,21 +41,19 @@ namespace DevExpress.DataAccess.BigQuery {
         /// </summary>
         public BigQueryDataAdapter() { }
 
-        //TODO: XmlDoc
         /// <summary>
-        /// 
+        /// Initializes a new instance of the BigQueryDataAdapter class.
         /// </summary>
-        /// <param name="selectCommand"></param>
+        /// <param name="selectCommand">A BigQueryCommand object specifying a command used to obtain rows from a BigQuery data table.</param>
         public BigQueryDataAdapter(BigQueryCommand selectCommand) {
             SelectCommand = selectCommand;
         }
 
-        //TODO: XmlDoc
         /// <summary>
-        /// 
+        /// Initializes a new instance of the BigQueryDataAdapter class.
         /// </summary>
-        /// <param name="selectCommandText"></param>
-        /// <param name="connection"></param>
+        /// <param name="selectCommandText">The text of a command used to obtain rows from a BigQuery data table.</param>
+        /// <param name="connection">A BigQueryConnection object specifying an active connection to BigQuery.</param>
         public BigQueryDataAdapter(string selectCommandText, BigQueryConnection connection) : this(new BigQueryCommand(selectCommandText, connection)) { }
 
         /// <summary>

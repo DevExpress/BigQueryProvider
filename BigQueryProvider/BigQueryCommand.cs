@@ -77,7 +77,12 @@ namespace DevExpress.DataAccess.BigQuery {
         [DefaultValue("")]
         public override string CommandText { get; set; }
 
-        //TODO: XmlDoc
+        /// <summary>
+        /// Specifies the time before terminating the attempt to execute the command. 
+        /// </summary>
+        /// <value>
+        /// The amount of time in seconds. The default value is 30.
+        /// </value>
         [DefaultValue(defaultTimeout)]
         public override int CommandTimeout {
             get { return commandTimeout; }
@@ -142,11 +147,10 @@ namespace DevExpress.DataAccess.BigQuery {
             set { throw new NotSupportedException(); }
         }
 
-        //TODO: XmlDoc
         /// <summary>
         /// Asynchronously executes a non-query SQL statement. The asynchronous result contains the number of rows affected.
         /// </summary>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellationToken"> A cancellation token that can be used to cancel command execution.</param>
         /// <returns>
         /// An asynchronous operation result, containing an Int32 value.
         /// </returns>
@@ -176,11 +180,10 @@ namespace DevExpress.DataAccess.BigQuery {
             }
         }
 
-        //TODO: XmlDoc
         /// <summary>
         /// Asynchronously executes a SQL statement. The asynchronous result contains the first column of the first row of the resulting data.
         /// </summary>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel command execution.</param>
         /// <returns>An asynchronous operation result, containing an Object value.</returns>
         public override async Task<object> ExecuteScalarAsync(CancellationToken cancellationToken) {
             cancellationToken.ThrowIfCancellationRequested();

@@ -14,7 +14,7 @@
     <tags>DevExpress Google BigQuery</tags>
     <dependencies>
       <group>
-        <dependency id="Google.Apis.Bigquery.v2" version="1.9.2.2270" />
+        <dependency id="Google.Apis.Bigquery.v2" version="1.9.2.2430" />
       </group>
     </dependencies>
   </metadata>

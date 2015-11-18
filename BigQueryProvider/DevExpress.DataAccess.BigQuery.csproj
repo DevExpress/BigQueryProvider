@@ -60,7 +60,6 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\Debug\DevExpress.DataAccess.BigQuery.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup Condition=" '$(Configuration)' == 'DEBUGTEST' ">
     <Reference Include="xunit.execution.desktop, Version=2.0.0.2929, Culture=neutral, PublicKeyToken=8d05b1bb7a6fdb6c, processorArchitecture=MSIL">

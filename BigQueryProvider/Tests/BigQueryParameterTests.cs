@@ -83,12 +83,9 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 (param.DbType == clone.DbType) &&
                 (param.BigQueryDbType == clone.BigQueryDbType) &&
                 (param.IsNullable == clone.IsNullable) &&
-                (param.SourceColumnNullMapping == clone.SourceColumnNullMapping) &&
                 (param.Direction == clone.Direction) &&
                 (param.IsNullable == clone.IsNullable) &&
-                (param.Size == clone.Size) &&
-                (param.SourceColumn == clone.SourceColumn) &&
-                (param.SourceVersion == clone.SourceVersion);
+                (param.Size == clone.Size);
             Assert.True(equal);
         }
 

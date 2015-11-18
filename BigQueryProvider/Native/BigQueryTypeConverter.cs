@@ -22,7 +22,7 @@ using System.Linq;
 
 namespace DevExpress.DataAccess.BigQuery.Native {
     public static class BigQueryTypeConverter {
-        static readonly List<Tuple<DbType, BigQueryDbType>> DbTypeToBigQueryDbTypePairs = new List<Tuple<DbType, BigQueryDbType>> {
+        static readonly Tuple<DbType, BigQueryDbType>[] DbTypeToBigQueryDbTypePairs = {
             new Tuple<DbType, BigQueryDbType>(DbType.String, BigQueryDbType.String),
             new Tuple<DbType, BigQueryDbType>(DbType.Boolean, BigQueryDbType.Boolean),
             new Tuple<DbType, BigQueryDbType>(DbType.DateTime, BigQueryDbType.Timestamp),
@@ -31,7 +31,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             new Tuple<DbType, BigQueryDbType>(DbType.Object, BigQueryDbType.Unknown),
         }; 
 
-        static readonly List<Tuple<Type, DbType>> TypeToDbTypePairs = new List<Tuple<Type, DbType>> {
+        static readonly Tuple<Type, DbType>[] TypeToDbTypePairs = {
             new Tuple<Type, DbType>(typeof(long), DbType.Int64),
             new Tuple<Type, DbType>(typeof(float), DbType.Single),
             new Tuple<Type, DbType>(typeof(string), DbType.String),
@@ -39,24 +39,23 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             new Tuple<Type, DbType>(typeof(DateTime), DbType.DateTime),
             new Tuple<Type, DbType>(typeof(bool), DbType.Boolean),
             new Tuple<Type, DbType>(typeof(object), DbType.Object),
-            new Tuple<Type, DbType>(typeof(Int16), DbType.Int64),
-            new Tuple<Type, DbType>(typeof(Int32), DbType.Int64),
-            new Tuple<Type, DbType>(typeof(UInt32), DbType.Int64),
-            new Tuple<Type, DbType>(typeof(UInt16), DbType.Int64),
+            new Tuple<Type, DbType>(typeof(short), DbType.Int64),
+            new Tuple<Type, DbType>(typeof(int), DbType.Int64),
+            new Tuple<Type, DbType>(typeof(uint), DbType.Int64),
+            new Tuple<Type, DbType>(typeof(ushort), DbType.Int64),
         };
  
-        static readonly List<Tuple<string, Type>> StringToTypePairs = new List<Tuple<string, Type>> {
+        static readonly Tuple<string, Type>[] StringToTypePairs = {
             new Tuple<string, Type>("STRING", typeof(string)),
-            new Tuple<string, Type>("INTEGER", typeof(Int64)),
-            new Tuple<string, Type>("FLOAT", typeof(Single)),
+            new Tuple<string, Type>("INTEGER", typeof(long)),
+            new Tuple<string, Type>("FLOAT", typeof(float)),
             new Tuple<string, Type>("BOOLEAN", typeof(bool)),
             new Tuple<string, Type>("TIMESTAMP", typeof(DateTime)),
             new Tuple<string, Type>("RECORD", typeof(object))
-        }; 
+        };
 
-        public static BigQueryDbType ToBigQueryDbType(DbType type) {
-            var typesTuple = DbTypeToBigQueryDbTypePairs.FirstOrDefault(i => i.Item1 == type);
-            return typesTuple == null ? BigQueryDbType.Unknown : typesTuple.Item2;
+        public static BigQueryDbType ToBigQueryDbType(DbType dbType) {
+            return (BigQueryDbType) (DbTypeToBigQueryDbTypePairs.FindPairFor(dbType, GetSecond) ?? BigQueryDbType.Unknown);
         }
 
         public static BigQueryDbType ToBigQueryDbType(Type type) {
@@ -64,39 +63,47 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public static BigQueryDbType ToBigQueryDbType(string stringType) {
-            var type = ToType(stringType);
-            return type == null ? BigQueryDbType.Unknown : ToBigQueryDbType(type);
+            return ToBigQueryDbType(ToType(stringType));
         }
 
-        public static DbType ToDbType(BigQueryDbType type) {
-            var typesTuple = DbTypeToBigQueryDbTypePairs.FirstOrDefault(i => i.Item2 == type);
-            return typesTuple == null ? DbType.Object : typesTuple.Item1;
+        public static DbType ToDbType(BigQueryDbType bqDbType) {
+            return (DbType) (DbTypeToBigQueryDbTypePairs.FindPairFor(bqDbType, GetFirst) ?? DbType.Object);
         }
 
         public static DbType ToDbType(Type type) {
-            var typesTuple = TypeToDbTypePairs.FirstOrDefault(i => i.Item1 == type);
-            return typesTuple == null ? DbType.Object : typesTuple.Item2;
+            return (DbType) (TypeToDbTypePairs.FindPairFor(type, GetSecond) ?? DbType.Object);
         }
 
-        public static Type ToType(BigQueryDbType type) {
-            return ToType(ToDbType(type));
+        public static Type ToType(BigQueryDbType bqDbType) {
+            return ToType(ToDbType(bqDbType));
         }
 
-        public static Type ToType(string type) {
-            var typesTuple = StringToTypePairs.FirstOrDefault(i => i.Item1 == type);
-            return typesTuple == null ? null : typesTuple.Item2;
+        public static Type ToType(string stringType) {
+            return (Type) (StringToTypePairs.FindPairFor(stringType, GetSecond));
         }
 
-        public static Type ToType(DbType type) {
-            var typesTuple = TypeToDbTypePairs.FirstOrDefault(i => i.Item2 == type);
-            return typesTuple == null ? null : typesTuple.Item1;
+        public static Type ToType(DbType dbType) {
+            return (Type) (TypeToDbTypePairs.FindPairFor(dbType, GetFirst));
         }
 
         public static object GetDefaultValueFor(DbType dbType) {
-            var type = ToType(dbType);
-            if(type == typeof(DateTime))
+            if(dbType == DbType.DateTime)
                 return SqlDateTime.MinValue;
+            var type = ToType(dbType);
             return type == null ? null : (type.IsValueType ? Activator.CreateInstance(type) : null);
+        }
+
+        static object FindPairFor<T1, T2>(this IEnumerable<Tuple<T1, T2>> tuples, object knownItem, Func<Tuple<T1, T2>, object> selector) {
+            var tuple = tuples.FirstOrDefault(t => t.Item1.Equals(knownItem) || t.Item2.Equals(knownItem));
+            return tuple == null ? null : selector(tuple);
+        }
+
+        static object GetFirst<T1, T2>(Tuple<T1, T2> tuple) {
+            return tuple.Item1;
+        }
+
+        static object GetSecond<T1, T2>(Tuple<T1, T2> tuple) {
+            return tuple.Item2;
         }
     }
 }

@@ -55,7 +55,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
 
             jsonContent = NewtonsoftJsonSerializer.Instance.Serialize(value);
 
-            return TaskEx.Delay(0);
+            return Task.Delay(0);
         }
 
         public Task DeleteAsync<T>(string key) {
@@ -63,7 +63,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
                 throw new ArgumentNullException("key");
 
             jsonContent = null;
-            return TaskEx.Delay(0);
+            return Task.Delay(0);
         }
 
         public Task<T> GetAsync<T>(string key) {
@@ -82,7 +82,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
 
         public Task ClearAsync() {
             jsonContent = null;
-            return TaskEx.Delay(0);
+            return Task.Delay(0);
         }
     }
 }

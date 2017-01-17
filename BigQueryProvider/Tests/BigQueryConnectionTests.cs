@@ -133,7 +133,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
 
-        [Fact(Skip = "We haven't yet something other database for tests --Repushko Anton")]
+        [Fact(Skip = "No database for it")]
         public void ChangeDatabaseOpenTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
@@ -145,7 +145,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             }
         }
 
-        [Fact(Skip = "We haven't yet something other database for tests --Repushko Anton")]
+        [Fact(Skip = "No database for it")]
         public void ChangeDatabaseCloseTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 string newDatabase = "";

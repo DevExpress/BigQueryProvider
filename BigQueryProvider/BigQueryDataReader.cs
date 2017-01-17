@@ -571,10 +571,13 @@ namespace DevExpress.DataAccess.BigQuery {
         object ChangeValueType(object value, int ordinal) {
             if(value == null)
                 return null;
-            Type conversionType = BigQueryTypeConverter.ToType(schema.Fields[ordinal].Type);
-            if(conversionType == typeof(DateTime))
+
+            var bigQueryType = BigQueryTypeConverter.ToBigQueryDbType(schema.Fields[ordinal].Type);
+
+            if(bigQueryType == BigQueryDbType.DateTime || bigQueryType == BigQueryDbType.Timestamp || bigQueryType == BigQueryDbType.Time) {
                 return UnixTimeStampToDateTime(value);
-            return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
+            }
+            return Convert.ChangeType(value, BigQueryTypeConverter.ToType(schema.Fields[ordinal].Type), CultureInfo.InvariantCulture);
         }
 
         void DisposeCheck() {

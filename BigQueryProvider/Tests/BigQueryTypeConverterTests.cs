@@ -85,6 +85,13 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Assert.Equal(systemType, BigQueryTypeConverter.ToType(stringType));
             Assert.Equal(bigQueryType, BigQueryTypeConverter.ToBigQueryDbType(stringType));
         }
+        
+        [Fact]
+        public void Test_154() {
+            Assert.Equal(typeof(DateTime), BigQueryTypeConverter.ToType("DATE"));
+            Assert.Equal(BigQueryDbType.Date, BigQueryTypeConverter.ToBigQueryDbType("DATE"));
+            Assert.Equal(DbType.Date, BigQueryTypeConverter.ToDbType(BigQueryDbType.Date));
+        }
     }
 }
 #endif

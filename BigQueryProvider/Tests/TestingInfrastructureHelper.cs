@@ -1,5 +1,5 @@
 /*
-   Copyright 2015 Developer Express Inc.
+   Copyright 2015-2017 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public const string NatalityViewName = "natalityview";
         public const string TimesTableName = "times";
 
-        BigQueryConnection connection;
+        readonly BigQueryConnection connection;
 
         [Fact(Skip = "Explicit")]
         public void CreateDBTables() {

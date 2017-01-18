@@ -572,11 +572,11 @@ namespace DevExpress.DataAccess.BigQuery {
             if(value == null)
                 return null;
 
-            var bigQueryType = BigQueryTypeConverter.ToBigQueryDbType(schema.Fields[ordinal].Type);
-
-            if(bigQueryType == BigQueryDbType.DateTime || bigQueryType == BigQueryDbType.Timestamp || bigQueryType == BigQueryDbType.Time) {
+            BigQueryDbType bigQueryType = BigQueryTypeConverter.ToBigQueryDbType(schema.Fields[ordinal].Type);
+            if(bigQueryType == BigQueryDbType.Timestamp) {
                 return UnixTimeStampToDateTime(value);
             }
+
             return Convert.ChangeType(value, BigQueryTypeConverter.ToType(schema.Fields[ordinal].Type), CultureInfo.InvariantCulture);
         }
 

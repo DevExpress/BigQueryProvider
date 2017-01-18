@@ -4,6 +4,9 @@
 # p12 google api keys
 *.p12
 
+#app.config
+App.config
+
 # User-specific files
 *.suo
 *.user

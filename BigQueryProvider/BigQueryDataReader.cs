@@ -1,5 +1,5 @@
 /*
-   Copyright 2015 Developer Express Inc.
+   Copyright 2015-2017 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -571,10 +571,13 @@ namespace DevExpress.DataAccess.BigQuery {
         object ChangeValueType(object value, int ordinal) {
             if(value == null)
                 return null;
-            Type conversionType = BigQueryTypeConverter.ToType(schema.Fields[ordinal].Type);
-            if(conversionType == typeof(DateTime))
+
+            BigQueryDbType bigQueryType = BigQueryTypeConverter.ToBigQueryDbType(schema.Fields[ordinal].Type);
+            if(bigQueryType == BigQueryDbType.Timestamp) {
                 return UnixTimeStampToDateTime(value);
-            return Convert.ChangeType(value, conversionType, CultureInfo.InvariantCulture);
+            }
+
+            return Convert.ChangeType(value, BigQueryTypeConverter.ToType(schema.Fields[ordinal].Type), CultureInfo.InvariantCulture);
         }
 
         void DisposeCheck() {

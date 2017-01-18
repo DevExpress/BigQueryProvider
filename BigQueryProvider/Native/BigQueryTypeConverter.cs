@@ -1,5 +1,5 @@
 /*
-   Copyright 2015 Developer Express Inc.
+   Copyright 2015-2017 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -24,6 +24,9 @@ namespace DevExpress.DataAccess.BigQuery.Native {
     public static class BigQueryTypeConverter {
         static readonly Tuple<DbType, BigQueryDbType>[] DbTypeToBigQueryDbTypePairs = {
             new Tuple<DbType, BigQueryDbType>(DbType.String, BigQueryDbType.String),
+            new Tuple<DbType, BigQueryDbType>(DbType.Date, BigQueryDbType.Date),
+            new Tuple<DbType, BigQueryDbType>(DbType.Time, BigQueryDbType.Time),
+            new Tuple<DbType, BigQueryDbType>(DbType.DateTime, BigQueryDbType.DateTime),
             new Tuple<DbType, BigQueryDbType>(DbType.Boolean, BigQueryDbType.Boolean),
             new Tuple<DbType, BigQueryDbType>(DbType.DateTime, BigQueryDbType.Timestamp),
             new Tuple<DbType, BigQueryDbType>(DbType.Single, BigQueryDbType.Float),
@@ -47,11 +50,27 @@ namespace DevExpress.DataAccess.BigQuery.Native {
  
         static readonly Tuple<string, Type>[] StringToTypePairs = {
             new Tuple<string, Type>("STRING", typeof(string)),
+            new Tuple<string, Type>("DATE", typeof(DateTime)),
+            new Tuple<string, Type>("TIME", typeof(DateTime)),
+            new Tuple<string, Type>("DATETIME", typeof(DateTime)),
             new Tuple<string, Type>("INTEGER", typeof(long)),
             new Tuple<string, Type>("FLOAT", typeof(float)),
             new Tuple<string, Type>("BOOLEAN", typeof(bool)),
             new Tuple<string, Type>("TIMESTAMP", typeof(DateTime)),
             new Tuple<string, Type>("RECORD", typeof(object))
+        };
+
+        static readonly Tuple<string, BigQueryDbType>[] StringToBigQueryDbTypePairs = {
+            new Tuple<string, BigQueryDbType>("STRING", BigQueryDbType.String),
+            new Tuple<string, BigQueryDbType>("DATE", BigQueryDbType.Date),
+            new Tuple<string, BigQueryDbType>("TIME", BigQueryDbType.Time),
+            new Tuple<string, BigQueryDbType>("DATETIME", BigQueryDbType.DateTime),
+            new Tuple<string, BigQueryDbType>("INTEGER", BigQueryDbType.Integer),
+            new Tuple<string, BigQueryDbType>("FLOAT", BigQueryDbType.Float),
+            new Tuple<string, BigQueryDbType>("BOOLEAN", BigQueryDbType.Boolean),
+            new Tuple<string, BigQueryDbType>("TIMESTAMP", BigQueryDbType.Timestamp),
+            new Tuple<string, BigQueryDbType>("RECORD", BigQueryDbType.Record),
+            new Tuple<string, BigQueryDbType>("BYTES", BigQueryDbType.Bytes)
         };
 
         public static BigQueryDbType ToBigQueryDbType(DbType dbType) {
@@ -63,7 +82,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public static BigQueryDbType ToBigQueryDbType(string stringType) {
-            return ToBigQueryDbType(ToType(stringType));
+            return (BigQueryDbType)(StringToBigQueryDbTypePairs.FindPairFor(stringType, GetSecond) ?? BigQueryDbType.Unknown);
         }
 
         public static DbType ToDbType(BigQueryDbType bqDbType) {

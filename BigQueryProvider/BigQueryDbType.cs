@@ -1,5 +1,5 @@
 /*
-   Copyright 2015 Developer Express Inc.
+   Copyright 2015-2017 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -24,6 +24,10 @@ namespace DevExpress.DataAccess.BigQuery {
         /// </summary>
         String,
         /// <summary>
+        /// 
+        /// </summary>
+        Bytes,
+        /// <summary>
         /// A 64-bit integer.
         /// </summary>
         Integer,
@@ -43,6 +47,18 @@ namespace DevExpress.DataAccess.BigQuery {
         /// A type used to store either a UNIX timestamp or  a date/time string. A value is stored internally as a UNIX timestamp.
         /// </summary>
         Timestamp,
+        /// <summary>
+        /// 
+        /// </summary>
+        Date,
+        /// <summary>
+        /// 
+        /// </summary>
+        Time,
+        /// <summary>
+        /// 
+        /// </summary>
+        DateTime,
         /// <summary>
         /// A type unsupported by BigQuery.
         /// </summary>

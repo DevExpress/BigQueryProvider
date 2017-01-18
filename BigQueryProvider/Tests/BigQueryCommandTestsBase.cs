@@ -1,5 +1,5 @@
 /*
-   Copyright 2015 Developer Express Inc.
+   Copyright 2015-2017 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -176,6 +176,32 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 dbCommand.CommandText = string.Format(commandTextWithFilter, filterByNull);
                 var reader = dbCommand.ExecuteReader(CommandBehavior.Default);
                 Assert.False(reader.HasRows, "Fix issue #119");
+            }
+        }
+
+        [Fact]
+        public void TimesTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText = TestingInfrastructureHelper.TimesTableName;
+                dbCommand.CommandType = CommandType.TableDirect;
+
+                using(var dbDataReader = dbCommand.ExecuteReader()) {
+                    object[] values = new object[dbDataReader.FieldCount];
+
+                    dbDataReader.Read();
+                    dbDataReader.GetValues(values);
+                    Assert.Equal(DateTime.Parse("23:59:59"), values[0]);
+                    Assert.Equal(DateTime.Parse("1970-01-24"), values[1]);
+                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
+                    Assert.Equal(DateTime.Parse("9999-12-31T23:59:59"), values[3]);
+
+                    dbDataReader.Read();
+                    dbDataReader.GetValues(values);
+                    Assert.Equal(DateTime.Parse("23:59:59.999999"), values[0]);
+                    Assert.Equal(DateTime.Parse("1980-01-01"), values[1]);
+                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
+                    Assert.Equal(DateTime.Parse("9999-12-31T23:59:59.999999"), values[3]);
+                }
             }
         }
 

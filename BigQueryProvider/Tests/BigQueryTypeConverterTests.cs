@@ -1,5 +1,5 @@
 /*
-   Copyright 2015 Developer Express Inc.
+   Copyright 2015-2017 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [InlineData(DbType.Boolean, BigQueryDbType.Boolean, DbType.Boolean)]
         [InlineData(DbType.Int64, BigQueryDbType.Integer, DbType.Int64)]
         [InlineData(DbType.Single, BigQueryDbType.Float, DbType.Single)]
-        [InlineData(DbType.DateTime, BigQueryDbType.Timestamp, DbType.DateTime)]
+        [InlineData(DbType.DateTime, BigQueryDbType.DateTime, DbType.DateTime)]
         [InlineData(DbType.Double, BigQueryDbType.Unknown, DbType.Object)]
         [InlineData(DbType.Object, BigQueryDbType.Unknown, DbType.Object)]
         public void DbTypeAndBigQueryDbTypeTest(DbType dbType1, BigQueryDbType bigQueryType, DbType dbType2) {
@@ -40,7 +40,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [InlineData(typeof(bool), BigQueryDbType.Boolean, typeof(bool))]
         [InlineData(typeof(long), BigQueryDbType.Integer, typeof(long))]
         [InlineData(typeof(float), BigQueryDbType.Float, typeof(float))]
-        [InlineData(typeof(DateTime), BigQueryDbType.Timestamp, typeof(DateTime))]
+        [InlineData(typeof(DateTime), BigQueryDbType.DateTime, typeof(DateTime))]
         [InlineData(typeof(double), BigQueryDbType.Unknown, typeof(object))]
         [InlineData(typeof(object), BigQueryDbType.Unknown, typeof(object))]
         public void TypeAndBigQueryDbTypeTest(Type type1, BigQueryDbType bigQueryType, Type type2) {
@@ -78,12 +78,23 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [InlineData("FLOAT", typeof(float), BigQueryDbType.Float)]
         [InlineData("BOOLEAN", typeof(bool), BigQueryDbType.Boolean)]
         [InlineData("TIMESTAMP", typeof(DateTime), BigQueryDbType.Timestamp)]
-        [InlineData("RECORD", typeof(object), BigQueryDbType.Unknown)]
+        [InlineData("RECORD", typeof(object), BigQueryDbType.Record)]
         [InlineData("Foo", null, BigQueryDbType.Unknown)]
         [InlineData("123", null, BigQueryDbType.Unknown)]
         public void StringConvertTest(string stringType, Type systemType, BigQueryDbType bigQueryType) {
             Assert.Equal(systemType, BigQueryTypeConverter.ToType(stringType));
             Assert.Equal(bigQueryType, BigQueryTypeConverter.ToBigQueryDbType(stringType));
+        }
+
+        [Theory]
+        [InlineData("DATE", typeof(DateTime), BigQueryDbType.Date, DbType.Date)]
+        [InlineData("TIME", typeof(DateTime), BigQueryDbType.Time, DbType.Time)]
+        [InlineData("DATETIME", typeof(DateTime), BigQueryDbType.DateTime, DbType.DateTime)]
+        [InlineData("TIMESTAMP", typeof(DateTime), BigQueryDbType.Timestamp, DbType.DateTime)]
+        public void TimesTest(string bigQueryTypeName, Type systemType, BigQueryDbType bigQueryDbType, DbType dbType) {
+            Assert.Equal(systemType, BigQueryTypeConverter.ToType(bigQueryTypeName));
+            Assert.Equal(bigQueryDbType, BigQueryTypeConverter.ToBigQueryDbType(bigQueryTypeName));
+            Assert.Equal(dbType, BigQueryTypeConverter.ToDbType(bigQueryDbType));
         }
     }
 }

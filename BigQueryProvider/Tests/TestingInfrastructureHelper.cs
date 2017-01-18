@@ -1,5 +1,5 @@
 /*
-   Copyright 2015 Developer Express Inc.
+   Copyright 2015-2017 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -35,14 +35,62 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public const string NatalityTableName = "natality";
         public const string Natality2TableName = "natality2";
         public const string NatalityViewName = "natalityview";
+        public const string TimesTableName = "times";
 
-        BigQueryConnection connection;
+        readonly BigQueryConnection connection;
 
         [Fact(Skip = "Explicit")]
         public void CreateDBTables() {
             CreateNatalityTable();
             CreateNatality2Table();
             CreateNatalityView();
+            CreateTimesTable();
+        }
+
+        [Fact(Skip = "Explicit")]
+        public void CreateTimesTable() {
+            CreateDatasetIfRequired();
+
+            var table = new Table {
+                Schema = CreateTimesTableSchema(),
+                TableReference = new TableReference {
+                    DatasetId = connection.DataSetId,
+                    ProjectId = connection.ProjectId,
+                    TableId = TimesTableName
+                }
+            };
+
+            InsertTable(table);
+
+            UploadData(table);
+        }
+
+        TableSchema CreateTimesTableSchema() {
+            var time = new TableFieldSchema {
+                Name = "time",
+                Type = "TIME",
+                Mode = "NULLABLE"
+            };
+
+            var date = new TableFieldSchema {
+                Name = "date",
+                Type = "DATE",
+                Mode = "NULLABLE"
+            };
+
+            var timestamp = new TableFieldSchema {
+                Name = "timestamp",
+                Type = "TIMESTAMP",
+                Mode = "NULLABLE"
+            };
+
+            var datetime = new TableFieldSchema {
+                Name = "datetime",
+                Type = "DATETIME",
+                Mode = "NULLABLE"
+            };
+
+            return new TableSchema { Fields = new List<TableFieldSchema> { time, date, timestamp, datetime  } };
         }
 
         void CreateDatasetIfRequired() {

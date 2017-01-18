@@ -1,5 +1,5 @@
 /*
-   Copyright 2015 Developer Express Inc.
+   Copyright 2015-2017 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -91,9 +91,10 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
                 string[] tableNames = connection.GetTableNames();
-                Assert.Equal(2, tableNames.Length);
+                Assert.Equal(3, tableNames.Length);
                 Assert.Equal(TestingInfrastructureHelper.NatalityTableName, tableNames[0]);
                 Assert.Equal(TestingInfrastructureHelper.Natality2TableName, tableNames[1]);
+                Assert.Equal(TestingInfrastructureHelper.TimesTableName, tableNames[2]);
             }
         }
 

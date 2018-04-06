@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -149,7 +149,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         /// <summary>
-        /// Specifies the name of the source column used for loading and returning the parameter’s Value. 
+        /// Specifies the name of the source column used for loading and returning the parameter's Value. 
         /// </summary>
         /// <value>
         /// The name of a source column.
@@ -160,7 +160,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         /// <summary>
-        ///  Specifies the DataRowVersion of the source row to be used when obtaining the parameter’s value.
+        ///  Specifies the DataRowVersion of the source row to be used when obtaining the parameter's value.
         /// </summary>
         /// <value>
         /// A DataRowVersion enumeration value.

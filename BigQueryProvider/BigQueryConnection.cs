@@ -17,6 +17,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
@@ -36,8 +37,10 @@ namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryConnection : DbConnection, ICloneable {
         const string applicationName = "DevExpress.DataAccess.BigQuery ADO.NET Provider";
 
-        ConnectionState state;
         readonly DbConnectionStringBuilder connectionStringBuilder = new DbConnectionStringBuilder();
+        readonly string[] scopes = { BigqueryService.Scope.Bigquery };
+        
+        ConnectionState state;
         bool disposed;
 
         /// <summary>
@@ -341,7 +344,7 @@ namespace DevExpress.DataAccess.BigQuery {
                 };
 
                 credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(clientSecrets,
-                    new[] { BigqueryService.Scope.Bigquery },
+                    scopes,
                     "user",
                     cancellationToken,
                     dataStore).ConfigureAwait(false);
@@ -349,10 +352,19 @@ namespace DevExpress.DataAccess.BigQuery {
                 OAuthRefreshToken = dataStore.RefreshToken;
                 OAuthAccessToken = dataStore.AccessToken;
             } else {
-                X509Certificate2 certificate = new X509Certificate2(PrivateKeyFileName, "notasecret", X509KeyStorageFlags.Exportable);
-                credential = new ServiceAccountCredential(new ServiceAccountCredential.Initializer(ServiceAccountEmail) {
-                    Scopes = new[] { BigqueryService.Scope.Bigquery }
-                }.FromCertificate(certificate));
+                switch(Path.GetExtension(PrivateKeyFileName).ToLower()) {
+                    case ".p12":
+                        X509Certificate2 certificate = new X509Certificate2(PrivateKeyFileName, "notasecret", X509KeyStorageFlags.Exportable);
+                        credential = new ServiceAccountCredential(new ServiceAccountCredential.Initializer(ServiceAccountEmail) {
+                            Scopes = scopes
+                        }.FromCertificate(certificate));
+                        break;
+                    case ".json":
+                        credential = GoogleCredential.FromFile(PrivateKeyFileName).CreateScoped(scopes);
+                        break;
+                    default:
+                        throw new BigQueryException($"Supplied key file '{PrivateKeyFileName}' is not supported.");
+                }
             }
 
             return new BigqueryService(new BaseClientService.Initializer {

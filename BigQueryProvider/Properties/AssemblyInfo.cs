@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -22,11 +22,11 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("DevExpress.DataAccess.BigQuery")]
-[assembly: AssemblyCopyright("Copyright ©  2015-2017")]
+[assembly: AssemblyCopyright("Copyright ©  2015-2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]
+[assembly: AssemblyVersion("1.3.0.0")]
+[assembly: AssemblyFileVersion("1.3.0.0")]

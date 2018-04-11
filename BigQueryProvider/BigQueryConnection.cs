@@ -282,6 +282,17 @@ namespace DevExpress.DataAccess.BigQuery {
                 ConnectionString = connectionStringBuilder.ConnectionString;
             }
         }
+        
+        internal bool IsLegacySql {
+            get {
+                if(connectionStringBuilder.ContainsKey("LegacySql")) {
+                    bool.TryParse((string)connectionStringBuilder["LegacySql"], out bool result);
+                    return result;
+                }
+
+                return false;
+            }
+        }
 
         string OAuthClientId {
             get {
@@ -369,7 +380,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
             return new BigqueryService(new BaseClientService.Initializer {
                 HttpClientInitializer = credential,
-                ApplicationName = applicationName
+                ApplicationName = applicationName,
             });
         }
 

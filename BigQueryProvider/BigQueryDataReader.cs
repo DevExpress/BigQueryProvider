@@ -33,11 +33,6 @@ namespace DevExpress.DataAccess.BigQuery {
     /// </summary>
     public class BigQueryDataReader : DbDataReader {
         #region static
-        static string PrepareCommandText(BigQueryCommand command) {
-            return command.CommandType == CommandType.TableDirect 
-                ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) 
-                : command.CommandText;
-        }
 
         static string PrepareParameterValue(BigQueryParameter parameter) {
             if(parameter.BigQueryDbType == BigQueryDbType.String) {
@@ -544,7 +539,7 @@ namespace DevExpress.DataAccess.BigQuery {
             foreach(BigQueryParameter parameter in collection) {
                 bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter));
             }
-            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue };
+            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue, UseLegacySql = bigQueryCommand.Connection.IsLegacySql };
             JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
             return request;
         }
@@ -578,6 +573,20 @@ namespace DevExpress.DataAccess.BigQuery {
             }
 
             return Convert.ChangeType(value, BigQueryTypeConverter.ToType(schema.Fields[ordinal].Type), CultureInfo.InvariantCulture);
+        }
+        
+        string PrepareCommandText(BigQueryCommand command) {
+            return command.CommandType == CommandType.TableDirect 
+                       ? $"SELECT * FROM {GetLead()}{command.Connection.DataSetId}.{command.CommandText}{GetEnd()}" 
+                       : command.CommandText;
+        }
+
+        string GetLead() {
+            return bigQueryCommand.Connection.IsLegacySql ? "[" : "`";
+        }
+        
+        string GetEnd() {
+            return bigQueryCommand.Connection.IsLegacySql ? "]" : "`";
         }
 
         void DisposeCheck() {

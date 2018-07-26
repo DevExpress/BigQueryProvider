@@ -31,7 +31,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         const string dataSetName = "testdata";
         const string filterByString = "state = @state";
-        const string filterByBool = "mother_married = @mother_married";
+        const string filterByBool = "mother_married = @mothermarried";
         const string filterByNull = "mother_married = null";
         const string injectedViaSingleQuotesValue = "CA' or 1=1--";
         const string injectedViaDoubleQuotesValue = @"CA"" or 1=1--";
@@ -158,11 +158,11 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Theory]
         [InlineData(filterByString, "state", normalValue, true)]
-        [InlineData(filterByString, "@state", normalValue, true)]
+        [InlineData(filterByString, "state", normalValue, true)]
         [InlineData(filterByString, "state", injectedViaSingleQuotesValue, false)]
         [InlineData(filterByString, "state", injectedViaDoubleQuotesValue, false)]
         [InlineData(filterByString, "state", injectedViaBackSlashesValue, false)]
-        [InlineData(filterByBool, "mother_married", trueValue, true)]
+        [InlineData(filterByBool, "mothermarried", trueValue, true)]
         public void RunCommandWithParameterTest(string filterString, string parameterName, object parameterValue, bool exceptedReadResult) {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();

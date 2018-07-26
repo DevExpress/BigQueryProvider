@@ -285,10 +285,8 @@ namespace DevExpress.DataAccess.BigQuery {
         
         internal bool IsLegacySql {
             get {
-                if(connectionStringBuilder.ContainsKey("LegacySql")) {
-                    bool.TryParse((string)connectionStringBuilder["LegacySql"], out bool result);
-                    return result;
-                }
+                if(connectionStringBuilder.ContainsKey("LegacySql") &&
+                   bool.TryParse((string)connectionStringBuilder["LegacySql"], out bool result)) return result;
 
                 return false;
             }

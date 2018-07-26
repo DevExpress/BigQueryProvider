@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DevExpress.DataAccess.BigQuery.Native;
@@ -536,12 +537,30 @@ namespace DevExpress.DataAccess.BigQuery {
 
         JobsResource.QueryRequest CreateRequest() {
             BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
-            foreach(BigQueryParameter parameter in collection) {
-                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter));
+            if(IsLegacySql) {
+                foreach(BigQueryParameter parameter in collection) {
+                    bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter));
+                }    
             }
-            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue, UseLegacySql = bigQueryCommand.Connection.IsLegacySql };
+
+            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue, UseLegacySql = IsLegacySql };
+            if(!IsLegacySql) {
+                queryRequest.QueryParameters = new List<QueryParameter>();
+                foreach(BigQueryParameter parameter in collection) {
+                    var queryParameter = new QueryParameter();
+                    queryParameter.Name = parameter.ParameterName;
+                    queryParameter.ParameterType = new QueryParameterType {Type = BigQueryTypeConverter.ToParameterStringType(parameter.BigQueryDbType)};
+                    queryParameter.ParameterValue = new QueryParameterValue() { Value = parameter.Value?.ToString() };
+                    queryRequest.QueryParameters.Add(queryParameter);
+                }
+            }
+            
             JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
             return request;
+        }
+
+        bool IsLegacySql {
+            get { return bigQueryCommand.Connection.IsLegacySql; }
         }
 
         void ProcessQueryResponse(QueryResponse queryResponse) {
@@ -582,11 +601,11 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         string GetLead() {
-            return bigQueryCommand.Connection.IsLegacySql ? "[" : "`";
+            return IsLegacySql ? "[" : "`";
         }
         
         string GetEnd() {
-            return bigQueryCommand.Connection.IsLegacySql ? "]" : "`";
+            return IsLegacySql ? "]" : "`";
         }
 
         void DisposeCheck() {

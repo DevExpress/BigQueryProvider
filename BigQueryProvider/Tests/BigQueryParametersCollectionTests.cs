@@ -93,8 +93,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             var paramCollection = new BigQueryParameterCollection();
             Assert.Equal(0, paramCollection.Count);
             Assert.Empty(paramCollection);
-            Assert.Equal(false, paramCollection.IsFixedSize);
-            Assert.Equal(false, paramCollection.IsReadOnly);
+            Assert.False(paramCollection.IsFixedSize);
+            Assert.False(paramCollection.IsReadOnly);
         }
 
         [Fact]

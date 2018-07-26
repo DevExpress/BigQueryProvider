@@ -25,12 +25,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void OpenConnectionTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 Assert.NotNull(connection.ConnectionString);
-                Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, ignoreCase: true);
                 Assert.Equal(ConnectionState.Closed, connection.State);
                 Assert.Null(connection.Service);
                 connection.Open();
                 Assert.NotNull(connection.ConnectionString);
-                Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, ignoreCase: true);
                 Assert.Equal(ConnectionState.Open, connection.State);
                 Assert.NotNull(connection.Service);
             }
@@ -40,12 +40,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public async void OpenConnectionTest_Async() {
             using (BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 Assert.NotNull(connection.ConnectionString);
-                Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, ignoreCase: true);
                 Assert.Equal(ConnectionState.Closed, connection.State);
                 Assert.Null(connection.Service);
                 await connection.OpenAsync();
                 Assert.NotNull(connection.ConnectionString);
-                Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, ignoreCase: true);
                 Assert.Equal(ConnectionState.Open, connection.State);
                 Assert.NotNull(connection.Service);
             }
@@ -55,12 +55,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         public void OpenCloseConnectionTest() {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 Assert.NotNull(connection.ConnectionString);
-                Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, ignoreCase: true);
                 Assert.Equal(ConnectionState.Closed, connection.State);
                 Assert.Null(connection.Service);
                 connection.Open();
                 Assert.NotNull(connection.ConnectionString);
-                Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, ignoreCase: true);
                 Assert.Equal(ConnectionState.Open, connection.State);
                 Assert.NotNull(connection.Service);
                 connection.Close();
@@ -73,12 +73,12 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             BigQueryConnection connection;
             using(connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 Assert.NotNull(connection.ConnectionString);
-                Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, ignoreCase: true);
                 Assert.Equal(ConnectionState.Closed, connection.State);
                 Assert.Null(connection.Service);
                 connection.Open();
                 Assert.NotNull(connection.ConnectionString);
-                Assert.True(string.Equals(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, StringComparison.OrdinalIgnoreCase));
+                Assert.Equal(ConnectionStringHelper.OAuthConnectionString, connection.ConnectionString, ignoreCase: true);
                 Assert.Equal(ConnectionState.Open, connection.State);
                 Assert.NotNull(connection.Service);
                 connection.Dispose();
@@ -103,7 +103,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
                 string[] tableNames = connection.GetViewNames();
-                Assert.Equal(1, tableNames.Length);
+                Assert.Single(tableNames);
                 Assert.Equal(TestingInfrastructureHelper.NatalityViewName, tableNames[0]);
             }
         }
@@ -113,7 +113,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             using(BigQueryConnection connection = new BigQueryConnection(ConnectionStringHelper.OAuthConnectionString)) {
                 connection.Open();
                 string[] dataSetNames = connection.GetDataSetNames();
-                Assert.Equal(1, dataSetNames.Length);
+                Assert.Single(dataSetNames);
                 Assert.Equal("testdata", dataSetNames[0]);
             }
         }
@@ -129,7 +129,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 Assert.Equal("", dbCommand.CommandText);
                 Assert.Null(dbCommand.Transaction);
                 Assert.NotNull(dbCommand.Parameters);
-                Assert.Equal(0, dbCommand.Parameters.Count);
+                Assert.Empty(dbCommand.Parameters);
                 Assert.Equal((CommandType)0, dbCommand.CommandType);
             }
         }
@@ -142,7 +142,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 connection.ChangeDatabase(newDatabase);
                 Assert.NotNull(connection.Service);
                 Assert.Equal(connection.DataSetId, newDatabase);
-                Assert.Equal(connection.State, ConnectionState.Open);
+                Assert.Equal(ConnectionState.Open, connection.State);
             }
         }
 
@@ -153,7 +153,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 connection.ChangeDatabase(newDatabase);
                 Assert.NotNull(connection.Service);
                 Assert.Equal(connection.DataSetId, newDatabase);
-                Assert.Equal(connection.State, ConnectionState.Open);
+                Assert.Equal(ConnectionState.Open, connection.State);
             }
         }
 

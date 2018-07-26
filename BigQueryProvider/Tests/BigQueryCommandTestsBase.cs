@@ -158,7 +158,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Theory]
         [InlineData(filterByString, "state", normalValue, true)]
-        [InlineData(filterByString, "state", normalValue, true)]
         [InlineData(filterByString, "state", injectedViaSingleQuotesValue, false)]
         [InlineData(filterByString, "state", injectedViaDoubleQuotesValue, false)]
         [InlineData(filterByString, "state", injectedViaBackSlashesValue, false)]

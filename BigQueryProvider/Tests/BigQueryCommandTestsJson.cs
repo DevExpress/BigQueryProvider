@@ -16,7 +16,13 @@
 
 #if DEBUGTEST
 namespace DevExpress.DataAccess.BigQuery.Tests {
-    public class BigQueryCommandTestsJson : BigQueryCommandTestsBase {
+    public class LegacySqlBigQueryCommandTestsJson : LegacySqlBigQueryCommandTests {
+        protected override string GetConnectionString() {
+            return ConnectionStringHelper.JsonConnectionString;
+        }
+    }
+    
+    public class StandardSqlBigQueryCommandTestsJson : StandardSqlBigQueryCommandTests {
         protected override string GetConnectionString() {
             return ConnectionStringHelper.JsonConnectionString;
         }

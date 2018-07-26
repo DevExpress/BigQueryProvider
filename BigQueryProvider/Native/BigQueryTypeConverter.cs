@@ -74,7 +74,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         };
 
         public static BigQueryDbType ToBigQueryDbType(DbType dbType) {
-            return (BigQueryDbType) (DbTypeToBigQueryDbTypePairs.FindPairFor(dbType, GetSecond) ?? BigQueryDbType.Unknown);
+            return DbTypeToBigQueryDbTypePairs.FindRightPairFor(dbType);
         }
 
         public static BigQueryDbType ToBigQueryDbType(Type type) {
@@ -82,15 +82,15 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public static BigQueryDbType ToBigQueryDbType(string stringType) {
-            return (BigQueryDbType)(StringToBigQueryDbTypePairs.FindPairFor(stringType, GetSecond) ?? BigQueryDbType.Unknown);
+            return StringToBigQueryDbTypePairs.FindRightPairFor(stringType);
         }
 
         public static DbType ToDbType(BigQueryDbType bqDbType) {
-            return (DbType) (DbTypeToBigQueryDbTypePairs.FindPairFor(bqDbType, GetFirst) ?? DbType.Object);
+            return DbTypeToBigQueryDbTypePairs.FindLeftPairFor(bqDbType);
         }
 
         public static DbType ToDbType(Type type) {
-            return (DbType) (TypeToDbTypePairs.FindPairFor(type, GetSecond) ?? DbType.Object);
+            return TypeToDbTypePairs.FindRightPairFor(type);
         }
 
         public static Type ToType(BigQueryDbType bqDbType) {
@@ -98,31 +98,59 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         }
 
         public static Type ToType(string stringType) {
-            return (Type) (StringToTypePairs.FindPairFor(stringType, GetSecond));
+            return StringToTypePairs.FindRightPairFor(stringType);
         }
 
         public static Type ToType(DbType dbType) {
-            return (Type) (TypeToDbTypePairs.FindPairFor(dbType, GetFirst));
+            return TypeToDbTypePairs.FindLeftPairFor(dbType);
+        }
+        
+        public static string ToStringType(BigQueryDbType dbType) {
+            return StringToBigQueryDbTypePairs.FindLeftPairFor(dbType);
+        }
+
+        public static string ToParameterStringType(BigQueryDbType dbType) {
+            var type = ToStringType(dbType);
+            if(type == "BOOLEAN") {
+                return "BOOL";
+            }
+
+            return type;
         }
 
         public static object GetDefaultValueFor(DbType dbType) {
             if(dbType == DbType.DateTime)
                 return SqlDateTime.MinValue;
             var type = ToType(dbType);
+            return GetDefaultValue(type);
+        }
+
+        static object GetDefaultValueFor(Type type) {
+            if(type == typeof(DbType)) {
+                return DbType.Object;
+            }
+            if(type == typeof(BigQueryDbType)) {
+                return BigQueryDbType.Unknown;
+            }
+
+            return GetDefaultValue(type);
+        }
+
+        static object GetDefaultValue(Type type) {
             return type == null ? null : (type.IsValueType ? Activator.CreateInstance(type) : null);
         }
 
-        static object FindPairFor<T1, T2>(this IEnumerable<Tuple<T1, T2>> tuples, object knownItem, Func<Tuple<T1, T2>, object> selector) {
-            var tuple = tuples.FirstOrDefault(t => t.Item1.Equals(knownItem) || t.Item2.Equals(knownItem));
-            return tuple == null ? null : selector(tuple);
+        static TResult FindPairFor<T1, T2, TResult>(this IEnumerable<Tuple<T1, T2>> tuples, Predicate<Tuple<T1, T2>> predicate, Func<Tuple<T1, T2>, TResult> selector) {
+            var tuple = tuples.FirstOrDefault(t => predicate(t));
+            return tuple == null ? (TResult)GetDefaultValueFor(typeof(TResult)) : selector(tuple);
         }
-
-        static object GetFirst<T1, T2>(Tuple<T1, T2> tuple) {
-            return tuple.Item1;
+        
+        static T1 FindLeftPairFor<T1, T2>(this IEnumerable<Tuple<T1, T2>> tuples, object knownItem) {
+            return tuples.FindPairFor(tuple => tuple.Item2.Equals(knownItem), tuple => tuple.Item1);
         }
-
-        static object GetSecond<T1, T2>(Tuple<T1, T2> tuple) {
-            return tuple.Item2;
+        
+        static T2 FindRightPairFor<T1, T2>(this IEnumerable<Tuple<T1, T2>> tuples, object knownItem) {
+            return tuples.FindPairFor(tuple => tuple.Item1.Equals(knownItem), tuple => tuple.Item2);
         }
     }
 }

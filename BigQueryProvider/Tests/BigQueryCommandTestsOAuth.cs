@@ -16,7 +16,13 @@
 
 #if DEBUGTEST
 namespace DevExpress.DataAccess.BigQuery.Tests {
-    public class BigQueryCommandTestsOAuth : BigQueryCommandTestsBase {
+    public class LegacySqlBigQueryCommandTestsOAuth : LegacySqlBigQueryCommandTests {
+        protected override string GetConnectionString() {
+            return ConnectionStringHelper.OAuthConnectionString;
+        }
+    }
+    
+    public class StandardSqlBigQueryCommandTestsOAuth : StandardSqlBigQueryCommandTests {
         protected override string GetConnectionString() {
             return ConnectionStringHelper.OAuthConnectionString;
         }

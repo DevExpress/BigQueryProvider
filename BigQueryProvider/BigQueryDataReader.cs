@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DevExpress.DataAccess.BigQuery.Native;
@@ -33,11 +34,6 @@ namespace DevExpress.DataAccess.BigQuery {
     /// </summary>
     public class BigQueryDataReader : DbDataReader {
         #region static
-        static string PrepareCommandText(BigQueryCommand command) {
-            return command.CommandType == CommandType.TableDirect 
-                ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) 
-                : command.CommandText;
-        }
 
         static string PrepareParameterValue(BigQueryParameter parameter) {
             if(parameter.BigQueryDbType == BigQueryDbType.String) {
@@ -541,12 +537,30 @@ namespace DevExpress.DataAccess.BigQuery {
 
         JobsResource.QueryRequest CreateRequest() {
             BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
-            foreach(BigQueryParameter parameter in collection) {
-                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter));
+            if(IsLegacySql) {
+                foreach(BigQueryParameter parameter in collection) {
+                    bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter));
+                }    
             }
-            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue };
+
+            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue, UseLegacySql = IsLegacySql };
+            if(!IsLegacySql) {
+                queryRequest.QueryParameters = new List<QueryParameter>();
+                foreach(BigQueryParameter parameter in collection) {
+                    var queryParameter = new QueryParameter();
+                    queryParameter.Name = parameter.ParameterName;
+                    queryParameter.ParameterType = new QueryParameterType {Type = BigQueryTypeConverter.ToParameterStringType(parameter.BigQueryDbType)};
+                    queryParameter.ParameterValue = new QueryParameterValue() { Value = parameter.Value?.ToString() };
+                    queryRequest.QueryParameters.Add(queryParameter);
+                }
+            }
+            
             JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
             return request;
+        }
+
+        bool IsLegacySql {
+            get { return bigQueryCommand.Connection.IsLegacySql; }
         }
 
         void ProcessQueryResponse(QueryResponse queryResponse) {
@@ -578,6 +592,20 @@ namespace DevExpress.DataAccess.BigQuery {
             }
 
             return Convert.ChangeType(value, BigQueryTypeConverter.ToType(schema.Fields[ordinal].Type), CultureInfo.InvariantCulture);
+        }
+        
+        string PrepareCommandText(BigQueryCommand command) {
+            return command.CommandType == CommandType.TableDirect 
+                       ? $"SELECT * FROM {GetLead()}{command.Connection.DataSetId}.{command.CommandText}{GetEnd()}" 
+                       : command.CommandText;
+        }
+
+        string GetLead() {
+            return IsLegacySql ? "[" : "`";
+        }
+        
+        string GetEnd() {
+            return IsLegacySql ? "]" : "`";
         }
 
         void DisposeCheck() {

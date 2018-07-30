@@ -174,8 +174,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             using (
                 Stream stream =
                     Assembly.GetExecutingAssembly()
-                        .GetManifestResourceStream(string.Format("DevExpress.DataAccess.BigQuery.Tests.{0}.csv",
-                            table.TableReference.TableId))) {
+                        .GetManifestResourceStream(
+                            $"DevExpress.DataAccess.BigQuery.Tests.{table.TableReference.TableId}.csv")) {
                 var insertMediaUpload = new JobsResource.InsertMediaUpload(connection.Service,
                     job, job.JobReference.ProjectId, stream, "application/octet-stream");
                 insertMediaUpload.Upload();

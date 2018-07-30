@@ -59,7 +59,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 return true;
             if(x == null || y == null)
                 return false;
-            if(x.ItemArray.Count() != y.ItemArray.Count())
+            if(x.ItemArray.Length != y.ItemArray.Length)
                 return false;
             IEnumerator xEnumerator = x.ItemArray.GetEnumerator();
             IEnumerator yEnumerator = y.ItemArray.GetEnumerator();

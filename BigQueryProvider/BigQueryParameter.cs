@@ -116,10 +116,10 @@ namespace DevExpress.DataAccess.BigQuery {
         ///  A ParameterDirrection enumeration value. 
         /// </value>
         public override ParameterDirection Direction {
-            get { return direction; }
+            get => direction;
             set {
                 if (value != ParameterDirection.Input)
-                    throw new ArgumentOutOfRangeException("value", value, "Only input parameters are supported.");
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "Only input parameters are supported.");
             }
         }
 
@@ -130,10 +130,10 @@ namespace DevExpress.DataAccess.BigQuery {
         /// true, if the parameter can receive DBNull as its value; otherwise false. 
         /// </value>
         public override bool IsNullable {
-            get { return false; }
+            get => false;
             set {
                 if(value)
-                    throw new ArgumentOutOfRangeException("value", value, "Nullable parameters are not supported");
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "Nullable parameters are not supported");
             }
         }
 
@@ -155,8 +155,8 @@ namespace DevExpress.DataAccess.BigQuery {
         /// The name of a source column.
         /// </value>
         public override string SourceColumn {
-            get { throw new NotSupportedException(); }
-            set { throw new NotSupportedException(); }
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
         }
 
         /// <summary>
@@ -166,8 +166,8 @@ namespace DevExpress.DataAccess.BigQuery {
         /// A DataRowVersion enumeration value.
         /// </value>
         public override DataRowVersion SourceVersion {
-            get { throw new NotSupportedException(); }
-            set { throw new NotSupportedException(); }
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
         }
 
         /// <summary>
@@ -177,8 +177,8 @@ namespace DevExpress.DataAccess.BigQuery {
         /// true, if the source column is nullable; otherwise false. 
         /// </value>
         public override bool SourceColumnNullMapping {
-            get { throw new NotSupportedException(); }
-            set { throw new NotSupportedException(); }
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
         }
 
         /// <summary>
@@ -188,10 +188,8 @@ namespace DevExpress.DataAccess.BigQuery {
         /// an Object specifying the value of the parameter.
         /// </value>
         public override object Value {
-            get {
-                return value ?? (value = BigQueryTypeConverter.GetDefaultValueFor(DbType));
-            }
-            set { this.value = value; }
+            get => value ?? (value = BigQueryTypeConverter.GetDefaultValueFor(DbType));
+            set => this.value = value;
         }
 
         /// <summary>
@@ -210,7 +208,7 @@ namespace DevExpress.DataAccess.BigQuery {
             }
             set {
                 if (value < 0)
-                    throw new ArgumentOutOfRangeException("value", value, "The value can not be less than 0");
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "The value can not be less than 0");
                 size = value;
             }
         }

@@ -47,7 +47,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Collection = paramCollection;
         }
 
-        public BigQueryParameterCollection Collection { get; set; }
+        public BigQueryParameterCollection Collection { get; }
 
         [Fact]
         public void RemoveTest() {

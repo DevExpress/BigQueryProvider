@@ -93,7 +93,8 @@ namespace DevExpress.DataAccess.BigQuery {
                 task.Wait();
             }
             catch(AggregateException e) {
-                throw e.Flatten().InnerException;
+                var innerException = e.Flatten().InnerException;
+                if(innerException != null) throw innerException;
             }
         }
 
@@ -159,8 +160,8 @@ namespace DevExpress.DataAccess.BigQuery {
         /// a System.String value specifying a connection string.
         /// </value>
         public override string ConnectionString {
-            get { return connectionStringBuilder.ConnectionString; }
-            set { connectionStringBuilder.ConnectionString = value; }
+            get => connectionStringBuilder.ConnectionString;
+            set => connectionStringBuilder.ConnectionString = value;
         }
 
         /// <summary>
@@ -205,9 +206,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// A string containing the version of database server. 
         /// </value>
-        public override string ServerVersion {
-            get { throw new NotSupportedException(); }
-        }
+        public override string ServerVersion => throw new NotSupportedException();
 
         /// <summary>
         /// Gets the state of the current data connection.
@@ -215,9 +214,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// A ConnectionState enumeration value.
         /// </value>
-        public override ConnectionState State {
-            get { return state; }
-        }
+        public override ConnectionState State => state;
 
         protected override DbCommand CreateDbCommand() {
             return CreateCommand();
@@ -232,9 +229,7 @@ namespace DevExpress.DataAccess.BigQuery {
             if(disposed)
                 return;
             if(disposing) {
-                if(Service != null) {
-                    Service.Dispose();
-                }
+                Service?.Dispose();
             }
             Close();
             disposed = true;
@@ -243,16 +238,10 @@ namespace DevExpress.DataAccess.BigQuery {
 
         internal BigqueryService Service { get; private set; }
 
-        internal string ProjectId {
-            get {
-                return (string)connectionStringBuilder["ProjectId"];
-            }
-        }
+        internal string ProjectId => (string)connectionStringBuilder["ProjectId"];
 
         internal string DataSetId {
-            get {
-                return (string)connectionStringBuilder["DataSetId"];
-            }
+            get => (string)connectionStringBuilder["DataSetId"];
 
             set {
                 if((string)connectionStringBuilder["DataSetId"] == value)
@@ -263,9 +252,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         string OAuthRefreshToken {
-            get {
-                return connectionStringBuilder.ContainsKey("OAuthRefreshToken") ? (string)connectionStringBuilder["OAuthRefreshToken"] : null;
-            }
+            get => connectionStringBuilder.ContainsKey("OAuthRefreshToken") ? (string)connectionStringBuilder["OAuthRefreshToken"] : null;
             set {
                 connectionStringBuilder["OAuthRefreshToken"] = value;
                 ConnectionString = connectionStringBuilder.ConnectionString;
@@ -274,9 +261,7 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         string OAuthAccessToken {
-            get {
-                return connectionStringBuilder.ContainsKey("OAuthAccessToken") ? (string)connectionStringBuilder["OAuthAccessToken"] : null;
-            }
+            get => connectionStringBuilder.ContainsKey("OAuthAccessToken") ? (string)connectionStringBuilder["OAuthAccessToken"] : null;
             set {
                 connectionStringBuilder["OAuthAccessToken"] = value;
                 ConnectionString = connectionStringBuilder.ConnectionString;
@@ -288,37 +273,19 @@ namespace DevExpress.DataAccess.BigQuery {
                 if(connectionStringBuilder.ContainsKey("LegacySql") &&
                    bool.TryParse((string)connectionStringBuilder["LegacySql"], out bool result)) return result;
 
-                return false;
+                return true;
             }
         }
 
-        string OAuthClientId {
-            get {
-                return (string)connectionStringBuilder["OAuthClientId"];
-            }
-        }
+        string OAuthClientId => (string)connectionStringBuilder["OAuthClientId"];
 
-        string OAuthClientSecret {
-            get {
-                return (string)connectionStringBuilder["OAuthClientSecret"];
-            }
-        }
+        string OAuthClientSecret => (string)connectionStringBuilder["OAuthClientSecret"];
 
-        string ServiceAccountEmail {
-            get {
-                return connectionStringBuilder.ContainsKey("ServiceAccountEmail") ? (string)connectionStringBuilder["ServiceAccountEmail"] : string.Empty;
-            }
-        }
+        string ServiceAccountEmail => connectionStringBuilder.ContainsKey("ServiceAccountEmail") ? (string)connectionStringBuilder["ServiceAccountEmail"] : string.Empty;
 
-        string PrivateKeyFileName {
-            get {
-                return connectionStringBuilder.ContainsKey("PrivateKeyFileName") ? (string)connectionStringBuilder["PrivateKeyFileName"] : String.Empty;
-            }
-        }
+        string PrivateKeyFileName => connectionStringBuilder.ContainsKey("PrivateKeyFileName") ? (string)connectionStringBuilder["PrivateKeyFileName"] : String.Empty;
 
-        bool IsOpened {
-            get { return state == ConnectionState.Open; }
-        }
+        bool IsOpened => state == ConnectionState.Open;
 
         void CheckOpen() {
             if(!IsOpened)

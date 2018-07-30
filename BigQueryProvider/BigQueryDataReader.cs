@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DevExpress.DataAccess.BigQuery.Native;
@@ -40,8 +39,13 @@ namespace DevExpress.DataAccess.BigQuery {
                 var invariantString = parameter.Value.ToInvariantString();
                 var trimmedString = invariantString.Substring(0, parameter.Size);
                 var escapedString = EscapeString(trimmedString);
-                return string.Format("'{0}'", escapedString);
+                return $"'{escapedString}'";
             }
+
+            if(parameter.BigQueryDbType == BigQueryDbType.DateTime) {
+                return parameter.Value.ToInvariantString("DATETIME('{0:yyyy-MM-dd HH:mm:ss.ffffff}')");
+            }
+
             string format = parameter.BigQueryDbType == BigQueryDbType.Timestamp 
                 ? "TIMESTAMP('{0:u}')" 
                 : "{0}";
@@ -158,9 +162,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// the nesting depth of the current data row.
         /// </value>
-        public override int Depth {
-            get { return 0; }
-        }
+        public override int Depth => 0;
 
         /// <summary>
         /// Indicates whether the current BigQueryDataReader is closed.
@@ -168,9 +170,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// true, if the current BigQueryDataReader is closed; otherwise false.
         /// </value>
-        public override bool IsClosed {
-            get { return disposed; }
-        }
+        public override bool IsClosed => disposed;
 
         /// <summary>
         /// Returns the total count of data records affected by executing a command. 
@@ -178,9 +178,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// the number of rows affected.
         /// </value>
-        public override int RecordsAffected {
-            get { return 0; }
-        }
+        public override int RecordsAffected => 0;
 
         /// <summary>
         /// Gets a value of the System.Boolean type from the specified column.
@@ -373,9 +371,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// The number of visible columns in the reader.
         /// </value>
-        public override int VisibleFieldCount {
-            get { return FieldCount; }
-        }
+        public override int VisibleFieldCount => FieldCount;
 
         /// <summary>
         /// Gets the total number of columns in the current row.
@@ -473,7 +469,7 @@ namespace DevExpress.DataAccess.BigQuery {
             Type fieldType = BigQueryTypeConverter.ToType(type);
             if(fieldType != null)
                 return fieldType;
-            throw new ArgumentOutOfRangeException("ordinal", ordinal, "No field with ordinal");
+            throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, "No field with ordinal");
         }
 
         /// <summary>
@@ -527,9 +523,7 @@ namespace DevExpress.DataAccess.BigQuery {
             if(disposed)
                 return;
             if(disposing) {
-                if(enumerator != null) {
-                    enumerator.Dispose();
-                }
+                enumerator?.Dispose();
             }
             disposed = true;
             base.Dispose(disposing);
@@ -559,9 +553,7 @@ namespace DevExpress.DataAccess.BigQuery {
             return request;
         }
 
-        bool IsLegacySql {
-            get { return bigQueryCommand.Connection.IsLegacySql; }
-        }
+        bool IsLegacySql => bigQueryCommand.Connection.IsLegacySql;
 
         void ProcessQueryResponse(QueryResponse queryResponse) {
             if(queryResponse.JobComplete.HasValue && !queryResponse.JobComplete.Value) {

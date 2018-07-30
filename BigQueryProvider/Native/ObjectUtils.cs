@@ -2,11 +2,7 @@
 
 namespace DevExpress.DataAccess.BigQuery.Native {
     public static class ObjectUtils {
-        public static string ToInvariantString(this object value) {
-            return ToInvariantString(value, "{0}");
-        }
-
-        public static string ToInvariantString(this object value, string format) {
+        public static string ToInvariantString(this object value, string format = "{0}") {
             return string.Format(CultureInfo.InvariantCulture, format, value);
         }
     }

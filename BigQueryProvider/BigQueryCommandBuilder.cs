@@ -45,8 +45,8 @@ namespace DevExpress.DataAccess.BigQuery {
         /// A BigQueryDataAdapter object.
         /// </value>
         public new BigQueryDataAdapter DataAdapter {
-            get { return (BigQueryDataAdapter)base.DataAdapter; }
-            set { DataAdapter = value; }
+            get => (BigQueryDataAdapter)base.DataAdapter;
+            set => base.DataAdapter = value;
         }
 
         /// <summary>

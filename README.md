@@ -18,7 +18,7 @@ BigQueryProvider
   The BigQueryProvider is built upon the API provided by the **Google.Apis.Bigquery.v2** library and implements the full client-side functionality required to interact with BigQuery datasets.  It uses mechanisms common for all ADO.NET data providers and allows you to utilize the same data binding approaches that you use when connecting to data via standard ADO.NET data providers
 
 # Requirements
-  The BigQueryProvider requires the .NET Framework version 4.5 or higher. The **Google.Apis.Bigquery.v2** library and all its dependencies are required to build the BigQueryProvider from source and should be deployed with the final application.
+  The BigQueryProvider requires the .NET Framework version 4.6.1 or higher. The **Google.Apis.Bigquery.v2** library and all its dependencies are required to build the BigQueryProvider from source and should be deployed with the final application.
 
 # Installation
   The BigQueryProvider is available as a NuGet package. You can download it and install it into your Visual Studio project using the following steps.

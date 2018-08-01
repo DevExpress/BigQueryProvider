@@ -63,7 +63,7 @@ using(var connection = new BigQueryConnection(@"ProjectID=myProject;
                                                 DataSetId=myDataSet;
                                                 OAuthClientId=myClientId;
                                                 OAuthClientSecret=mySecret;
-                                                OAuthRefreshToken=myRefreshToken")
+                                                OAuthRefreshToken=myRefreshToken"))
                                                  {
     connection.Open();
     using(var command = new BigQueryCommand()) {

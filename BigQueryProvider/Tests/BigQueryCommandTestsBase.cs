@@ -192,23 +192,117 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 using(var dbDataReader = dbCommand.ExecuteReader()) {
                     object[] values = new object[dbDataReader.FieldCount];
 
-                    dbDataReader.Read();
+                    Assert.True(dbDataReader.Read());
                     dbDataReader.GetValues(values);
                     Assert.Equal(DateTime.Parse("23:59:59"), values[0]);
                     Assert.Equal(DateTime.Parse("1970-01-24"), values[1]);
                     Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
                     Assert.Equal(DateTime.Parse("9999-12-31T23:59:59"), values[3]);
 
-                    dbDataReader.Read();
+                    Assert.True(dbDataReader.Read());
                     dbDataReader.GetValues(values);
                     Assert.Equal(DateTime.Parse("23:59:59.999999"), values[0]);
                     Assert.Equal(DateTime.Parse("1980-01-01"), values[1]);
-                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
+                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:01"), values[2]);
                     Assert.Equal(DateTime.Parse("9999-12-31T23:59:59.999999"), values[3]);
+
+                    Assert.False(dbDataReader.Read());
                 }
             }
         }
+        
+        [Fact]
+        public void DateTimeParameterTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText =
+                    $"select * from {connection.DataSetId}.{TestingInfrastructureHelper.TimesTableName} where datetime = @p1"; 
+                dbCommand.Parameters.Add(new BigQueryParameter("p1", BigQueryDbType.DateTime) {Value = DateTime.Parse("9999-12-31T23:59:59")});
 
+                using(var dbDataReader = dbCommand.ExecuteReader()) {
+                    object[] values = new object[dbDataReader.FieldCount];
+
+                    Assert.True(dbDataReader.Read());
+                    
+                    dbDataReader.GetValues(values);
+                    Assert.Equal(DateTime.Parse("23:59:59"), values[0]);
+                    Assert.Equal(DateTime.Parse("1970-01-24"), values[1]);
+                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
+                    Assert.Equal(DateTime.Parse("9999-12-31T23:59:59"), values[3]);
+                    
+                    Assert.False(dbDataReader.Read());
+                }
+            }
+        }        
+
+        [Fact]
+        public void TimestampParameterTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText =
+                    $"select * from {connection.DataSetId}.{TestingInfrastructureHelper.TimesTableName} where timestamp = @p1"; 
+                dbCommand.Parameters.Add(new BigQueryParameter("p1", BigQueryDbType.Timestamp) {Value = DateTime.Parse("2016-10-19 00:08:00")});
+
+                using(var dbDataReader = dbCommand.ExecuteReader()) {
+                    object[] values = new object[dbDataReader.FieldCount];
+
+                    Assert.True(dbDataReader.Read());
+                    
+                    dbDataReader.GetValues(values);
+                    Assert.Equal(DateTime.Parse("23:59:59"), values[0]);
+                    Assert.Equal(DateTime.Parse("1970-01-24"), values[1]);
+                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
+                    Assert.Equal(DateTime.Parse("9999-12-31T23:59:59"), values[3]);
+                    
+                    Assert.False(dbDataReader.Read());
+                }
+            }
+        }        
+        
+        [Fact]
+        public void TimeParameterTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText =
+                    $"select * from {connection.DataSetId}.{TestingInfrastructureHelper.TimesTableName} where time = @p1"; 
+                dbCommand.Parameters.Add(new BigQueryParameter("p1", BigQueryDbType.Time) {Value = DateTime.Parse("23:59:59")});
+
+                using(var dbDataReader = dbCommand.ExecuteReader()) {
+                    object[] values = new object[dbDataReader.FieldCount];
+
+                    Assert.True(dbDataReader.Read());
+                    
+                    dbDataReader.GetValues(values);
+                    Assert.Equal(DateTime.Parse("23:59:59"), values[0]);
+                    Assert.Equal(DateTime.Parse("1970-01-24"), values[1]);
+                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
+                    Assert.Equal(DateTime.Parse("9999-12-31T23:59:59"), values[3]);
+                    
+                    Assert.False(dbDataReader.Read());
+                }
+            }
+        }        
+
+        [Fact]
+        public void DateParameterTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText =
+                    $"select * from {connection.DataSetId}.{TestingInfrastructureHelper.TimesTableName} where date = @p1"; 
+                dbCommand.Parameters.Add(new BigQueryParameter("p1", BigQueryDbType.Date) {Value = DateTime.Parse("1970-01-24")});
+
+                using(var dbDataReader = dbCommand.ExecuteReader()) {
+                    object[] values = new object[dbDataReader.FieldCount];
+
+                    Assert.True(dbDataReader.Read());
+                    
+                    dbDataReader.GetValues(values);
+                    Assert.Equal(DateTime.Parse("23:59:59"), values[0]);
+                    Assert.Equal(DateTime.Parse("1970-01-24"), values[1]);
+                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
+                    Assert.Equal(DateTime.Parse("9999-12-31T23:59:59"), values[3]);
+                    
+                    Assert.False(dbDataReader.Read());
+                }
+            }
+        }        
+        
         public void Dispose() {
             connection.Close();
         }
@@ -250,7 +344,11 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         protected override string PatchConnectionString(string connectionString) {
-            return connectionString;
+            var dbConnectionStringBuilder = new DbConnectionStringBuilder {
+                ConnectionString = connectionString,
+                ["LegacySql"] = "false"
+            };
+            return dbConnectionStringBuilder.ConnectionString;
         }
     }
 }

@@ -35,6 +35,9 @@ namespace DevExpress.DataAccess.BigQuery {
         #region static
 
         static string PrepareParameterValue(BigQueryParameter parameter) {
+            if(parameter?.Value == null)
+                return null;
+            
             if(parameter.BigQueryDbType == BigQueryDbType.String) {
                 var invariantString = parameter.Value.ToInvariantString();
                 var trimmedString = invariantString.Substring(0, parameter.Size);
@@ -42,16 +45,51 @@ namespace DevExpress.DataAccess.BigQuery {
                 return $"'{escapedString}'";
             }
 
-            if(parameter.BigQueryDbType == BigQueryDbType.DateTime) {
-                return parameter.Value.ToInvariantString("DATETIME('{0:yyyy-MM-dd HH:mm:ss.ffffff}')");
-            }
+            string format = "{0}";
 
-            string format = parameter.BigQueryDbType == BigQueryDbType.Timestamp 
-                ? "TIMESTAMP('{0:u}')" 
-                : "{0}";
-            return parameter.Value.ToInvariantString(format);
+            switch(parameter.BigQueryDbType) {
+                case BigQueryDbType.DateTime:
+                    format = "cast('{0}' as DATETIME)";
+                    break;
+                case BigQueryDbType.Date:
+                    format = "cast('{0}' as DATE)";
+                    break;
+                case BigQueryDbType.Time:
+                    format = "cast('{0}' as TIME)";
+                    break;
+                case BigQueryDbType.Timestamp:
+                    format = "cast('{0}' as TIMESTAMP)";
+                    break;
+            } 
+            
+            return FormatParameterValue(parameter).ToInvariantString(format);
         }
 
+        static string FormatParameterValue(BigQueryParameter parameter) {
+            if(parameter?.Value == null)
+                return null;
+            
+            string format = "{0}";
+
+            switch(parameter.BigQueryDbType) {
+                case BigQueryDbType.DateTime:
+                    format = "{0:yyyy-MM-dd HH:mm:ss.ffffff}";
+                    break;
+                case BigQueryDbType.Date:
+                    format = "{0:yyyy-MM-dd}";
+                    break;
+                case BigQueryDbType.Time:
+                    format = "{0:HH:mm:ss.ffffff}";
+                    break;
+                case BigQueryDbType.Timestamp:
+                    format = "{0:u}";
+                    break;
+            } 
+            
+            return parameter.Value.ToInvariantString(format);
+        }
+        
+        
         static string EscapeString(string invariantString) {
             return invariantString
                 .Replace(@"\", @"\\")
@@ -541,10 +579,13 @@ namespace DevExpress.DataAccess.BigQuery {
             if(!IsLegacySql) {
                 queryRequest.QueryParameters = new List<QueryParameter>();
                 foreach(BigQueryParameter parameter in collection) {
-                    var queryParameter = new QueryParameter();
-                    queryParameter.Name = parameter.ParameterName;
-                    queryParameter.ParameterType = new QueryParameterType {Type = BigQueryTypeConverter.ToParameterStringType(parameter.BigQueryDbType)};
-                    queryParameter.ParameterValue = new QueryParameterValue() { Value = parameter.Value?.ToString() };
+                    var queryParameter = new QueryParameter {
+                        Name = parameter.ParameterName,
+                        ParameterType = new QueryParameterType {
+                            Type = BigQueryTypeConverter.ToParameterStringType(parameter.BigQueryDbType)
+                        },
+                        ParameterValue = new QueryParameterValue {Value = FormatParameterValue(parameter)}
+                    };
                     queryRequest.QueryParameters.Add(queryParameter);
                 }
             }

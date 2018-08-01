@@ -324,7 +324,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         protected override string PatchConnectionString(string connectionString) {
             var dbConnectionStringBuilder = new DbConnectionStringBuilder {
                 ConnectionString = connectionString,
-                ["LegacySql"] = "true"
+                ["StandardSql"] = "false"
             };
             return dbConnectionStringBuilder.ConnectionString;
         }
@@ -346,7 +346,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         protected override string PatchConnectionString(string connectionString) {
             var dbConnectionStringBuilder = new DbConnectionStringBuilder {
                 ConnectionString = connectionString,
-                ["LegacySql"] = "false"
+                ["StandardSql"] = "true"
             };
             return dbConnectionStringBuilder.ConnectionString;
         }

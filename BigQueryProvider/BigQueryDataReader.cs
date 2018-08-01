@@ -34,7 +34,7 @@ namespace DevExpress.DataAccess.BigQuery {
     public class BigQueryDataReader : DbDataReader {
         #region static
 
-        static string PrepareParameterValue(BigQueryParameter parameter) {
+        static string ConvertToStringForLegacySql(BigQueryParameter parameter) {
             if(parameter?.Value == null)
                 return null;
             
@@ -62,10 +62,10 @@ namespace DevExpress.DataAccess.BigQuery {
                     break;
             } 
             
-            return FormatParameterValue(parameter).ToInvariantString(format);
+            return ConvertToString(parameter).ToInvariantString(format);
         }
 
-        static string FormatParameterValue(BigQueryParameter parameter) {
+        static string ConvertToString(BigQueryParameter parameter) {
             if(parameter?.Value == null)
                 return null;
             
@@ -125,6 +125,8 @@ namespace DevExpress.DataAccess.BigQuery {
             bigQueryService = service;
             bigQueryCommand = command;
         }
+        
+        bool IsStandardSql => bigQueryCommand.Connection.IsStandardSql;
 
         /// <summary>
         /// Closes the current BigQueryDataReader.
@@ -569,14 +571,14 @@ namespace DevExpress.DataAccess.BigQuery {
 
         JobsResource.QueryRequest CreateRequest() {
             BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
-            if(IsLegacySql) {
+            if(!IsStandardSql) {
                 foreach(BigQueryParameter parameter in collection) {
-                    bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter));
+                    bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), ConvertToStringForLegacySql(parameter));
                 }    
             }
 
-            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue, UseLegacySql = IsLegacySql };
-            if(!IsLegacySql) {
+            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue, UseLegacySql = !IsStandardSql };
+            if(IsStandardSql) {
                 queryRequest.QueryParameters = new List<QueryParameter>();
                 foreach(BigQueryParameter parameter in collection) {
                     var queryParameter = new QueryParameter {
@@ -584,7 +586,7 @@ namespace DevExpress.DataAccess.BigQuery {
                         ParameterType = new QueryParameterType {
                             Type = BigQueryTypeConverter.ToParameterStringType(parameter.BigQueryDbType)
                         },
-                        ParameterValue = new QueryParameterValue {Value = FormatParameterValue(parameter)}
+                        ParameterValue = new QueryParameterValue {Value = ConvertToString(parameter)}
                     };
                     queryRequest.QueryParameters.Add(queryParameter);
                 }
@@ -593,8 +595,6 @@ namespace DevExpress.DataAccess.BigQuery {
             JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
             return request;
         }
-
-        bool IsLegacySql => bigQueryCommand.Connection.IsLegacySql;
 
         void ProcessQueryResponse(QueryResponse queryResponse) {
             if(queryResponse.JobComplete.HasValue && !queryResponse.JobComplete.Value) {
@@ -634,11 +634,11 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         string GetLead() {
-            return IsLegacySql ? "[" : "`";
+            return IsStandardSql ? "`" : "[";
         }
         
         string GetEnd() {
-            return IsLegacySql ? "]" : "`";
+            return IsStandardSql ? "`" : "]";
         }
 
         void DisposeCheck() {
@@ -648,7 +648,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         void RangeCheck(int index) {
             if(index < 0 || fieldsCount <= index)
-                throw new IndexOutOfRangeException("index out of range");
+                throw new IndexOutOfRangeException($"{nameof(index)} out of range");
         }
 
         ~BigQueryDataReader() {

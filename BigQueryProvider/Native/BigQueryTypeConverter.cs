@@ -31,7 +31,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             new Tuple<DbType, BigQueryDbType>(DbType.DateTime, BigQueryDbType.Timestamp),
             new Tuple<DbType, BigQueryDbType>(DbType.Single, BigQueryDbType.Float),
             new Tuple<DbType, BigQueryDbType>(DbType.Int64, BigQueryDbType.Integer),
-            new Tuple<DbType, BigQueryDbType>(DbType.Object, BigQueryDbType.Unknown),
+            new Tuple<DbType, BigQueryDbType>(DbType.Object, BigQueryDbType.Unknown)
         }; 
 
         static readonly Tuple<Type, DbType>[] TypeToDbTypePairs = {
@@ -47,7 +47,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
             new Tuple<Type, DbType>(typeof(short), DbType.Int64),
             new Tuple<Type, DbType>(typeof(int), DbType.Int64),
             new Tuple<Type, DbType>(typeof(uint), DbType.Int64),
-            new Tuple<Type, DbType>(typeof(ushort), DbType.Int64),
+            new Tuple<Type, DbType>(typeof(ushort), DbType.Int64)
         };
  
         static readonly Tuple<string, Type>[] StringToTypePairs = {
@@ -106,8 +106,8 @@ namespace DevExpress.DataAccess.BigQuery.Native {
         public static Type ToType(DbType dbType) {
             return TypeToDbTypePairs.FindLeftPairFor(dbType);
         }
-        
-        public static string ToStringType(BigQueryDbType dbType) {
+
+        static string ToStringType(BigQueryDbType dbType) {
             return StringToBigQueryDbTypePairs.FindLeftPairFor(dbType);
         }
 

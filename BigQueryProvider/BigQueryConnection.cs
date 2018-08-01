@@ -268,12 +268,12 @@ namespace DevExpress.DataAccess.BigQuery {
             }
         }
         
-        internal bool IsLegacySql {
+        internal bool IsStandardSql {
             get {
-                if(connectionStringBuilder.ContainsKey("LegacySql") &&
-                   bool.TryParse((string)connectionStringBuilder["LegacySql"], out bool result)) return result;
+                if(connectionStringBuilder.ContainsKey("StandardSql") &&
+                   bool.TryParse((string)connectionStringBuilder["StandardSql"], out bool result)) return result;
 
-                return true;
+                return false;
             }
         }
 
@@ -283,7 +283,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         string ServiceAccountEmail => connectionStringBuilder.ContainsKey("ServiceAccountEmail") ? (string)connectionStringBuilder["ServiceAccountEmail"] : string.Empty;
 
-        string PrivateKeyFileName => connectionStringBuilder.ContainsKey("PrivateKeyFileName") ? (string)connectionStringBuilder["PrivateKeyFileName"] : String.Empty;
+        string PrivateKeyFileName => connectionStringBuilder.ContainsKey("PrivateKeyFileName") ? (string)connectionStringBuilder["PrivateKeyFileName"] : string.Empty;
 
         bool IsOpened => state == ConnectionState.Open;
 
@@ -345,7 +345,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
             return new BigqueryService(new BaseClientService.Initializer {
                 HttpClientInitializer = credential,
-                ApplicationName = applicationName,
+                ApplicationName = applicationName
             });
         }
 

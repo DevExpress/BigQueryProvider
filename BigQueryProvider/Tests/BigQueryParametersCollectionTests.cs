@@ -125,7 +125,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void AddRangeTest() {
             var collection = new BigQueryParameterCollection();
-            var arrayOfParameters = new[] {param0, param1, param2,};
+            var arrayOfParameters = new[] {param0, param1, param2};
             collection.AddRange(arrayOfParameters);
             Assert.Equal(arrayOfParameters.Length, collection.Count);
             for(int i = 0; i < arrayOfParameters.Length; i++) {

@@ -254,7 +254,7 @@ namespace DevExpress.DataAccess.BigQuery {
                 IsNullable = IsNullable,
                 DbType = DbType,
                 BigQueryDbType = BigQueryDbType,
-                Size = Size,
+                Size = Size
             };
             return parameter;
         }

@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -45,8 +45,8 @@ namespace DevExpress.DataAccess.BigQuery {
         /// A BigQueryDataAdapter object.
         /// </value>
         public new BigQueryDataAdapter DataAdapter {
-            get { return (BigQueryDataAdapter)base.DataAdapter; }
-            set { DataAdapter = value; }
+            get => (BigQueryDataAdapter)base.DataAdapter;
+            set => base.DataAdapter = value;
         }
 
         /// <summary>

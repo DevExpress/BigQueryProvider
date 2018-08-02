@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -42,9 +42,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// the number of elements in the collection.
         /// </value>
-        public override int Count {
-            get { return innerList.Count; }
-        }
+        public override int Count => innerList.Count;
 
         /// <summary>
         /// indicates whether access to the current BigQueryParameterCollection collection is synchronized.
@@ -52,7 +50,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         ///  true if access is synchronized; otherwise, false.
         /// </value>
-        public override bool IsSynchronized { get { return false; } }
+        public override bool IsSynchronized => false;
 
         /// <summary>
         /// Gets an object that can be used to synchronize access to the BigQueryParameterCollection.
@@ -75,9 +73,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// true if the collection is a fixed size; otherwise false.
         /// </value>
-        public override bool IsFixedSize {
-            get { return false; }
-        }
+        public override bool IsFixedSize => false;
 
         /// <summary>
         /// Indicates whether the collection is read-only.
@@ -85,9 +81,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// true if the collection is read-only; otherwise false.
         /// </value>
-        public override bool IsReadOnly {
-            get { return false; }
-        }
+        public override bool IsReadOnly => false;
 
         /// <summary>
         /// Adds a new parameter to the collection.
@@ -172,7 +166,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <returns>The position into which the new element was inserted, or -1 to indicate that the item was not inserted into the collection.</returns>
         public override int Add(object parameter) {
             if(parameter == null)
-                throw new ArgumentNullException("parameter");
+                throw new ArgumentNullException(nameof(parameter));
             ValidateType(parameter);
             innerList.Add((BigQueryParameter)parameter);
             return Count - 1;

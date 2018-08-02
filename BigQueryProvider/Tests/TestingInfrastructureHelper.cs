@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -174,8 +174,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             using (
                 Stream stream =
                     Assembly.GetExecutingAssembly()
-                        .GetManifestResourceStream(string.Format("DevExpress.DataAccess.BigQuery.Tests.{0}.csv",
-                            table.TableReference.TableId))) {
+                        .GetManifestResourceStream(
+                            $"DevExpress.DataAccess.BigQuery.Tests.{table.TableReference.TableId}.csv")) {
                 var insertMediaUpload = new JobsResource.InsertMediaUpload(connection.Service,
                     job, job.JobReference.ProjectId, stream, "application/octet-stream");
                 insertMediaUpload.Upload();

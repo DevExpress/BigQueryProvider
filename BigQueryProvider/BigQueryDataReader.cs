@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -33,25 +33,63 @@ namespace DevExpress.DataAccess.BigQuery {
     /// </summary>
     public class BigQueryDataReader : DbDataReader {
         #region static
-        static string PrepareCommandText(BigQueryCommand command) {
-            return command.CommandType == CommandType.TableDirect 
-                ? string.Format("SELECT * FROM [{0}.{1}]", command.Connection.DataSetId, command.CommandText) 
-                : command.CommandText;
-        }
 
-        static string PrepareParameterValue(BigQueryParameter parameter) {
+        static string ConvertToStringForLegacySql(BigQueryParameter parameter) {
+            if(parameter?.Value == null)
+                return null;
+            
             if(parameter.BigQueryDbType == BigQueryDbType.String) {
                 var invariantString = parameter.Value.ToInvariantString();
                 var trimmedString = invariantString.Substring(0, parameter.Size);
                 var escapedString = EscapeString(trimmedString);
-                return string.Format("'{0}'", escapedString);
+                return $"'{escapedString}'";
             }
-            string format = parameter.BigQueryDbType == BigQueryDbType.Timestamp 
-                ? "TIMESTAMP('{0:u}')" 
-                : "{0}";
-            return parameter.Value.ToInvariantString(format);
+
+            string format = "{0}";
+
+            switch(parameter.BigQueryDbType) {
+                case BigQueryDbType.DateTime:
+                    format = "cast('{0}' as DATETIME)";
+                    break;
+                case BigQueryDbType.Date:
+                    format = "cast('{0}' as DATE)";
+                    break;
+                case BigQueryDbType.Time:
+                    format = "cast('{0}' as TIME)";
+                    break;
+                case BigQueryDbType.Timestamp:
+                    format = "cast('{0}' as TIMESTAMP)";
+                    break;
+            } 
+            
+            return ConvertToString(parameter).ToInvariantString(format);
         }
 
+        static string ConvertToString(BigQueryParameter parameter) {
+            if(parameter?.Value == null)
+                return null;
+            
+            string format = "{0}";
+
+            switch(parameter.BigQueryDbType) {
+                case BigQueryDbType.DateTime:
+                    format = "{0:yyyy-MM-dd HH:mm:ss.ffffff}";
+                    break;
+                case BigQueryDbType.Date:
+                    format = "{0:yyyy-MM-dd}";
+                    break;
+                case BigQueryDbType.Time:
+                    format = "{0:HH:mm:ss.ffffff}";
+                    break;
+                case BigQueryDbType.Timestamp:
+                    format = "{0:u}";
+                    break;
+            } 
+            
+            return parameter.Value.ToInvariantString(format);
+        }
+        
+        
         static string EscapeString(string invariantString) {
             return invariantString
                 .Replace(@"\", @"\\")
@@ -87,6 +125,8 @@ namespace DevExpress.DataAccess.BigQuery {
             bigQueryService = service;
             bigQueryCommand = command;
         }
+        
+        bool IsStandardSql => bigQueryCommand.Connection.IsStandardSql;
 
         /// <summary>
         /// Closes the current BigQueryDataReader.
@@ -162,9 +202,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// the nesting depth of the current data row.
         /// </value>
-        public override int Depth {
-            get { return 0; }
-        }
+        public override int Depth => 0;
 
         /// <summary>
         /// Indicates whether the current BigQueryDataReader is closed.
@@ -172,9 +210,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// true, if the current BigQueryDataReader is closed; otherwise false.
         /// </value>
-        public override bool IsClosed {
-            get { return disposed; }
-        }
+        public override bool IsClosed => disposed;
 
         /// <summary>
         /// Returns the total count of data records affected by executing a command. 
@@ -182,9 +218,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// the number of rows affected.
         /// </value>
-        public override int RecordsAffected {
-            get { return 0; }
-        }
+        public override int RecordsAffected => 0;
 
         /// <summary>
         /// Gets a value of the System.Boolean type from the specified column.
@@ -377,9 +411,7 @@ namespace DevExpress.DataAccess.BigQuery {
         /// <value>
         /// The number of visible columns in the reader.
         /// </value>
-        public override int VisibleFieldCount {
-            get { return FieldCount; }
-        }
+        public override int VisibleFieldCount => FieldCount;
 
         /// <summary>
         /// Gets the total number of columns in the current row.
@@ -477,7 +509,7 @@ namespace DevExpress.DataAccess.BigQuery {
             Type fieldType = BigQueryTypeConverter.ToType(type);
             if(fieldType != null)
                 return fieldType;
-            throw new ArgumentOutOfRangeException("ordinal", ordinal, "No field with ordinal");
+            throw new ArgumentOutOfRangeException(nameof(ordinal), ordinal, "No field with ordinal");
         }
 
         /// <summary>
@@ -531,9 +563,7 @@ namespace DevExpress.DataAccess.BigQuery {
             if(disposed)
                 return;
             if(disposing) {
-                if(enumerator != null) {
-                    enumerator.Dispose();
-                }
+                enumerator?.Dispose();
             }
             disposed = true;
             base.Dispose(disposing);
@@ -541,10 +571,27 @@ namespace DevExpress.DataAccess.BigQuery {
 
         JobsResource.QueryRequest CreateRequest() {
             BigQueryParameterCollection collection = (BigQueryParameterCollection)bigQueryCommand.Parameters;
-            foreach(BigQueryParameter parameter in collection) {
-                bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), PrepareParameterValue(parameter));
+            if(!IsStandardSql) {
+                foreach(BigQueryParameter parameter in collection) {
+                    bigQueryCommand.CommandText = bigQueryCommand.CommandText.Replace(parameterPrefix + parameter.ParameterName.TrimStart(parameterPrefix), ConvertToStringForLegacySql(parameter));
+                }    
             }
-            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue };
+
+            QueryRequest queryRequest = new QueryRequest { Query = PrepareCommandText(bigQueryCommand), TimeoutMs = bigQueryCommand.CommandTimeout != 0 ? (int)TimeSpan.FromSeconds(bigQueryCommand.CommandTimeout).TotalMilliseconds : int.MaxValue, UseLegacySql = !IsStandardSql };
+            if(IsStandardSql) {
+                queryRequest.QueryParameters = new List<QueryParameter>();
+                foreach(BigQueryParameter parameter in collection) {
+                    var queryParameter = new QueryParameter {
+                        Name = parameter.ParameterName,
+                        ParameterType = new QueryParameterType {
+                            Type = BigQueryTypeConverter.ToParameterStringType(parameter.BigQueryDbType)
+                        },
+                        ParameterValue = new QueryParameterValue {Value = ConvertToString(parameter)}
+                    };
+                    queryRequest.QueryParameters.Add(queryParameter);
+                }
+            }
+            
             JobsResource.QueryRequest request = bigQueryService.Jobs.Query(queryRequest, bigQueryCommand.Connection.ProjectId);
             return request;
         }
@@ -579,6 +626,20 @@ namespace DevExpress.DataAccess.BigQuery {
 
             return Convert.ChangeType(value, BigQueryTypeConverter.ToType(schema.Fields[ordinal].Type), CultureInfo.InvariantCulture);
         }
+        
+        string PrepareCommandText(BigQueryCommand command) {
+            return command.CommandType == CommandType.TableDirect 
+                       ? $"SELECT * FROM {GetLead()}{command.Connection.DataSetId}.{command.CommandText}{GetEnd()}" 
+                       : command.CommandText;
+        }
+
+        string GetLead() {
+            return IsStandardSql ? "`" : "[";
+        }
+        
+        string GetEnd() {
+            return IsStandardSql ? "`" : "]";
+        }
 
         void DisposeCheck() {
             if(disposed)
@@ -587,7 +648,7 @@ namespace DevExpress.DataAccess.BigQuery {
 
         void RangeCheck(int index) {
             if(index < 0 || fieldsCount <= index)
-                throw new IndexOutOfRangeException("index out of range");
+                throw new IndexOutOfRangeException($"{nameof(index)} out of range");
         }
 
         ~BigQueryDataReader() {

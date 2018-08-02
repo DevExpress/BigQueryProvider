@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -73,13 +73,13 @@ namespace DevExpress.DataAccess.BigQuery {
         /// A BigQuery command used to obtain rows from a BigQuery data table.
         /// </value>
         public new BigQueryCommand SelectCommand {
-            get { return (BigQueryCommand)base.SelectCommand; }
-            set { base.SelectCommand = value; }
+            get => (BigQueryCommand)base.SelectCommand;
+            set => base.SelectCommand = value;
         }
 
         public new BigQueryCommand DeleteCommand {
-            get { return (BigQueryCommand)base.DeleteCommand; }
-            set { base.DeleteCommand = value; }
+            get => (BigQueryCommand)base.DeleteCommand;
+            set => base.DeleteCommand = value;
         }
 
         /// <summary>
@@ -89,8 +89,8 @@ namespace DevExpress.DataAccess.BigQuery {
         /// A BigQuery command used to insert rows into a BigQuery data table.
         /// </value>
         public new BigQueryCommand InsertCommand {
-            get { return (BigQueryCommand)base.InsertCommand; }
-            set { base.InsertCommand = value; }
+            get => (BigQueryCommand)base.InsertCommand;
+            set => base.InsertCommand = value;
         }
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace DevExpress.DataAccess.BigQuery {
         /// A BigQuery command used to update rows of a BigQuery data table.
         /// </value>
         public new BigQueryCommand UpdateCommand {
-            get { return (BigQueryCommand)base.UpdateCommand; }
-            set { base.UpdateCommand = value; }
+            get => (BigQueryCommand)base.UpdateCommand;
+            set => base.UpdateCommand = value;
         }
 
         protected override RowUpdatingEventArgs CreateRowUpdatingEvent(DataRow dataRow, IDbCommand command, StatementType statementType, DataTableMapping tableMapping) {
@@ -113,15 +113,13 @@ namespace DevExpress.DataAccess.BigQuery {
         }
 
         protected override void OnRowUpdating(RowUpdatingEventArgs value) {
-            BigQueryRowUpdatingEventArgs args = value as BigQueryRowUpdatingEventArgs;
-            if(RowUpdating != null && (args != null)) {
+            if(RowUpdating != null && value is BigQueryRowUpdatingEventArgs args) {
                 RowUpdating(this, args);
             }
         }
 
         protected override void OnRowUpdated(RowUpdatedEventArgs value) {
-            BigQueryRowUpdatedEventArgs args = value as BigQueryRowUpdatedEventArgs;
-            if(RowUpdated != null && (args != null)) {
+            if(RowUpdated != null && value is BigQueryRowUpdatedEventArgs args) {
                 RowUpdated(this, args);
             }
         }

@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 return true;
             if(x == null || y == null)
                 return false;
-            if(x.ItemArray.Count() != y.ItemArray.Count())
+            if(x.ItemArray.Length != y.ItemArray.Length)
                 return false;
             IEnumerator xEnumerator = x.ItemArray.GetEnumerator();
             IEnumerator yEnumerator = y.ItemArray.GetEnumerator();

@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -85,10 +85,10 @@ namespace DevExpress.DataAccess.BigQuery {
         /// </value>
         [DefaultValue(defaultTimeout)]
         public override int CommandTimeout {
-            get { return commandTimeout; }
+            get => commandTimeout;
             set {
                 if(value < 0)
-                    throw new ArgumentOutOfRangeException("value", value, "CommandTimeout can't be less than zero");
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "CommandTimeout can't be less than zero");
                 commandTimeout = value;
             }
         }
@@ -101,10 +101,10 @@ namespace DevExpress.DataAccess.BigQuery {
         /// </value>
         [DefaultValue(CommandType.Text)]
         public override CommandType CommandType {
-            get { return commandType; }
+            get => commandType;
             set {
                 if(value == CommandType.StoredProcedure)
-                    throw new ArgumentOutOfRangeException("value", value, "BigQuery does not support stored procedures");
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "BigQuery does not support stored procedures");
                 commandType = value;
             }
         }
@@ -116,8 +116,8 @@ namespace DevExpress.DataAccess.BigQuery {
         /// An UpdateRowSource enumeration value.
         /// </value>
         public override UpdateRowSource UpdatedRowSource {
-            get { throw new NotSupportedException(); }
-            set { throw new NotSupportedException(); }
+            get => throw new NotSupportedException();
+            set => throw new NotSupportedException();
         }
 
         /// <summary>
@@ -143,8 +143,8 @@ namespace DevExpress.DataAccess.BigQuery {
         /// true, if the command object should be visible in a control; otherwise false.
         /// </value>
         public override bool DesignTimeVisible {
-            get { return false; }
-            set { throw new NotSupportedException(); }
+            get => false;
+            set => throw new NotSupportedException();
         }
 
         /// <summary>
@@ -219,13 +219,11 @@ namespace DevExpress.DataAccess.BigQuery {
         public override void Cancel() { }
 
         protected override DbConnection DbConnection {
-            get { return Connection; }
-            set { Connection = (BigQueryConnection)value; }
+            get => Connection;
+            set => Connection = (BigQueryConnection)value;
         }
 
-        protected override DbParameterCollection DbParameterCollection {
-            get { return bigQueryParameterCollection; }
-        }
+        protected override DbParameterCollection DbParameterCollection => bigQueryParameterCollection;
 
         protected override DbTransaction DbTransaction { get; set; }
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
    Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +15,16 @@
 */
 
 #if DEBUGTEST
-using System.Configuration;
-
 namespace DevExpress.DataAccess.BigQuery.Tests {
-    public static class ConnectionStringHelper {
-        public static string OAuthConnectionString {
-            get { return ConfigurationManager.ConnectionStrings["bigqueryConnectionStringOAuth"].ConnectionString; }
+    public class LegacySqlBigQueryCommandTestsJson : LegacySqlBigQueryCommandTests {
+        protected override string GetConnectionString() {
+            return ConnectionStringHelper.JsonConnectionString;
         }
-        
-        public static string P12ConnectionString {
-            get { return ConfigurationManager.ConnectionStrings["bigqueryConnectionStringP12"].ConnectionString; }
-        }
-        
-        public static string JsonConnectionString {
-            get { return ConfigurationManager.ConnectionStrings["bigqueryConnectionStringJson"].ConnectionString; }
+    }
+    
+    public class StandardSqlBigQueryCommandTestsJson : StandardSqlBigQueryCommandTests {
+        protected override string GetConnectionString() {
+            return ConnectionStringHelper.JsonConnectionString;
         }
     }
 }

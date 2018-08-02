@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -51,7 +51,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
 
         public Task StoreAsync<T>(string key, T value) {
             if(string.IsNullOrEmpty(key))
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
 
             jsonContent = NewtonsoftJsonSerializer.Instance.Serialize(value);
 
@@ -60,7 +60,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
 
         public Task DeleteAsync<T>(string key) {
             if(string.IsNullOrEmpty(key))
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
 
             jsonContent = null;
             return Task.Delay(0);
@@ -68,7 +68,7 @@ namespace DevExpress.DataAccess.BigQuery.Native {
 
         public Task<T> GetAsync<T>(string key) {
             if(string.IsNullOrEmpty(key))
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
 
             TaskCompletionSource<T> tcs = new TaskCompletionSource<T>();
             try {

@@ -1,5 +1,5 @@
 ﻿/*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -16,9 +16,7 @@
 
 #if DEBUGTEST
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using Xunit;
 
 namespace DevExpress.DataAccess.BigQuery.Tests {

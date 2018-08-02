@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -25,10 +25,13 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
     public abstract class BigQueryCommandTestsBase : IDisposable {
         readonly BigQueryConnection connection;
         readonly DataTable natalitySchemaTable;
-        const string commandText = "SELECT * FROM [testdata." + TestingInfrastructureHelper.NatalityTableName + "] LIMIT 10";
-        const string commandTextWithFilter = "SELECT * FROM [testdata." + TestingInfrastructureHelper.Natality2TableName + "] WHERE {0} LIMIT 10";
+        
+        readonly string commandText;
+        readonly string commandTextWithFilter;
+
+        const string dataSetName = "testdata";
         const string filterByString = "state = @state";
-        const string filterByBool = "mother_married = @mother_married";
+        const string filterByBool = "mother_married = @mothermarried";
         const string filterByNull = "mother_married = null";
         const string injectedViaSingleQuotesValue = "CA' or 1=1--";
         const string injectedViaDoubleQuotesValue = @"CA"" or 1=1--";
@@ -37,6 +40,11 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         const bool trueValue = true;
 
         protected abstract string GetConnectionString();
+        protected abstract string PatchConnectionString(string connectionString);
+
+        protected abstract string Escape(string identifier);
+        protected abstract string FormatTable(params string[] parts);
+        protected abstract string FormatColumn(params string[] parts);
 
         protected BigQueryCommandTestsBase() {
             natalitySchemaTable = new DataTable();
@@ -45,7 +53,13 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             natalitySchemaTable.Rows.Add("weight_pounds", typeof (float));
             natalitySchemaTable.Rows.Add("is_male", typeof (bool));
 
-            connection = new BigQueryConnection(GetConnectionString());
+            #region consts
+
+            commandText = $"select * from {FormatTable(dataSetName, TestingInfrastructureHelper.NatalityTableName)} limit 10";
+            commandTextWithFilter = $"select * from {FormatTable(dataSetName, TestingInfrastructureHelper.Natality2TableName)} where {{0}} limit 10";
+            #endregion
+            
+            connection = new BigQueryConnection(PatchConnectionString(GetConnectionString()));
             connection.Open();
         }
 
@@ -74,7 +88,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void ExecuteReaderTest_TypeTableDirect() {
             using(var dbCommand = connection.CreateCommand()) {
-                dbCommand.CommandText = "natality";
+                dbCommand.CommandText = TestingInfrastructureHelper.NatalityTableName;
                 dbCommand.CommandType = CommandType.TableDirect;
                 var dbDataReader = dbCommand.ExecuteReader();
                 Assert.NotNull(dbDataReader);
@@ -105,7 +119,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void ExecuteScalarReaderTest() {
             using(var dbCommand = connection.CreateCommand()) {
-                dbCommand.CommandText = "select 1 from [testdata.natality]";
+                dbCommand.CommandText = $"select 1 from {FormatTable(dataSetName, TestingInfrastructureHelper.NatalityTableName)}";
                 var executeScalarResult = dbCommand.ExecuteScalar();
                 Assert.NotNull(executeScalarResult);
                 Assert.Equal(1, int.Parse(executeScalarResult.ToString()));
@@ -115,7 +129,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public async void ExecuteScalarReaderTest_Async() {
             using (var dbCommand = connection.CreateCommand()) {
-                dbCommand.CommandText = "select 1 from [testdata.natality]";
+                dbCommand.CommandText = $"select 1 from {FormatTable(dataSetName, TestingInfrastructureHelper.NatalityTableName)}";
                 var executeScalarResult = await dbCommand.ExecuteScalarAsync();
                 Assert.NotNull(executeScalarResult);
                 Assert.Equal(1, int.Parse(executeScalarResult.ToString()));
@@ -144,11 +158,10 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
 
         [Theory]
         [InlineData(filterByString, "state", normalValue, true)]
-        [InlineData(filterByString, "@state", normalValue, true)]
         [InlineData(filterByString, "state", injectedViaSingleQuotesValue, false)]
         [InlineData(filterByString, "state", injectedViaDoubleQuotesValue, false)]
         [InlineData(filterByString, "state", injectedViaBackSlashesValue, false)]
-        [InlineData(filterByBool, "mother_married", trueValue, true)]
+        [InlineData(filterByBool, "mothermarried", trueValue, true)]
         public void RunCommandWithParameterTest(string filterString, string parameterName, object parameterValue, bool exceptedReadResult) {
             using(var dbCommand = connection.CreateCommand()) {
                 var param = dbCommand.CreateParameter();
@@ -171,15 +184,6 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
 
         [Fact]
-        public void FilterByNullTest() {
-            using(var dbCommand = connection.CreateCommand()) {
-                dbCommand.CommandText = string.Format(commandTextWithFilter, filterByNull);
-                var reader = dbCommand.ExecuteReader(CommandBehavior.Default);
-                Assert.False(reader.HasRows, "Fix issue #119");
-            }
-        }
-
-        [Fact]
         public void TimesTest() {
             using(var dbCommand = connection.CreateCommand()) {
                 dbCommand.CommandText = TestingInfrastructureHelper.TimesTableName;
@@ -188,25 +192,163 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 using(var dbDataReader = dbCommand.ExecuteReader()) {
                     object[] values = new object[dbDataReader.FieldCount];
 
-                    dbDataReader.Read();
+                    Assert.True(dbDataReader.Read());
                     dbDataReader.GetValues(values);
                     Assert.Equal(DateTime.Parse("23:59:59"), values[0]);
                     Assert.Equal(DateTime.Parse("1970-01-24"), values[1]);
                     Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
                     Assert.Equal(DateTime.Parse("9999-12-31T23:59:59"), values[3]);
 
-                    dbDataReader.Read();
+                    Assert.True(dbDataReader.Read());
                     dbDataReader.GetValues(values);
                     Assert.Equal(DateTime.Parse("23:59:59.999999"), values[0]);
                     Assert.Equal(DateTime.Parse("1980-01-01"), values[1]);
-                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
+                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:01"), values[2]);
                     Assert.Equal(DateTime.Parse("9999-12-31T23:59:59.999999"), values[3]);
+
+                    Assert.False(dbDataReader.Read());
                 }
             }
         }
+        
+        [Fact]
+        public void DateTimeParameterTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText =
+                    $"select * from {connection.DataSetId}.{TestingInfrastructureHelper.TimesTableName} where datetime = @p1"; 
+                dbCommand.Parameters.Add(new BigQueryParameter("p1", BigQueryDbType.DateTime) {Value = DateTime.Parse("9999-12-31T23:59:59")});
 
+                using(var dbDataReader = dbCommand.ExecuteReader()) {
+                    object[] values = new object[dbDataReader.FieldCount];
+
+                    Assert.True(dbDataReader.Read());
+                    
+                    dbDataReader.GetValues(values);
+                    Assert.Equal(DateTime.Parse("23:59:59"), values[0]);
+                    Assert.Equal(DateTime.Parse("1970-01-24"), values[1]);
+                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
+                    Assert.Equal(DateTime.Parse("9999-12-31T23:59:59"), values[3]);
+                    
+                    Assert.False(dbDataReader.Read());
+                }
+            }
+        }        
+
+        [Fact]
+        public void TimestampParameterTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText =
+                    $"select * from {connection.DataSetId}.{TestingInfrastructureHelper.TimesTableName} where timestamp = @p1"; 
+                dbCommand.Parameters.Add(new BigQueryParameter("p1", BigQueryDbType.Timestamp) {Value = DateTime.Parse("2016-10-19 00:08:00")});
+
+                using(var dbDataReader = dbCommand.ExecuteReader()) {
+                    object[] values = new object[dbDataReader.FieldCount];
+
+                    Assert.True(dbDataReader.Read());
+                    
+                    dbDataReader.GetValues(values);
+                    Assert.Equal(DateTime.Parse("23:59:59"), values[0]);
+                    Assert.Equal(DateTime.Parse("1970-01-24"), values[1]);
+                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
+                    Assert.Equal(DateTime.Parse("9999-12-31T23:59:59"), values[3]);
+                    
+                    Assert.False(dbDataReader.Read());
+                }
+            }
+        }        
+        
+        [Fact]
+        public void TimeParameterTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText =
+                    $"select * from {connection.DataSetId}.{TestingInfrastructureHelper.TimesTableName} where time = @p1"; 
+                dbCommand.Parameters.Add(new BigQueryParameter("p1", BigQueryDbType.Time) {Value = DateTime.Parse("23:59:59")});
+
+                using(var dbDataReader = dbCommand.ExecuteReader()) {
+                    object[] values = new object[dbDataReader.FieldCount];
+
+                    Assert.True(dbDataReader.Read());
+                    
+                    dbDataReader.GetValues(values);
+                    Assert.Equal(DateTime.Parse("23:59:59"), values[0]);
+                    Assert.Equal(DateTime.Parse("1970-01-24"), values[1]);
+                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
+                    Assert.Equal(DateTime.Parse("9999-12-31T23:59:59"), values[3]);
+                    
+                    Assert.False(dbDataReader.Read());
+                }
+            }
+        }        
+
+        [Fact]
+        public void DateParameterTest() {
+            using(var dbCommand = connection.CreateCommand()) {
+                dbCommand.CommandText =
+                    $"select * from {connection.DataSetId}.{TestingInfrastructureHelper.TimesTableName} where date = @p1"; 
+                dbCommand.Parameters.Add(new BigQueryParameter("p1", BigQueryDbType.Date) {Value = DateTime.Parse("1970-01-24")});
+
+                using(var dbDataReader = dbCommand.ExecuteReader()) {
+                    object[] values = new object[dbDataReader.FieldCount];
+
+                    Assert.True(dbDataReader.Read());
+                    
+                    dbDataReader.GetValues(values);
+                    Assert.Equal(DateTime.Parse("23:59:59"), values[0]);
+                    Assert.Equal(DateTime.Parse("1970-01-24"), values[1]);
+                    Assert.Equal(DateTime.Parse("2016-10-19 00:08:00"), values[2]);
+                    Assert.Equal(DateTime.Parse("9999-12-31T23:59:59"), values[3]);
+                    
+                    Assert.False(dbDataReader.Read());
+                }
+            }
+        }        
+        
         public void Dispose() {
             connection.Close();
+        }
+    }
+
+    public abstract class LegacySqlBigQueryCommandTests : BigQueryCommandTestsBase {
+        protected override string Escape(string identifier) {
+            return $"[{identifier}]";
+        }
+
+        protected override string FormatTable(params string[] parts) {
+            return Escape(string.Join(".", parts));
+        }
+
+        protected override string FormatColumn(params string[] parts) {
+            throw new NotImplementedException();
+        }
+
+        protected override string PatchConnectionString(string connectionString) {
+            var dbConnectionStringBuilder = new DbConnectionStringBuilder {
+                ConnectionString = connectionString,
+                ["StandardSql"] = "false"
+            };
+            return dbConnectionStringBuilder.ConnectionString;
+        }
+    }
+    
+    public abstract class StandardSqlBigQueryCommandTests : BigQueryCommandTestsBase {
+        protected override string Escape(string identifier) {
+            return $"`{identifier}`";
+        }
+
+        protected override string FormatTable(params string[] parts) {
+            return Escape(string.Join(".", parts));
+        }
+
+        protected override string FormatColumn(params string[] parts) {
+            throw new NotImplementedException();
+        }
+
+        protected override string PatchConnectionString(string connectionString) {
+            var dbConnectionStringBuilder = new DbConnectionStringBuilder {
+                ConnectionString = connectionString,
+                ["StandardSql"] = "true"
+            };
+            return dbConnectionStringBuilder.ConnectionString;
         }
     }
 }

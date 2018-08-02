@@ -1,5 +1,5 @@
 /*
-   Copyright 2015-2017 Developer Express Inc.
+   Copyright 2015-2018 Developer Express Inc.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             Collection = paramCollection;
         }
 
-        public BigQueryParameterCollection Collection { get; set; }
+        public BigQueryParameterCollection Collection { get; }
 
         [Fact]
         public void RemoveTest() {
@@ -93,8 +93,8 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
             var paramCollection = new BigQueryParameterCollection();
             Assert.Equal(0, paramCollection.Count);
             Assert.Empty(paramCollection);
-            Assert.Equal(false, paramCollection.IsFixedSize);
-            Assert.Equal(false, paramCollection.IsReadOnly);
+            Assert.False(paramCollection.IsFixedSize);
+            Assert.False(paramCollection.IsReadOnly);
         }
 
         [Fact]
@@ -125,7 +125,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         [Fact]
         public void AddRangeTest() {
             var collection = new BigQueryParameterCollection();
-            var arrayOfParameters = new[] {param0, param1, param2,};
+            var arrayOfParameters = new[] {param0, param1, param2};
             collection.AddRange(arrayOfParameters);
             Assert.Equal(arrayOfParameters.Length, collection.Count);
             for(int i = 0; i < arrayOfParameters.Length; i++) {

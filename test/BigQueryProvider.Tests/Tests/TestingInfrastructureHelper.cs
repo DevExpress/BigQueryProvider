@@ -14,7 +14,6 @@
    limitations under the License.
 */
 
-#if DEBUGTEST
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,7 +27,7 @@ using Xunit;
 namespace DevExpress.DataAccess.BigQuery.Tests {
     public class TestingInfrastructureHelper : IDisposable {
         public TestingInfrastructureHelper() {
-            connection = new BigQueryConnection(ConnectionStringHelper.P12ConnectionString);
+            connection = new BigQueryConnection(ConnectionStringHelper.JsonConnectionString);
             connection.Open();
         }
 
@@ -175,7 +174,7 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
                 Stream stream =
                     Assembly.GetExecutingAssembly()
                         .GetManifestResourceStream(
-                            $"DevExpress.DataAccess.BigQuery.Tests.{table.TableReference.TableId}.csv")) {
+                            $"DevExpress.DataAccess.BigQuery.Tests.Tests.{table.TableReference.TableId}.csv")) {
                 var insertMediaUpload = new JobsResource.InsertMediaUpload(connection.Service,
                     job, job.JobReference.ProjectId, stream, "application/octet-stream");
                 insertMediaUpload.Upload();
@@ -272,4 +271,3 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
     }
 }
-#endif

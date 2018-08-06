@@ -14,7 +14,6 @@
    limitations under the License.
 */
 
-#if DEBUGTEST
 namespace DevExpress.DataAccess.BigQuery.Tests {
     public class LegacySqlBigQueryCommandTestsJson : LegacySqlBigQueryCommandTests {
         protected override string GetConnectionString() {
@@ -28,4 +27,3 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
     }
 }
-#endif

@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>DevExpress.DataAccess.BigQuery</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <RootNamespace>DevExpress.DataAccess.BigQuery</RootNamespace>
+    <Configurations>Debug;Release</Configurations>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>TRACE;Release;NETSTANDARD2_0</DefineConstants>
+    <DocumentationFile>bin\Release\netstandard2.0\DevExpress.DataAccess.BigQuery.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="DevExpress.DataAccess.BigQuery.nuspec" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Remove="Tests\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.Bigquery.v2" Version="1.34.0.1239" />
+  </ItemGroup>
+</Project>

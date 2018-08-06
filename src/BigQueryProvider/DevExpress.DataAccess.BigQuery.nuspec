@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>DevExpress.DataAccess.BigQuery</id>
-    <version>1.3.0.0</version>
+    <version>1.4.0.0</version>
     <title>DevExpress.DataAccess.BigQuery</title>
     <authors>DevExpress</authors>
     <owners>DevExpress</owners>
@@ -19,8 +19,8 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="bin\$configuration$\DevExpress.DataAccess.BigQuery.dll" target="lib\net461\" />
-    <file src="bin\$configuration$\DevExpress.DataAccess.BigQuery.pdb" target="lib\net461\" />
-    <file src="bin\$configuration$\DevExpress.DataAccess.BigQuery.xml" target="lib\net461\" />
+    <file src="bin\$configuration$\DevExpress.DataAccess.BigQuery.dll" target="lib\netstandard2.0\" />
+    <file src="bin\$configuration$\DevExpress.DataAccess.BigQuery.pdb" target="lib\netstandard2.0\" />
+    <file src="bin\$configuration$\DevExpress.DataAccess.BigQuery.xml" target="lib\netstandard2.0\" />
   </files>
 </package>

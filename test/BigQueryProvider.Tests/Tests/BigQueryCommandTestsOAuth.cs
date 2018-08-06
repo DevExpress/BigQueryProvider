@@ -14,22 +14,16 @@
    limitations under the License.
 */
 
-#if DEBUGTEST
-using System.Configuration;
-
 namespace DevExpress.DataAccess.BigQuery.Tests {
-    public static class ConnectionStringHelper {
-        public static string OAuthConnectionString {
-            get { return ConfigurationManager.ConnectionStrings["bigqueryConnectionStringOAuth"].ConnectionString; }
+    public class LegacySqlBigQueryCommandTestsOAuth : LegacySqlBigQueryCommandTests {
+        protected override string GetConnectionString() {
+            return ConnectionStringHelper.OAuthConnectionString;
         }
-        
-        public static string P12ConnectionString {
-            get { return ConfigurationManager.ConnectionStrings["bigqueryConnectionStringP12"].ConnectionString; }
-        }
-        
-        public static string JsonConnectionString {
-            get { return ConfigurationManager.ConnectionStrings["bigqueryConnectionStringJson"].ConnectionString; }
+    }
+    
+    public class StandardSqlBigQueryCommandTestsOAuth : StandardSqlBigQueryCommandTests {
+        protected override string GetConnectionString() {
+            return ConnectionStringHelper.OAuthConnectionString;
         }
     }
 }
-#endif

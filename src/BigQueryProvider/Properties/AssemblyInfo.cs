@@ -16,11 +16,13 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
+[assembly:InternalsVisibleTo("DevExpress.DataAccess.BigQuery.Tests")]
 [assembly: AssemblyTitle("DevExpress.DataAccess.BigQuery")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Developer Express Inc.")]
 [assembly: AssemblyProduct("DevExpress.DataAccess.BigQuery")]
 [assembly: AssemblyCopyright("Copyright ©  2015-2018")]
 [assembly: AssemblyTrademark("")]
@@ -28,5 +30,5 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion("1.3.0.0")]
-[assembly: AssemblyFileVersion("1.3.0.0")]
+[assembly: AssemblyVersion("1.4.0.0")]
+[assembly: AssemblyFileVersion("1.4.0.0")]

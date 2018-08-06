@@ -14,7 +14,6 @@
    limitations under the License.
 */
 
-#if DEBUGTEST
 using System;
 using System.Data;
 using System.Data.Common;
@@ -352,4 +351,3 @@ namespace DevExpress.DataAccess.BigQuery.Tests {
         }
     }
 }
-#endif

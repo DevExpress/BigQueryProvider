@@ -17,9 +17,6 @@
     <None Remove="DevExpress.DataAccess.BigQuery.nuspec" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Remove="Tests\**" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Google.Apis.Bigquery.v2" Version="1.34.0.1239" />
   </ItemGroup>
 </Project>

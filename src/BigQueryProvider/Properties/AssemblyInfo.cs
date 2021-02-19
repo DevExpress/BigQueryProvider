@@ -24,7 +24,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Developer Express Inc.")]
 [assembly: AssemblyProduct("DevExpress.DataAccess.BigQuery")]
-[assembly: AssemblyCopyright("Copyright ©  2015-2018")]
+[assembly: AssemblyCopyright("Copyright ©  2015-2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

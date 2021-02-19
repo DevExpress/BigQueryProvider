@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/DevExpress/BigQueryProvider</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Google BigQuery ADO.NET provider</description>
-    <copyright>Copyright 2015-2017</copyright>
+    <copyright>Copyright 2015-2021</copyright>
     <tags>DevExpress Google BigQuery</tags>
     <dependencies>
       <group targetFramework="netstandard2.0">

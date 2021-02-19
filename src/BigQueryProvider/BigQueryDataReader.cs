@@ -164,10 +164,9 @@ namespace DevExpress.DataAccess.BigQuery {
 
             try {
                 Table tableSchema = bigQueryService.Tables.Get(projectId, dataSetId, tableId).Execute();
-                if(tableSchema.Schema.Fields != null)
-                    foreach(var tableFieldSchema in tableSchema.Schema.Fields) {
-                        dataTable.Rows.Add(tableFieldSchema.Name, BigQueryTypeConverter.ToType(tableFieldSchema.Type));
-                    }
+                foreach(var tableFieldSchema in tableSchema.Schema.Fields) {
+                    dataTable.Rows.Add(tableFieldSchema.Name, BigQueryTypeConverter.ToType(tableFieldSchema.Type));
+                }
             }
             catch(GoogleApiException e) {
                 throw e.Wrap();

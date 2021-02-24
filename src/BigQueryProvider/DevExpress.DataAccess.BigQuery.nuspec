@@ -8,9 +8,10 @@
     <owners>DevExpress</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <projectUrl>https://github.com/DevExpress/BigQueryProvider</projectUrl>
+    <iconUrl>https://secure.gravatar.com/avatar/6b38f1e9ffd8b069bcdc2741934fdbcf?s=512&amp;r=g</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Google BigQuery ADO.NET provider</description>
-    <copyright>Copyright 2015-2017</copyright>
+    <copyright>Copyright 2015-2021</copyright>
     <tags>DevExpress Google BigQuery</tags>
     <dependencies>
       <group targetFramework="netstandard2.0">

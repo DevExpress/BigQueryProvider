@@ -1,3 +1,7 @@
+⛔ DEPRECATED. The DevExpress BigQueryProvider driver is no longer maintained and supported. Use Google's official ODBC driver to obtain BigQuery data in your .NET apps. Refer to the following breaking change for more information: [https://supportcenter.devexpress.com/ticket/details/t1082645](https://supportcenter.devexpress.com/ticket/details/t1082645)
+
+-----
+
 BigQueryProvider
 ===
 
